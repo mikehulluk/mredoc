@@ -164,7 +164,7 @@ class LatexWriter(VisitorBase):
     def _VisitHeading(self, n, **kwargs):
         return "\%s{%s}\n"%(heading_by_depth[self.hierachy_depth], self.Visit(n.heading) )
 
-    def _VisitParagraph(self, n, **kwargs):
+    def _VisitRichTextContainer(self, n, **kwargs):
         return "".join( [ self.Visit(c) for c in n.children])
 
     def _VisitParagraphBlock(self, n, **kwargs):

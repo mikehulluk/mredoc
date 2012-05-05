@@ -73,7 +73,7 @@ class ActionerBase(VisitorBase):
         self._ActionHeading( n, **kwargs)
         self.Visit(n.heading, **kwargs)
         
-    def _VisitParagraph(self, n, **kwargs):
+    def _VisitRichTextContainer(self, n, **kwargs):
         self._ActionParagraph( n, **kwargs)
         for c in n.children:
             self.Visit(c, **kwargs)

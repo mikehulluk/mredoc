@@ -291,7 +291,7 @@ class HTMLWriter(VisitorBase):
             self.Visit(n.eqn)
 
 
-    def _VisitParagraph(self, n, **kwargs):
+    def _VisitRichTextContainer(self, n, **kwargs):
         for c in n.children:
             self.Visit(c)
 

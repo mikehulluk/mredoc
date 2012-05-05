@@ -256,7 +256,7 @@ class ParagraphBlock(DocumentBlockObject):
 
 class RichTextContainer(DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
-        return v._VisitParagraph(self, **kwargs)
+        return v._VisitRichTextContainer(self, **kwargs)
     def __init__(self, *children):
         
         strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)

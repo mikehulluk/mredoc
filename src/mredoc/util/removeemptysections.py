@@ -88,7 +88,7 @@ class EmptySectionRemover(VisitorBase):
         return True
         raise NotImplementedError()
 
-    def _VisitParagraph(self, n, **kwargs):
+    def _VisitRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
 
     def _VisitText(self, **kwargs):
