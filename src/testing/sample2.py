@@ -12,7 +12,7 @@ from mredoc import Figure, ImageFile, Equation
 from mredoc import LatexWriter
 from mredoc import HTMLWriter
 from mredoc import EquationBlock, PythonBlock, VerbatimBlock, RichTextContainer, Link
-from mredoc.objects.core import ListItem, List, ParagraphBlock
+from mredoc.objects.core import ListItem, List, Paragraph
 from mredoc import HeadedScopeNewPage, Ref
 from mredoc.visitors import BlockNumberer
 
@@ -85,7 +85,7 @@ summary = Document(
             PythonBlock(code1, reflabel="C1", caption="Python Code Block"),
             VerbatimBlock(op1, ),
             Figure( fig , caption="Some heading for the sin figure", reflabel="O4"),
-            ParagraphBlock( "We can use ", Ref("C1"), " to produce the graphs, for example, ", Ref("O4") )
+            Paragraph( "We can use ", Ref("C1"), " to produce the graphs, for example, ", Ref("O4") )
             ),
         HeadedScopeNewPage("Other Functions",
             """There are some other functions that we can also use""",

@@ -78,8 +78,8 @@ class ActionerBase(VisitorBase):
         for c in n.children:
             self.Visit(c, **kwargs)
     
-    def _VisitParagraphBlock(self, n, **kwargs):
-        self._ActionParagraphBlock( n, **kwargs)
+    def _VisitParagraph(self, n, **kwargs):
+        self._ActionParagraph( n, **kwargs)
         self.Visit(n.contents, **kwargs)
         #for c in n.children:
         #    self.Visit(c, **kwargs)
@@ -148,7 +148,7 @@ class ActionerBase(VisitorBase):
     def _ActionRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
     
-    def _ActionParagraphBlock(self, n, **kwargs):
+    def _ActionParagraph(self, n, **kwargs):
         raise NotImplementedError()
 
     def _ActionText(self, **kwargs):

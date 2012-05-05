@@ -87,7 +87,7 @@ class BlockNumberer(ActionerBase, dict):
 
     def _ActionRichTextContainer(self, n, **kwargs):
         pass
-    def _ActionParagraphBlock(self, n, **kwargs):
+    def _ActionParagraph(self, n, **kwargs):
         pass
 
     def _ActionText(self, **kwargs):

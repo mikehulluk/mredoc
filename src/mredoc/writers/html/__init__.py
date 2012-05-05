@@ -295,7 +295,7 @@ class HTMLWriter(VisitorBase):
         for c in n.children:
             self.Visit(c)
 
-    def _VisitParagraphBlock(self, n, **kwargs):
+    def _VisitParagraph(self, n, **kwargs):
         with self.xml.div(**{'class':'parablock'} ) :
             with self.xml.p:
                 self.Visit(n.contents)

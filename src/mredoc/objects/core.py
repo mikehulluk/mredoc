@@ -210,7 +210,7 @@ class HierachyScope(DocumentBlockObject):
         strs_to_para = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         children = strs_to_para( flatten(children))
 
-        #Concatenate consecutive 'RichTextContainer' objects into a larger 'ParagraphBlock'
+        #Concatenate consecutive 'RichTextContainer' objects into a larger 'Paragraph'
         blocks = []
         current_para_block = None
         for c in children:
@@ -220,7 +220,7 @@ class HierachyScope(DocumentBlockObject):
                 current_para_block.append(c)
             else:
                 if current_para_block:
-                    blocks.append( ParagraphBlock(*current_para_block))
+                    blocks.append( Paragraph(*current_para_block))
                     current_para_block = None
                 blocks.append(c)
 
@@ -242,9 +242,9 @@ class Heading(DocumentBlockObject):
 
 
 
-class ParagraphBlock(DocumentBlockObject):
+class Paragraph(DocumentBlockObject):
     def _AcceptVisitor(self,v,**kwargs):
-        return v._VisitParagraphBlock(self, **kwargs)
+        return v._VisitParagraph(self, **kwargs)
     def __init__(self, *children):
         DocumentBlockObject.__init__(self,caption=None, reflabel=None)
         if len(children) == 1 and isinstance(children[0], RichTextContainer):

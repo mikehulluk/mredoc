@@ -59,7 +59,7 @@ class VisitorBase(object):
     def _VisitRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
     
-    def _VisitParagraphBlock(self, n, **kwargs):
+    def _VisitParagraph(self, n, **kwargs):
         raise NotImplementedError()
 
     def _VisitText(self,n, **kwargs):
