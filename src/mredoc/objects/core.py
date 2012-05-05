@@ -43,13 +43,12 @@ from types import NoneType
 
 
 
-"""
-MReDoc is a simple object model representing simple documents composed of text,
-images, tables and code listings. It is designed as a simple interface for
-generating out summaries of simulations of models in computational
-neuroscience. Other libraries, (e.g. Reportlab, Sphinx), have more comprehensive
-APIs for fonts customisation, MRedoc is more focused on a simple set of objects
-that can be simply embedded within each other.
+""" MReDoc is a simple object model representing simple documents composed of
+text, images, tables, equations and code listings. It is designed as a simple
+interface for generating out summaries of simulations of models in
+computational neuroscience. Other libraries, (e.g. Reportlab, Sphinx), have
+more comprehensive APIs for fonts customisation, MRedoc is more focused on a
+simple set of objects that can be simply embedded within each other.
 
 
 A Document is a tree of elements. Once the tree has been built, it can be
@@ -253,11 +252,13 @@ class ParagraphBlock(DocumentBlockObject):
         self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), ParagraphObject )
 
 
-class Paragraph(DocumentBlockObject):
+
+
+class Paragraph(DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitParagraph(self, **kwargs)
     def __init__(self, *children):
-        DocumentBlockObject.__init__(self,caption=None, reflabel=None)
+        
         strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
         self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), ParagraphObject )
