@@ -74,7 +74,7 @@ class ActionerBase(VisitorBase):
         self.Visit(n.heading, **kwargs)
         
     def _VisitRichTextContainer(self, n, **kwargs):
-        self._ActionParagraph( n, **kwargs)
+        self._ActionRichTextContainer( n, **kwargs)
         for c in n.children:
             self.Visit(c, **kwargs)
     
@@ -145,7 +145,7 @@ class ActionerBase(VisitorBase):
     def _ActionHeading(self, n, **kwargs):
         raise NotImplementedError()
 
-    def _ActionParagraph(self, n, **kwargs):
+    def _ActionRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
     
     def _ActionParagraphBlock(self, n, **kwargs):
