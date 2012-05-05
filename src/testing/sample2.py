@@ -11,7 +11,7 @@ from mredoc import Figure, ImageFile, Equation
 
 from mredoc import LatexWriter
 from mredoc import HTMLWriter
-from mredoc import EquationBlock, PythonBlock, VerbatimBlock, Paragraph, Link
+from mredoc import EquationBlock, PythonBlock, VerbatimBlock, RichTextContainer, Link
 from mredoc.objects.core import ListItem, List, ParagraphBlock
 from mredoc import HeadedScopeNewPage, Ref
 from mredoc.visitors import BlockNumberer

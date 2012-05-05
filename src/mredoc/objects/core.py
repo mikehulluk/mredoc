@@ -85,13 +85,13 @@ class Languages:
 
 def ensure_Paragraph(obj):
     if isinstance(obj, RichTextObject):
-        return Paragraph(obj)
+        return RichTextContainer(obj)
     elif isinstance(obj,Equation):
-        return Paragraph(obj)
-    elif isinstance(obj,  Paragraph):
+        return RichTextContainer(obj)
+    elif isinstance(obj,  RichTextContainer):
         return obj
     elif isinstance(obj, basestring):
-        return Paragraph( Text(obj) )
+        return RichTextContainer( Text(obj) )
     else:
         print obj, type(obj)
         assert False
@@ -191,8 +191,8 @@ class DocumentRoot(DocumentObject):
 
 class DocumentBlockObject(DocumentObject):
     def __init__(self, caption, reflabel):
-        para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=Paragraph )
-        self.caption = check_type( para_builder(caption), Paragraph) if caption else None
+        para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=RichTextContainer )
+        self.caption = check_type( para_builder(caption), RichTextContainer) if caption else None
         self.reflabel = reflabel
         self.number = None
 
@@ -210,7 +210,7 @@ class HierachyScope(DocumentBlockObject):
         strs_to_para = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         children = strs_to_para( flatten(children))
 
-        #Concatenate consecutive 'Paragraph' objects into a larger 'ParagraphBlock'
+        #Concatenate consecutive 'RichTextContainer' objects into a larger 'ParagraphBlock'
         blocks = []
         current_para_block = None
         for c in children:
@@ -232,8 +232,8 @@ class Heading(DocumentBlockObject):
         return v._VisitHeading(self, **kwargs)
     def __init__(self, heading):
         DocumentBlockObject.__init__(self,caption=None, reflabel=None)
-        str_to_para = lambda s: wrap_type(s, T=basestring, wrapper=Paragraph)
-        self.heading=check_type( str_to_para(heading), Paragraph)
+        str_to_para = lambda s: wrap_type(s, T=basestring, wrapper=RichTextContainer)
+        self.heading=check_type( str_to_para(heading), RichTextContainer)
 
 
 
@@ -254,7 +254,7 @@ class ParagraphBlock(DocumentBlockObject):
 
 
 
-class Paragraph(DocumentObject):
+class RichTextContainer(DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitParagraph(self, **kwargs)
     def __init__(self, *children):
@@ -322,8 +322,8 @@ class Figure(DocumentBlockObject):
         self.subfigs = check_seq_type( subfigs, Subfigure)
 
 
-        para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=Paragraph )
-        self.caption = check_type(para_builder(caption), Paragraph)
+        para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=RichTextContainer )
+        self.caption = check_type(para_builder(caption), RichTextContainer)
 
 
     def get_ref_str(self,):
@@ -399,8 +399,8 @@ class ListItem(DocumentObject):
         self.para = ensure_Paragraph(para)
         self.header = ensure_Paragraph(header) if header else None
 
-        assert isinstance(self.para,(Paragraph, NoneType) )
-        assert isinstance(self.header,(Paragraph, NoneType) )
+        assert isinstance(self.para,(RichTextContainer, NoneType) )
+        assert isinstance(self.header,(RichTextContainer, NoneType) )
 
 
 class CodeBlock(DocumentBlockObject):
