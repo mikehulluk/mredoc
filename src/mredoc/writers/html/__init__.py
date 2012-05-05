@@ -82,7 +82,7 @@ class HTMLWriter(VisitorBase):
             # Using the xmlwitch style does not work for this. I don't know why! To be investigated!
             self.xml.write(r"""<script type="text/x-mathjax-config"> MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}}); </script>""")
             self.xml.write(r"""<script src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' type='text/javascript'> </script> """)
-            self.xml.write(r"""<link rel="stylesheet" type="text/css" href="sheet1.css"/>""")
+            self.xml.write(r"""<link rel="stylesheet" type="text/css" href="defaultstyle.css"/>""")
 
     def _write_file(self, contents, relative_filename):
         with open(os.path.join( self.output_dir, relative_filename),"w") as f:
@@ -107,6 +107,13 @@ class HTMLWriter(VisitorBase):
 
         # Write the output:
         self._write_file( str( self.xml), "index.html" )
+
+        # Copy accross the CSS:
+        import os
+        path = os.path.abspath(__file__)
+        dir_path = os.path.dirname(path)
+        css_file = os.path.join(dir_path,"../../../resources/defaultstyle.css")
+        shutil.copy(css_file, self.output_dir)
 
     @property
     def xml(self):
