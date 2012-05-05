@@ -140,49 +140,43 @@ class HTMLWriter(VisitorBase):
 
 
 
-    def _VisitHierachyScope(self, n, **kwargs):
 
-
-        #Are we making a subpage, then lets
-        # setup a new xml object on the stack:
-        if n.is_new_page:
-            self.xmlstack.append( [self._new_html_witch_obj(), 0] )
-
-
-
-        # In either case, visit all the children
+    def _VisitHierachyScopeInternal(self, n):
+        block_type = "hierachyblock" if self.xmlstack[-1][1] != 0 else "pageblock"
         self.xmlstack[-1][1] += 1
-        block_type = "hierachyblock" if self.xmlstack[-1][1] != 1 else "pageblock"
         with self.xml.div(**{'class':block_type}) as d:
             for c in n.children:
                 self.Visit(c)
         self.xmlstack[-1][1] -= 1
 
-
-
-        # Write out this block and link to it:
+    def _VisitHierachyScope(self, n, **kwargs):
         if n.is_new_page:
-            xml_block, hierachy_depth = self.xmlstack.pop()
-            assert hierachy_depth == 0
+            self.xmlstack.append( [self._new_html_witch_obj(), 0] )
+            self._write_htmlheader_block()
+            with self.xml.body:
+                # In either case, visit all the children
+                self._VisitHierachyScopeInternal(n)
 
-            xml_block = str(xml_block)
+                # Write out this block and link to it:
+                xml_block, hierachy_depth = self.xmlstack.pop()
+                assert hierachy_depth == 0
 
-            # Write the new HTML file out:
-            fNameShort =  "f_%s.html"%hashlib.md5(xml_block).hexdigest()
-            self._write_file( xml_block, fNameShort )
+                xml_block = str(xml_block)
 
+                # Write the new HTML file out:
+                fNameShort =  "f_%s.html"%hashlib.md5(xml_block).hexdigest()
+                self._write_file( xml_block, fNameShort )
 
-            # Create a link in the local document:
-            with self.xml.a(href=fNameShort):
-                #a( None,
-
-                if isinstance(n,basestring):
-                    self.xml.write( n.is_new_page )
-                elif n.children and isinstance( n.children[0], Heading):
-                    self.Visit( n.children[0].heading )
-                else:
-                    self.xml.write("Link to UNKNOWN")
-
+                # Create a link in the local document:
+                with self.xml.a(href=fNameShort):
+                    if isinstance(n,basestring):
+                        self.xml.write( n.is_new_page )
+                    elif n.children and isinstance( n.children[0], Heading):
+                        self.Visit( n.children[0].heading )
+                    else:
+                        self.xml.write("Link to UNKNOWN")
+        else:
+            self._VisitHierachyScopeInternal(n)
 
 
 
@@ -273,6 +267,7 @@ class HTMLWriter(VisitorBase):
                 self.xml.write(r"\begin{align*}")
                 for e in n.equations:
                     self.Visit(e)
+                    self.xml.write(r"\\")
                 self.xml.write(r"\end{align*}")
 
             with self.xml.caption:
@@ -286,10 +281,11 @@ class HTMLWriter(VisitorBase):
 
 
     def _VisitInlineEquation(self, n):
-        with self.xml.span as d:
-            d( **{'class':"math-header"} )
+        with self.xml.span( **{'class':"math-header"} ):
+            self.xml.write("$")
+            
             self.Visit(n.eqn)
-
+            self.xml.write("$")
 
     def _VisitRichTextContainer(self, n, **kwargs):
         for c in n.children:
@@ -297,10 +293,7 @@ class HTMLWriter(VisitorBase):
 
     def _VisitParagraph(self, n, **kwargs):
         with self.xml.div(**{'class':'parablock'} ) :
-            with self.xml.p:
                 self.Visit(n.contents)
-                #for c in n.children:
-                #    self.Visit(c)
 
 
 
@@ -314,23 +307,19 @@ class HTMLWriter(VisitorBase):
              Languages.Python: PythonLexer,
                  }
         lexer = lexer_lut.get( n.language, None)
-
+        html = highlight(n.contents, PythonLexer(), HtmlFormatter()) if lexer else "<pre>%s</pre>"%n.contents
 
         with self.xml.div(**{"class":"codeblock"}) as d:
 
-
-
             with self.xml.div(**{"class":"codeblockcontents"}) as d:
-                html = highlight(n.contents, PythonLexer(), HtmlFormatter()) if lexer else "<pre>%s</pre>"%n.contents
                 self.xml.write(html)
-
-            # Caption:
+                
             with self.xml.div(**{"class":"codeblockcaption"}) as d:
                 self._write_block_captiontext(n)
 
 
     def _VisitList(self, n, **kwargs):
-        with self.xml.div(**{'class':'listblock'}) as d:
+        with self.xml.div(**{'class':'listblock'}):
             with self.xml.ul:
                 for c in n.children:
                     self.Visit(c)

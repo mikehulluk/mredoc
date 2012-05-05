@@ -95,6 +95,16 @@ summary = Document(
                 "arcos",
                 ['cosh - where cosh = kl;kl;',Equation("x+x=45")], 
             ),
+            ),
+            
+        HeadedScope("Hyperbolic functions",
+            """There are some other functions that we can also use""",
+            List(
+                "sinh",
+                "cosh",
+                "tanh",
+                ['cosh - where cosh = kl;kl;',Equation(r"x+x^2=\frac{45}{3}")], 
+            ),
             )
         )
     )
