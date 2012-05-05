@@ -80,8 +80,9 @@ class ActionerBase(VisitorBase):
     
     def _VisitParagraphBlock(self, n, **kwargs):
         self._ActionParagraphBlock( n, **kwargs)
-        for c in n.children:
-            self.Visit(c, **kwargs)
+        self.Visit(n.contents, **kwargs)
+        #for c in n.children:
+        #    self.Visit(c, **kwargs)
         
     def _VisitEquationBlock(self, n, **kwargs):
         self._ActionEquationBlock( n, **kwargs)

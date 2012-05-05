@@ -168,7 +168,7 @@ class LatexWriter(VisitorBase):
         return "".join( [ self.Visit(c) for c in n.children])
 
     def _VisitParagraphBlock(self, n, **kwargs):
-        return "".join( [ self.Visit(c) for c in n.children])
+        return self.Visit(n.contents)
 
     def _VisitText(self, n, **kwargs):
         return n.text

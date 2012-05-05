@@ -247,9 +247,10 @@ class ParagraphBlock(DocumentBlockObject):
         return v._VisitParagraphBlock(self, **kwargs)
     def __init__(self, *children):
         DocumentBlockObject.__init__(self,caption=None, reflabel=None)
-        strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
-        eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
-        self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), RichTextObject )
+        if len(children) == 1 and isinstance(children[0], RichTextContainer):
+            self.contents = children[0]
+        else:
+            self.contents = RichTextContainer(*children)
 
 
 
