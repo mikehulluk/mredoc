@@ -6,14 +6,14 @@ import pylab
 
 
 
-from mredoc import Document, HeadedScope
+from mredoc import Document, Section
 from mredoc import Figure, ImageFile, Equation
 
 from mredoc import LatexWriter
 from mredoc import HTMLWriter
 from mredoc import EquationBlock, PythonBlock, VerbatimBlock, RichTextContainer, Link
 from mredoc.objects.core import ListItem, List, Paragraph
-from mredoc import HeadedScopeNewPage, Ref
+from mredoc import SectionNewPage, Ref
 from mredoc.visitors import BlockNumberer
 
 
@@ -55,8 +55,8 @@ op1 = """Bing Bang BonG!"""
 
 summary = Document(
     
-    HeadedScope("Trigonometry from Wikipedia",
-        HeadedScope("Introduction",
+    Section("Trigonometry from Wikipedia",
+        Section("Introduction",
             """Much of this content is copied from """, Link("http://en.wikipedia.org/wiki/Trigonometry"),
             """Trigonometry is a branch of mathematics that studies triangles
             and the relationships between their sides and the angles between
@@ -80,14 +80,14 @@ summary = Document(
                 ),
                 
             ),
-        HeadedScope("In python",
+        Section("In python",
             """Python is awesome and lets us do lots of clever things!""",
             PythonBlock(code1, reflabel="C1", caption="Python Code Block"),
             VerbatimBlock(op1, ),
             Figure( fig , caption="Some heading for the sin figure", reflabel="O4"),
             Paragraph( "We can use ", Ref("C1"), " to produce the graphs, for example, ", Ref("O4") )
             ),
-        HeadedScopeNewPage("Other Related Functions",
+        SectionNewPage("Other Related Functions",
             """There are some other functions that we can also use""",
             List(
                 "cot",
@@ -97,7 +97,7 @@ summary = Document(
             ),
             ),
             
-        HeadedScope("Hyperbolic functions",
+        Section("Hyperbolic functions",
 			r"""In mathematics, hyperbolic functions are analogs of 
 			the ordinary trigonometric, or circular, functions. The 
 			basic hyperbolic functions are the hyperbolic sine 

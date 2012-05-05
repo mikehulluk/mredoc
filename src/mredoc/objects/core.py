@@ -528,11 +528,11 @@ class ImageFile(Image):
 
 
 # Syntactic Sugar:
-def HeadedScope(header, *children ):
+def Section(header, *children ):
     return HierachyScope( *itertools.chain( [Heading(header)], children) )
 
 # Syntactic Sugar:
-def HeadedScopeNewPage(header, *children):
+def SectionNewPage(header, *children):
     return HierachyScope( *itertools.chain( [Heading(header)], children), new_page=True )
 
 

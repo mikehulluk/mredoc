@@ -1,30 +1,30 @@
 
-from mhlibs.mredoc import Document, HeadedScope
+from mhlibs.mredoc import Document, Section
 from mhlibs.mredoc import LatexWriter
 from mhlibs.mredoc import HTMLWriter
 
 
 summary = Document(
     
-    HeadedScope("Simulation Results",
+    Section("Simulation Results",
 
-    HeadedScope(  "Overview",
-        HeadedScope( "Overview Diagram", ),
-        HeadedScope("Key Traces", ),
+    Section(  "Overview",
+        Section( "Overview Diagram", ),
+        Section("Key Traces", ),
         ),
-    HeadedScope( "Simulation Setup",
-        HeadedScope( "Population Overview"),
-        HeadedScope( "Cells"),
-        HeadedScope( "Synapses"),
-        HeadedScope( "Gap Junctions"),
-        HeadedScope( "Stimulations"),
-        HeadedScope( "Simulation Junctions"),
+    Section( "Simulation Setup",
+        Section( "Population Overview"),
+        Section( "Cells"),
+        Section( "Synapses"),
+        Section( "Gap Junctions"),
+        Section( "Stimulations"),
+        Section( "Simulation Junctions"),
         ),
-    HeadedScope( "Mechanism Dynamics",
-        HeadedScope( "Channel"),
-        HeadedScope( "Synapses"),
+    Section( "Mechanism Dynamics",
+        Section( "Channel"),
+        Section( "Synapses"),
         ),
-    HeadedScope( "Platform Details"),
+    Section( "Platform Details"),
     ) 
 )
 
