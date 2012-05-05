@@ -84,7 +84,7 @@ class Languages:
 
 
 def ensure_Paragraph(obj):
-    if isinstance(obj, ParagraphObject):
+    if isinstance(obj, RichTextObject):
         return Paragraph(obj)
     elif isinstance(obj,Equation):
         return Paragraph(obj)
@@ -191,7 +191,7 @@ class DocumentRoot(DocumentObject):
 
 class DocumentBlockObject(DocumentObject):
     def __init__(self, caption, reflabel):
-        para_builder = lambda s: wrap_type(s, T=(basestring,ParagraphObject, Equation), wrapper=Paragraph )
+        para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=Paragraph )
         self.caption = check_type( para_builder(caption), Paragraph) if caption else None
         self.reflabel = reflabel
         self.number = None
@@ -214,7 +214,7 @@ class HierachyScope(DocumentBlockObject):
         blocks = []
         current_para_block = None
         for c in children:
-            if isinstance(c, ParagraphObject):
+            if isinstance(c, RichTextObject):
                 if not current_para_block:
                     current_para_block = []
                 current_para_block.append(c)
@@ -249,7 +249,7 @@ class ParagraphBlock(DocumentBlockObject):
         DocumentBlockObject.__init__(self,caption=None, reflabel=None)
         strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
-        self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), ParagraphObject )
+        self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), RichTextObject )
 
 
 
@@ -261,16 +261,16 @@ class Paragraph(DocumentObject):
         
         strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
-        self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), ParagraphObject )
+        self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), RichTextObject )
 
 
 
 
-class ParagraphObject(DocumentObject):
+class RichTextObject(DocumentObject):
     pass
 
 
-class Ref(ParagraphObject):
+class Ref(RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
 
         return v._VisitRef(self, **kwargs)
@@ -281,7 +281,7 @@ class Ref(ParagraphObject):
     def get_link_text(self):
         return self.target.get_ref_str() 
 
-class Link(ParagraphObject):
+class Link(RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitLink(self, **kwargs)
     def __init__(self, target, ref_text = None):
@@ -293,7 +293,7 @@ class Link(ParagraphObject):
 
 
 
-class Text(ParagraphObject):
+class Text(RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
         print type(v)
         return v._VisitText(self, **kwargs)
@@ -301,7 +301,7 @@ class Text(ParagraphObject):
         self.text = check_type(text, basestring)
 
 
-class InlineEquation(ParagraphObject):
+class InlineEquation(RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitInlineEquation(self,**kwargs)
     def __init__(self, eqn):
@@ -322,7 +322,7 @@ class Figure(DocumentBlockObject):
         self.subfigs = check_seq_type( subfigs, Subfigure)
 
 
-        para_builder = lambda s: wrap_type(s, T=(basestring,ParagraphObject, Equation), wrapper=Paragraph )
+        para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=Paragraph )
         self.caption = check_type(para_builder(caption), Paragraph)
 
 
@@ -385,7 +385,7 @@ class List(DocumentBlockObject):
     def __init__(self, *children, **kwargs):
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
         DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
-        conv_to_list_item = lambda s: wrap_type_seq(s, T=(ParagraphObject, Equation, basestring), wrapper=lambda c: ListItem(c))
+        conv_to_list_item = lambda s: wrap_type_seq(s, T=(RichTextObject, Equation, basestring), wrapper=lambda c: ListItem(c))
         self.children = check_seq_type( conv_to_list_item( flatten( children)), ListItem)
 
     def get_ref_str(self,):
