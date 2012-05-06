@@ -32,7 +32,7 @@
 
 
 import os
-from mredoc.objects import ImageTypes
+from mredoc.objects import ImageTypes, Languages
 from mredoc.visitors import VisitorBase
 
 doc_header = r"""
@@ -61,6 +61,20 @@ doc_header = r"""
     urlcolor=cyan           % color of external links
 }
 
+
+\usepackage{listings}
+\lstset{% general command to set parameter(s)
+basicstyle=\footnotesize, % print whole listing small
+%basicstyle=\footnotesize, % print whole listing small
+keywordstyle=\color{blue}, %\bfseries\underbar,
+% underlined bold black keywords
+identifierstyle=, % nothing happens
+commentstyle=\color{OliveGreen}, % white comments
+stringstyle=\ttfamily, % typewriter type for strings
+showstringspaces=false, % no special string spaces
+language=python,
+frame=lines,
+float=tbfh}
 
 
 \usepackage{graphicx}
@@ -130,13 +144,15 @@ class LatexWriter(VisitorBase):
     def _VisitFigure(self, n, **kwargs):
         if len( n.subfigs) == 1:
             pass
-        
-        return r"""
-\begin{figure}[htb]
-\centering
-%s
-\caption{%s}
-\end{figure}"""%( "\n".join( [ self.Visit(s) for s in n.subfigs] ), self.Visit(n.caption) )
+
+        return "\n".join([ 
+            r"""\begin{figure}[htb]""",
+            r"""\centering""",
+            "\n".join( [ self.Visit(s) for s in n.subfigs] ),
+            r"""\caption{%s}"""%self.Visit(n.caption),
+            r"""\label{%s}"""%n.reflabel if n.reflabel else "",
+            r"""\end{figure}""",
+            ]) 
         
        
 
@@ -162,7 +178,8 @@ class LatexWriter(VisitorBase):
         return r
 
     def _VisitHeading(self, n, **kwargs):
-        return "\%s{%s}\n"%(heading_by_depth[self.hierachy_depth], self.Visit(n.heading) )
+        heading_type = heading_by_depth[self.hierachy_depth]
+        return "\%s{%s}\n"%(heading_type, self.Visit(n.heading) )
 
     def _VisitRichTextContainer(self, n, **kwargs):
         return "".join( [ self.Visit(c) for c in n.children])
@@ -171,26 +188,28 @@ class LatexWriter(VisitorBase):
         return self.Visit(n.contents)
 
     def _VisitText(self, n, **kwargs):
-        return n.text
-
+        return n.text.replace("&","\&").replace("_","\_")
 
     def _VisitTable(self, n, **kwargs):
-        esacpe_latex = lambda s: s.replace("_","\_")
-        buildline = lambda line: " & ".join( [esacpe_latex(l) for l in line ]) + r" \\"
+        buildline = lambda line: " & ".join( [self.Visit(l) for l in line ]) + r" \\"
         
         header_line = buildline( n.header)
         contents = "\n".join( [buildline(c) for c in n.data] )
         alignment = "c"*len(n.header)
-        return r"""
 
-\begin{longtable}{%s}
-\toprule
-%s
-\midrule
-%s
-\bottomrule
-\end{longtable}
-        """%( alignment, header_line, contents)
+        return "\n".join( [
+            r"""\begin{table}[h]""",
+            r"""\begin{longtable}{%s}"""%alignment,
+            r"""\toprule""",
+            header_line,
+            r"""\midrule""",
+            contents,
+            r"""\bottomrule""",
+            r"""\end{longtable}""",
+            r"""\caption{%s}"""%n.caption if n.caption else "",
+            r"""\label{%s}"""%n.reflabel if n.reflabel else "",
+            r"""\end{table}""",
+        ])
         
         
         
@@ -199,14 +218,14 @@ class LatexWriter(VisitorBase):
 
     def _VisitEquationBlock(self, n, **kwargs):
         if  not n.equations: return  ""
-        return r"""
-        \begin{align*}
-        %s
-        \end{align*}
-        """%( "\n".join( [self.Visit(e) for e in n.equations] ) )
+        return "\n".join([ 
+            r"""\begin{align*}""",
+            "\n".join( [ self.Visit(s) + r"\\" for s in n.equations] ),
+            r"""\end{align*}""",
+            ]) 
+
     def _VisitEquation(self, n, **kwargs):
-        #return n.eqn.replace("_","\\_").replace("(", r"""\left(""").replace(")", r"""\right)""") + r"\\"
-        return n.eqn.replace("(", r"""\left(""").replace(")", r"""\right)""") + r"\\"
+        return n.eqn
 
 
     def _VisitPageBreak(self,n, **kwargs):
@@ -214,12 +233,42 @@ class LatexWriter(VisitorBase):
     
     
     def _VisitCodeBlock(self,n, **kwargs):
-        return ""
+        language = {
+            Languages.Python:'python',
+            Languages.Bash:'bash',
+            Languages.Verbatim:'', #Listings package uses empty language
+            }[n.language]
+       
+        options = {
+            'caption':'{%s}'%self.Visit(n.caption) if n.caption else "",
+            'label': n.reflabel
+            }
+        # Only include values with value:
+        opt_str = ",".join( '%s=%s'%(k,v) for k,v in options.iteritems() if v)
+        opt_str = "[%s]"% opt_str if opt_str else ""
+    
+        return "\n".join([ 
+            r"""\lstset{language=%s}"""%language,
+            r"""\begin{lstlisting}%s""" % opt_str,
+            n.contents,
+            r"""\end{lstlisting}""",
+            ]) 
     
     def _VisitList(self,n, **kwargs):
-        return ""
+        if not n.children:
+            return
+        return "\n".join([
+            r"\begin{itemize}",
+            "\n".join([self.Visit(c) for c in n.children]),
+            r"\end{itemize}",
+        ])
+    def _VisitListItem(self,n, **kwargs):
+        return r"\item %s"%self.Visit(n.para)
     
+    def _VisitInlineEquation(self,n, **kwargs):
+        return "$%s$"%self.Visit(n.eqn)
+
     def _VisitLink(self, n, **kwargs):
-        return ""
+        return "\href{%s}{%s}"%(n.target, n.get_link_text() )
     def _VisitRef(self, n, **kwargs):
-        return ""
+        return r"%s \ref{%s}"%(n.target.get_type_str(), n.target.reflabel)

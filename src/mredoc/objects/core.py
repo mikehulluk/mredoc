@@ -195,6 +195,10 @@ class DocumentBlockObject(DocumentObject):
         self.caption = check_type( para_builder(caption), RichTextContainer) if caption else None
         self.reflabel = reflabel
         self.number = None
+    def get_ref_str(self,):
+        return "%s %d"%(self.get_type_str(), self.number) 
+    def get_type_str(self,):
+        raise NotImplementedError()
 
 
 
@@ -273,12 +277,9 @@ class RichTextObject(DocumentObject):
 
 class Ref(RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
-
         return v._VisitRef(self, **kwargs)
     def __init__(self, target, ):
         self.target = target
-
-
     def get_link_text(self):
         return self.target.get_ref_str() 
 
@@ -288,7 +289,6 @@ class Link(RichTextObject):
     def __init__(self, target, ref_text = None):
         self.target = target
         self.ref_text = ref_text
-
     def get_link_text(self):
         return self.ref_text or self.target 
 
@@ -327,8 +327,8 @@ class Figure(DocumentBlockObject):
         self.caption = check_type(para_builder(caption), RichTextContainer)
 
 
-    def get_ref_str(self,):
-        return "Figure %d"%self.number
+    def get_type_str(self,):
+        return "Figure"
 
 class Subfigure(DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
@@ -356,8 +356,11 @@ class Table(DocumentBlockObject):
         self.data = data
         self.header = header
 
-    def get_ref_str(self,):
-        return "Table %d"%self.number
+        self.header = [ RichTextContainer(h) for h in self.header]
+        self.data = [ [ RichTextContainer(d) for d in line]  for line in self.data]
+
+    def get_type_str(self,):
+        return "Table"
 
 class EquationBlock(DocumentBlockObject):
     def _AcceptVisitor(self,v,**kwargs):
@@ -369,14 +372,16 @@ class EquationBlock(DocumentBlockObject):
         strs_to_eqn = lambda s: wrap_type_seq(s, T=basestring, wrapper=Equation)
         self.equations = check_seq_type( strs_to_eqn(flatten(equations)), Equation)
 
-    def get_ref_str(self,):
-        return "Eqn %d"%self.number
+    def get_type_str(self,):
+        return "Eqn"
 
 class Equation(DocumentObject):
     def _AcceptVisitor(self, v, **kwargs):
         return v._VisitEquation(self,**kwargs)
     def __init__(self, eqn):
         self.eqn = eqn
+        self.eqn=self.eqn.replace(")",r"\right)")
+        self.eqn=self.eqn.replace("(",r"\left(")
 
 
 class List(DocumentBlockObject):
@@ -389,8 +394,8 @@ class List(DocumentBlockObject):
         conv_to_list_item = lambda s: wrap_type_seq(s, T=(RichTextObject, Equation, basestring), wrapper=lambda c: ListItem(c))
         self.children = check_seq_type( conv_to_list_item( flatten( children)), ListItem)
 
-    def get_ref_str(self,):
-        return "List %d"%self.number
+    def get_type_str(self,):
+        return "List"
 
 class ListItem(DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
@@ -414,8 +419,8 @@ class CodeBlock(DocumentBlockObject):
         self.language = language
         self.contents = contents
 
-    def get_ref_str(self,):
-        return "Listing %d"%self.number
+    def get_type_str(self,):
+        return "Listing"
 
 
 class TableOfContents(DocumentBlockObject):
@@ -452,12 +457,10 @@ class Image(DocumentObject):
             os.makedirs(cls.op_loc)
         return fBase
 
-
-    def _AcceptVisitor(self,v,**kwargs):
-        return v._VisitImage(self,**kwargs)
-
     def get_filename(self, type):
         raise NotImplementedError()
+    def _AcceptVisitor(self,v,**kwargs):
+        return v._VisitImage(self,**kwargs)
 
 
 class ImageMPL(Image):
@@ -512,7 +515,8 @@ class ImageFile(Image):
             return self.filename
 
         new_filename = self.fNameBase + "." + type
-        os.system("convert %s %s"%(self.filename, new_filename))
+       	from mredoc.util.toolchecker import ExternalTools
+        ExternalTools.ConvertImage( self.filename, new_filename)
         return new_filename
 
 

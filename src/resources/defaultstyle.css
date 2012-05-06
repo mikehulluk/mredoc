@@ -42,6 +42,25 @@ margin-bottom: 10px;
 
 
 
+
+
+
+td {
+  text-align:center;
+}
+
+th {
+	border: solid ;
+	border-width: 0px 0px 2px 0px;
+
+}
+
+
+
+
+
+
+
 .pageblock
 {
 	border-color: gray;
@@ -53,18 +72,6 @@ margin-bottom: 10px;
 }
 
 
-/* Coloring: */
-/*.pageblock { */
-
-/*
-.codeblock { 
-
-	#background-color:#b4b4b4;
-	#border: solid ;
-	#border-width: 1px 1px ;
-	
-}
-*/
 
 .codeblock { 
 	margin: 5px;

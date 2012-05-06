@@ -241,13 +241,15 @@ class HTMLWriter(VisitorBase):
                 with self.xml.tr:
                     for h in n.header:
                         with self.xml.th:
-                            self.xml.write(h)
+                            self.Visit(h)
+                            #self.xml.write(h)
 
                 for row in n.data:
                     with self.xml.tr:
                         for h in row:
                             with self.xml.td:
-                                self.xml.write(h)
+                                self.Visit(h)
+                                #self.xml.write(h)
 
                 # Caption:
                 with self.xml.caption:
@@ -274,8 +276,7 @@ class HTMLWriter(VisitorBase):
                 self._write_block_captiontext(n)
 
     def _VisitEquation(self, n, **kwargs):
-        s = n.eqn.replace("(", r"""\left(""").replace(")", r"""\right)""") + r"\\"
-        self.xml.write( " %s " % s  )
+        self.xml.write( r" %s \\" % n.eqn  )
 
 
 
@@ -332,11 +333,11 @@ class HTMLWriter(VisitorBase):
 
 
     def _VisitLink(self, n, **kwargs):
-        with self.xml.a(href=n.target):# as a:
+        with self.xml.a(href=n.target):
             self.xml.write(n.get_link_text())
 
 
     def _VisitRef(self, n, **kwargs):
-        with self.xml.a:# as a:
+        with self.xml.a:
             self.xml.write(n.get_link_text())
 
