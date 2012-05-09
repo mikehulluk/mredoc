@@ -36,10 +36,10 @@
 
 
 
-from mredoc.objects import VisitorBase
+from mredoc.visitors import VisitorBase
 #from mredoc.objects import Heading, HierachyScope
 
-from mhlibs.mredoc.objects import Heading, HierachyScope
+from mredoc.objects import Heading, HierachyScope
 
 class EmptySectionRemover(VisitorBase):
     """Each section should return False if it should be removed

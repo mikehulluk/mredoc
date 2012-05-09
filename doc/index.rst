@@ -21,11 +21,16 @@ Although other libraries, (e.g.  Reportlab, Sphinx), have more comprehensive API
 
 It allows easy embedding of matplotlib graphs, LaTeX style equations, syntax highlighted code snippets and more into (LaTeX) pdfs and HTML documents.
 
-For example, the following code:
 
-.. code-block:: python
+Example
+=======
 
-	Example
+For example, the following code creates HTML and Latex representations of some
+basic trigonometry.
+:download:`this example script <./generated_src/example1/pdf/output.pdf>`
+`Link text <http://example.com/>`_
+
+.. literalinclude:: generated_src/example1.py
 
 
 Creates the following pdf and the following HTML output.

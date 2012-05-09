@@ -204,15 +204,16 @@ class HTMLWriter(VisitorBase):
         img_locs = {}
         for ext in [ImageTypes.SVG, ImageTypes.PDF, ImageTypes.PNG]:
             old_file = n.get_filename(type=ext)
-            new_file = os.path.join( self.output_dir_img, name+"."+ext)
+            new_filename =  name+"."+ext
+            new_file = os.path.join( self.output_dir_img, new_filename)
             shutil.copyfile(old_file, new_file)
-            img_locs[ext] = new_file
+            img_locs[ext] = new_filename
+        
+        rel_loc = os.path.relpath( self.output_dir_img, self.output_dir)
 
-
-        #srcfile = os.path.join(self.output_dir_img, name)
-        with self.xml.a(href=img_locs[ImageTypes.SVG]):
-            #a( None, )
-            self.xml.img(None, src=img_locs[ImageTypes.PNG], alt="ImageFile", width="200")
+        N = lambda p: os.path.normpath( os.path.join(rel_loc,p))
+        with self.xml.a(href=N(img_locs[ImageTypes.SVG])):
+            self.xml.img(None, src=N(img_locs[ImageTypes.PNG]), alt="ImageFile", width="200")
 
     def _VisitSubfigure(self, n, **kwargs):
         return self.Visit(n.img)
@@ -254,9 +255,6 @@ class HTMLWriter(VisitorBase):
                 # Caption:
                 with self.xml.caption:
                     self._write_block_captiontext(n)
-                    #self.xml.write( n.get_ref_str() )
-                    #if n.caption:
-                    #    self.Visit(n.caption)
 
 
 

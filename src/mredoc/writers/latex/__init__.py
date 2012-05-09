@@ -5,7 +5,7 @@
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -15,7 +15,7 @@
 #  * Neither the name of the  nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -42,7 +42,7 @@ doc_header = r"""
 \usepackage{longtable}
 \usepackage{booktabs}
 \usepackage{hyperref}
-\setcounter{secnumdepth}{-1} 
+\setcounter{secnumdepth}{-1}
 
 \usepackage[usenames,dvipsnames]{xcolor}
 
@@ -116,6 +116,10 @@ class LatexWriter(VisitorBase):
             os.makedirs(cls._working_dir)
         tex_file = cls._working_dir + "/eqnset.tex"
         tex_pdf = cls._working_dir + "/eqnset.pdf"
+
+        op_dir = os.path.dirname(output_filename)
+        if not os.path.exists(op_dir):
+            os.makedirs(op_dir)
         # Write to disk and compile:
         with open(tex_file,'w') as f:
             f.write(tex_str)
@@ -140,28 +144,28 @@ class LatexWriter(VisitorBase):
         self.output_tex = self.Visit(doc)
 
 
-    
+
     def _VisitFigure(self, n, **kwargs):
         if len( n.subfigs) == 1:
             pass
 
-        return "\n".join([ 
+        return "\n".join([
             r"""\begin{figure}[htb]""",
             r"""\centering""",
             "\n".join( [ self.Visit(s) for s in n.subfigs] ),
             r"""\caption{%s}"""%self.Visit(n.caption),
             r"""\label{%s}"""%n.reflabel if n.reflabel else "",
             r"""\end{figure}""",
-            ]) 
-        
-       
+            ])
+
+
 
     def _VisitImage(self, n, **kwargs):
         return r"""\includegraphics{%s}"""%( n.get_filename(type=ImageTypes.PDF) )
 
     def _VisitSubfigure(self, n, **kwargs):
         return self.Visit(n.img)
-        
+
 
 
     def _VisitTableOfContents(self, n, **kwargs):
@@ -174,6 +178,8 @@ class LatexWriter(VisitorBase):
     def _VisitHierachyScope(self, n, **kwargs):
         self.hierachy_depth += 1
         r = "\n".join( [ self.Visit(c) for c in n.children])
+        if n.is_new_page:
+            r =  "\n\\newpage\n" + r
         self.hierachy_depth -= 1
         return r
 
@@ -192,7 +198,7 @@ class LatexWriter(VisitorBase):
 
     def _VisitTable(self, n, **kwargs):
         buildline = lambda line: " & ".join( [self.Visit(l) for l in line ]) + r" \\"
-        
+
         header_line = buildline( n.header)
         contents = "\n".join( [buildline(c) for c in n.data] )
         alignment = "c"*len(n.header)
@@ -210,19 +216,19 @@ class LatexWriter(VisitorBase):
             r"""\label{%s}"""%n.reflabel if n.reflabel else "",
             r"""\end{table}""",
         ])
-        
-        
-        
 
-        
+
+
+
+
 
     def _VisitEquationBlock(self, n, **kwargs):
         if  not n.equations: return  ""
-        return "\n".join([ 
+        return "\n".join([
             r"""\begin{align*}""",
             "\n".join( [ self.Visit(s) + r"\\" for s in n.equations] ),
             r"""\end{align*}""",
-            ]) 
+            ])
 
     def _VisitEquation(self, n, **kwargs):
         return n.eqn
@@ -230,15 +236,15 @@ class LatexWriter(VisitorBase):
 
     def _VisitPageBreak(self,n, **kwargs):
         return r"""\newpage""" + "\n\n"
-    
-    
+
+
     def _VisitCodeBlock(self,n, **kwargs):
         language = {
             Languages.Python:'python',
             Languages.Bash:'bash',
             Languages.Verbatim:'', #Listings package uses empty language
             }[n.language]
-       
+
         options = {
             'caption':'{%s}'%self.Visit(n.caption) if n.caption else "",
             'label': n.reflabel
@@ -246,14 +252,14 @@ class LatexWriter(VisitorBase):
         # Only include values with value:
         opt_str = ",".join( '%s=%s'%(k,v) for k,v in options.iteritems() if v)
         opt_str = "[%s]"% opt_str if opt_str else ""
-    
-        return "\n".join([ 
+
+        return "\n".join([
             r"""\lstset{language=%s}"""%language,
             r"""\begin{lstlisting}%s""" % opt_str,
             n.contents,
             r"""\end{lstlisting}""",
-            ]) 
-    
+            ])
+
     def _VisitList(self,n, **kwargs):
         if not n.children:
             return
@@ -264,7 +270,7 @@ class LatexWriter(VisitorBase):
         ])
     def _VisitListItem(self,n, **kwargs):
         return r"\item %s"%self.Visit(n.para)
-    
+
     def _VisitInlineEquation(self,n, **kwargs):
         return "$%s$"%self.Visit(n.eqn)
 

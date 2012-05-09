@@ -1,5 +1,7 @@
 # Makefile for Sphinx documentation
 #
+#
+all: html 
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
@@ -40,6 +42,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -rf generated_src/
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

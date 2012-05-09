@@ -43,29 +43,6 @@ from types import NoneType
 
 
 
-""" MReDoc is a simple object model representing simple documents composed of
-text, images, tables, equations and code listings. It is designed as a simple
-interface for generating out summaries of simulations of models in
-computational neuroscience. Other libraries, (e.g. Reportlab, Sphinx), have
-more comprehensive APIs for fonts customisation, MRedoc is more focused on a
-simple set of objects that can be simply embedded within each other.
-
-
-A Document is a tree of elements. Once the tree has been built, it can be
-converted into LaTeX (pdf) or HTML.
-
-.. code-block:: python
-
-    Exanmple::
-
-
-
-"""
-
-
-
-
-
 class ImageTypes:
     SVG = 'svg'
     PNG = 'png'
@@ -306,7 +283,8 @@ class InlineEquation(RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitInlineEquation(self,**kwargs)
     def __init__(self, eqn):
-        self.eqn = check_type(eqn,Equation)
+        eqn_builder = lambda s: wrap_type(eqn, T=(basestring), wrapper=Equation )
+        self.eqn = check_type(eqn_builder(eqn),Equation)
 
 
 
@@ -426,7 +404,8 @@ class CodeBlock(DocumentBlockObject):
 class TableOfContents(DocumentBlockObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitTableOfContents(self, **kwargs)
-
+    def __init__(self, *children):
+        DocumentBlockObject.__init__(self,caption=None, reflabel=None)
 
 
 
