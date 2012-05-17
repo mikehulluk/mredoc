@@ -289,6 +289,7 @@ class HTMLWriter(VisitorBase):
     def _VisitRichTextContainer(self, n, **kwargs):
         for c in n.children:
             self.Visit(c)
+            self.xml.write(" ")
 
     def _VisitParagraph(self, n, **kwargs):
         with self.xml.div(**{'class':'parablock'} ) :

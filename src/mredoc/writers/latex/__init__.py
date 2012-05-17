@@ -190,7 +190,7 @@ class LatexWriter(VisitorBase):
         return "\%s{%s}\n"%(heading_type, self.Visit(n.heading) )
 
     def _VisitRichTextContainer(self, n, **kwargs):
-        return "".join( [ self.Visit(c) for c in n.children])
+        return " ".join( [ self.Visit(c) for c in n.children])
 
     def _VisitParagraph(self, n, **kwargs):
         return self.Visit(n.contents)

@@ -33,7 +33,6 @@
 import itertools
 import pylab
 import os
-#import matplotlib.text as text
 import collections
 
 import matplotlib
@@ -164,7 +163,22 @@ def DocumentBlockObject(*args, **kwargs):
 def HierachyScope(*args, **kwargs):
     if len(args) == 1 and isinstance(args[0], _HierachyScope):
         return args[0]
-    return _HierachyScope(*args, **kwargs)
+
+    #Concatenate consecutive 'RichTextContainer' 
+    # objects into a larger 'Paragraph'
+    blocks = []
+    current_para_block = None
+    for c in args:
+        if not isinstance(c, _DocumentBlockObject):
+            if not current_para_block:
+                current_para_block = []
+            current_para_block.append(c)
+        else:
+            if current_para_block:
+                blocks.append( Paragraph(*current_para_block))
+                current_para_block = None
+            blocks.append(c)
+    return _HierachyScope(*blocks, **kwargs)
     #return _HierachyScope(DocumentBlockObject)
 
 def Heading(*args,**kwargs):
@@ -213,15 +227,11 @@ def Ref(*args,**kwargs):
 def Link(*args,**kwargs):
     return _Link(*args,**kwargs)
 
-
-
 def Text(*args,**kwargs):
     return _Text(*args,**kwargs)
 
-def InlineEquation(*args, **kwargs):
-    return _InlineEquation(*args, **kwargs)
-
-
+def InlineEquation(a, **kwargs):
+    return _InlineEquation(a, **kwargs)
 
 def Figure(*args, **kwargs):
     return _Figure(*args, **kwargs)
@@ -236,15 +246,27 @@ def Table(*args, **kwargs):
 def EquationBlock(*args, **kwargs):
     return _EquationBlock(*args, **kwargs)
 
-def Equation(*args, **kwargs):
-    return _Equation(*args, **kwargs)
-
+def Equation(e, **kwargs):
+    if isinstance(e, basestring):
+        return _Equation(e)
+    if isinstance(e, _Equation):
+        return e
+    assert False
 
 def List(*args, **kwargs):
     return _List(*args, **kwargs)
 
-def ListItem(*args, **kwargs):
-    return _ListItem(*args,**kwargs)
+def ListItem(*a, **kwargs):
+    if len(a) == 1:
+        e = a[0]
+        if isinstance(e, _ListItem):
+            return e
+        else:
+            return _ListItem(RichTextContainer(e))
+    elif len(a) == 2:
+        e,h = a
+        return _ListItem(RichTextContainer(e), RichTextContainer(h))
+    return _ListItem(e,**kwargs)
 
 
 def CodeBlock(*args, **kwargs):
@@ -261,8 +283,15 @@ def BashBlock(*args,**kwargs):
     return _BashBlock(*args,**kwargs)
 
 
-def Image(*args, **kwargs):
-    return _Image(*args,**kwargs)
+def Image(img, **kwargs):
+    if isinstance(img, matplotlib.figure.Figure):
+        return ImageMPL(img)
+    elif isinstance(img, basestring):
+        return ImageFile(img)
+    elif isinstance(img, _Image):
+        return img
+    else:
+        assert False, "Unexpetced type: %s"%str(img)
 
 def ImageMPL(*args,**kwargs):
     return _ImageMPL(*args,**kwargs)
@@ -328,7 +357,7 @@ class _DocumentRoot(_DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitDocument(self, **kwargs)
     def __init__(self, hierachy_root, remove_empty_sections=True, normalise_hierachy=True):
-#
+
         self.hierachy_root = HierachyScope( hierachy_root)
 
         # Resolve internal references:
@@ -368,27 +397,7 @@ class _HierachyScope(_DocumentBlockObject):
     def __init__(self, *children, **kwargs):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
         self.is_new_page, = get_kwargs(kwargs,'new_page')
-
-        # Convert strings to paragrpah_objects:
-        #strs_to_para = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
-        #children = strs_to_para( flatten(children))
-        #children = flatten( [ DocumentBlockObject(a) for a in children ] )
-
-        #Concatenate consecutive 'RichTextContainer' objects into a larger 'Paragraph'
-        blocks = []
-        current_para_block = None
-        for c in children:
-            if not isinstance(c, _DocumentBlockObject):
-                if not current_para_block:
-                    current_para_block = []
-                current_para_block.append(c)
-            else:
-                if current_para_block:
-                    blocks.append( Paragraph(*current_para_block))
-                    current_para_block = None
-                blocks.append(c)
-
-        self.children = check_seq_type(blocks, _DocumentBlockObject )
+        self.children = check_seq_type(children, _DocumentBlockObject )
 
 
 class _Heading(_DocumentBlockObject):
@@ -396,15 +405,7 @@ class _Heading(_DocumentBlockObject):
         return v._VisitHeading(self, **kwargs)
     def __init__(self, heading):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
-        #str_to_para = lambda s: wrap_type(s, T=basestring, wrapper=RichTextContainer)
-        #self.heading=check_type( str_to_para(heading), RichTextContainer)
-        self.heading=RichTextContainer(heading) #check_type( str_to_para(heading), RichTextContainer)
-
-
-
-
-
-
+        self.heading=RichTextContainer(heading)
 
 
 class _Paragraph(_DocumentBlockObject):
@@ -413,15 +414,6 @@ class _Paragraph(_DocumentBlockObject):
     def __init__(self, *children):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
         self.contents = RichTextContainer(children)
-
-        #if len(children) == 1 and isinstance(children[0], RichTextContainer):
-        #    self.contents = children[0]
-        #else:
-        #    self.contents = RichTextContainer(*children)
-
-
-
-
 
 
 
@@ -457,22 +449,17 @@ class _Link(_RichTextObject):
     def get_link_text(self):
         return self.ref_text or self.target
 
-
-
 class _Text(_RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
-        print type(v)
         return v._VisitText(self, **kwargs)
     def __init__(self, text):
         self.text = check_type(text, basestring)
-
 
 class _InlineEquation(_RichTextObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitInlineEquation(self,**kwargs)
     def __init__(self, eqn):
-        eqn_builder = lambda s: wrap_type(eqn, T=(basestring), wrapper=Equation )
-        self.eqn = check_type(eqn_builder(eqn),_Equation)
+        self.eqn = Equation(eqn)
 
 
 
@@ -485,11 +472,9 @@ class _Figure(_DocumentBlockObject):
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
         _DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
 
-        subfigs = [ _Subfigure(s) if not isinstance(s,_Subfigure) else s for s in subfigs]
+        subfigs = [ _Subfigure(s) for s in subfigs]
         self.subfigs = check_seq_type( subfigs, _Subfigure)
 
-
-        #para_builder = lambda s: wrap_type(s, T=(basestring,_RichTextObject, _Equation), wrapper=_RichTextContainer )
         self.caption = check_type(RichTextContainer(caption), _RichTextContainer)
 
 
@@ -500,15 +485,7 @@ class _Subfigure(_DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitSubfigure(self,**kwargs)
     def __init__(self, img):
-        # Switch on the type:
-        if isinstance(img, matplotlib.figure.Figure):
-            self.img = ImageMPL(img)
-        elif isinstance(img, basestring):
-            self.img = ImageFile(img)
-        elif isinstance(img, _Image):
-            self.img = img
-        else:
-            assert False, "Unexpetced type: %s"%str(img)
+        self.img = Image(img)
 
 
 
@@ -535,8 +512,7 @@ class _EquationBlock(_DocumentBlockObject):
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
         _DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
 
-        strs_to_eqn = lambda s: wrap_type_seq(s, T=basestring, wrapper=_Equation)
-        self.equations = check_seq_type( strs_to_eqn(flatten(equations)), _Equation)
+        self.equations = [Equation(eq) for eq in equations] 
 
     def get_type_str(self,):
         return "Eqn"
@@ -557,8 +533,7 @@ class _List(_DocumentBlockObject):
     def __init__(self, *children, **kwargs):
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
         _DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
-        conv_to_list_item = lambda s: wrap_type_seq(s, T=(_RichTextObject, _Equation, basestring), wrapper=lambda c: _ListItem(c))
-        self.children = check_seq_type( conv_to_list_item( flatten( children)), _ListItem)
+        self.children = [ ListItem(li) for li in children]
 
     def get_type_str(self,):
         return "List"
@@ -567,12 +542,9 @@ class _ListItem(_DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitListItem(self, **kwargs)
     def __init__(self,  para, header=None):
-
-        self.para = RichTextContainer(para)
+        self.para =   RichTextContainer(para)
         self.header = RichTextContainer(header) if header else None
 
-        assert isinstance(self.para,(_RichTextContainer, NoneType) )
-        assert isinstance(self.header,(_RichTextContainer, NoneType) )
 
 
 class _CodeBlock(_DocumentBlockObject):
@@ -631,8 +603,6 @@ class _Image(_DocumentObject):
 
 
 class _ImageMPL(_Image):
-
-
 
     def __init__(self, fig, auto_adjust=True):
         # The pylab object or filename. Used in Figures.
