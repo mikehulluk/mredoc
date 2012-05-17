@@ -104,27 +104,6 @@ def check_seq_type(seq,t):
 
 
 
-def wrap_type_seq(objs, T, wrapper):
-    assert isiterable(objs)
-    assert not isinstance(objs,basestring)
-
-    objsOut = []
-    for o in objs:
-        if isinstance(o,T):
-            objsOut.append( wrapper(o))
-        else:
-            objsOut.append( o )
-    return objsOut
-
-
-def wrap_type(obj, T, wrapper):
-    if isinstance(obj,T):
-        return wrapper(obj)
-    else:
-        return obj
-
-
-
 def get_kwargs(kw, *names):
     for k in kw:
         assert k in names, "Can't find name: %s in %s"%(k,names)
@@ -156,10 +135,6 @@ def DocumentBlockObject(*args, **kwargs):
     else:
         return flatten( [DocumentBlockObject(b) for b in args] )
 
-    #print args
-    #assert False
-    #return _DocumentBlockObject(*args, **kwargs)
-
 def HierachyScope(*args, **kwargs):
     if len(args) == 1 and isinstance(args[0], _HierachyScope):
         return args[0]
@@ -179,10 +154,21 @@ def HierachyScope(*args, **kwargs):
                 current_para_block = None
             blocks.append(c)
     return _HierachyScope(*blocks, **kwargs)
-    #return _HierachyScope(DocumentBlockObject)
 
-def Heading(*args,**kwargs):
-    return _Heading(*args, **kwargs)
+
+def Section(heading, *children ):
+    """Shortcut: creates a new HierachicalScope, with a Heading"""
+    return HierachyScope( *itertools.chain( [Heading(heading)], children) )
+
+# Syntactic Sugar:
+def SectionNewPage(heading, *children):
+    return HierachyScope( *itertools.chain( [Heading(heading)], children), new_page=True )
+
+
+
+
+def Heading(heading):
+    return _Heading(heading)
 
 def Paragraph(*args,**kwargs):
     return _Paragraph(*args,**kwargs)
@@ -190,8 +176,6 @@ def Paragraph(*args,**kwargs):
 def RichTextContainer(*args,**kwargs):
     if len(args) == 1 and isinstance(args[0], _RichTextContainer):
         return args[0]
-
-    #    self.contents = RichTextContainer(*children)
     return _RichTextContainer(*args,**kwargs)
 
 
@@ -669,12 +653,6 @@ class _ImageFile(_Image):
 
 
 # Syntactic Sugar:
-def Section(header, *children ):
-    return HierachyScope( *itertools.chain( [Heading(header)], children) )
-
-# Syntactic Sugar:
-def SectionNewPage(header, *children):
-    return HierachyScope( *itertools.chain( [Heading(header)], children), new_page=True )
 
 
 def Document(*children, **kwargs) :

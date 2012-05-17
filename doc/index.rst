@@ -111,9 +111,24 @@ In Paragraph and captions of certain block objects, RichText can be used. RichTe
 Object API 
 ~~~~~~~~~~
 
+MReDoc's API is designed to be simple to use as possible. It is quite relaxed
+about the parameters which can be parsed to various constructors, and will try
+to do TheRightThing. 
+The following are the most commonly used objects:
 
+.. autofunction:: mredoc.Section
+.. autofunction:: mredoc.Paragraph
+.. autofunction:: mredoc.Figure
+.. autofunction:: mredoc.Table
+.. autofunction:: mredoc.List
+.. autofunction:: mredoc.CodeBlock
+.. autofunction:: mredoc.EquationBlock
 
-For example:
+Strings & Matplotlib figures:
+
+Sometimes useful are:
+
+.. autofunction:: mredoc.Heading
 
 
 Todo
