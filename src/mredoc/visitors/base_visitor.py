@@ -33,6 +33,7 @@
 
 class VisitorBase(object):
     def Visit(self, n, **kwargs):
+        print n
         return n._AcceptVisitor(self, **kwargs)
 
     def _VisitDocument(self, n, **kwargs):

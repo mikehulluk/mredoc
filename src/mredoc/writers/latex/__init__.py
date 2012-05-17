@@ -215,7 +215,7 @@ class LatexWriter(VisitorBase):
             contents,
             r"""\bottomrule""",
             r"""\end{longtable}""",
-            r"""\caption{%s}"""%n.caption if n.caption else "",
+            r"""\caption{%s}"""%self.Visit(n.caption) if n.caption else "",
             r"""\label{%s}"""%n.reflabel if n.reflabel else "",
             r"""\end{table}""",
         ])

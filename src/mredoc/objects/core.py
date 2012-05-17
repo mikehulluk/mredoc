@@ -33,9 +33,8 @@
 import itertools
 import pylab
 import os
-import matplotlib.text as text
+#import matplotlib.text as text
 import collections
-#from matplotlib.figure import Figure
 
 import matplotlib
 from types import NoneType
@@ -60,18 +59,6 @@ class Languages:
 
 
 
-def ensure_Paragraph(obj):
-    if isinstance(obj, _RichTextObject):
-        return RichTextContainer(obj)
-    elif isinstance(obj,_Equation):
-        return RichTextContainer(obj)
-    elif isinstance(obj,  _RichTextContainer):
-        return obj
-    elif isinstance(obj, basestring):
-        return RichTextContainer( Text(obj) )
-    else:
-        print obj, type(obj)
-        assert False
 
 
 
@@ -193,18 +180,32 @@ def RichTextContainer(*args,**kwargs):
     #    self.contents = RichTextContainer(*children)
     return _RichTextContainer(*args,**kwargs)
 
+
+
+
+def rich_text_from_string(s):
+    s = s.strip()
+    if s[0] == "$" and s[-1] == "$":
+        return InlineEquation(s[1:-1])
+    else:
+        return Text(s)
+
+
 def RichTextObject(o,**kwargs):
+    if o is None:
+        return None
+
+    if isinstance(o, _RichTextObject):
+        return o
     if isinstance(o, basestring):
         return rich_text_from_string(o)
-    if isinstance(o, _InlineEquation):
-        return Equation( o)
-    return o
-    ##return _
-    #    strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=rich_text_from_string)
-    #    #strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
-    #    eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
-    #    self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), RichTextObject )
-    #return _RichTextObject(*args,**kwargs)
+    if isinstance(o, _Equation):
+        return InlineEquation( o)
+    if isiterable(o):
+        return flatten([ RichTextObject(a,**kwargs) for a in o])
+
+    print type(o), o
+    assert False
 
 def Ref(*args,**kwargs):
     return _Ref(*args,**kwargs)
@@ -350,8 +351,7 @@ class _DocumentRoot(_DocumentObject):
 
 class _DocumentBlockObject(_DocumentObject):
     def __init__(self, caption=None, reflabel=None):
-        #para_builder = lambda s: wrap_type(s, T=(basestring,RichTextObject, Equation), wrapper=RichTextContainer )
-        self.caption = RichTextObject(caption) #check_type( para_builder(caption), RichTextContainer) if caption else None
+        self.caption = RichTextObject(caption) 
         self.reflabel = reflabel
         self.number = None
     def get_ref_str(self,):
@@ -372,13 +372,13 @@ class _HierachyScope(_DocumentBlockObject):
         # Convert strings to paragrpah_objects:
         #strs_to_para = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         #children = strs_to_para( flatten(children))
-        children = flatten( [ DocumentBlockObject(a) for a in children ] )
+        #children = flatten( [ DocumentBlockObject(a) for a in children ] )
 
         #Concatenate consecutive 'RichTextContainer' objects into a larger 'Paragraph'
         blocks = []
         current_para_block = None
         for c in children:
-            if isinstance(c, _RichTextObject):
+            if not isinstance(c, _DocumentBlockObject):
                 if not current_para_block:
                     current_para_block = []
                 current_para_block.append(c)
@@ -391,7 +391,7 @@ class _HierachyScope(_DocumentBlockObject):
         self.children = check_seq_type(blocks, _DocumentBlockObject )
 
 
-class Heading(_DocumentBlockObject):
+class _Heading(_DocumentBlockObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitHeading(self, **kwargs)
     def __init__(self, heading):
@@ -407,7 +407,7 @@ class Heading(_DocumentBlockObject):
 
 
 
-class Paragraph(_DocumentBlockObject):
+class _Paragraph(_DocumentBlockObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitParagraph(self, **kwargs)
     def __init__(self, *children):
@@ -421,12 +421,6 @@ class Paragraph(_DocumentBlockObject):
 
 
 
-def rich_text_from_string(s):
-    s = s.strip()
-    if s[0] == "$" and s[-1] == "$":
-        return InlineEquation(s[1:-1])
-    else:
-        return Text(s)
 
 
 
@@ -436,12 +430,8 @@ class _RichTextContainer(_DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitRichTextContainer(self, **kwargs)
     def __init__(self, *children):
-
-        #strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=rich_text_from_string)
-        ##strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
-        #eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
-        #self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), RichTextObject )
-        self.children = [RichTextObject(a) for a in children ] #strs_to_text( eqns_to_inline( children) ), RichTextObject )
+        self.children = flatten( [RichTextObject(a) for a in children ] ) 
+        check_seq_type( self.children, _RichTextObject)
 
 
 
@@ -493,14 +483,14 @@ class _Figure(_DocumentBlockObject):
     def __init__(self, *subfigs, **kwargs):
         # Unpack kwargs:
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
-        DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
+        _DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
 
         subfigs = [ _Subfigure(s) if not isinstance(s,_Subfigure) else s for s in subfigs]
         self.subfigs = check_seq_type( subfigs, _Subfigure)
 
 
-        para_builder = lambda s: wrap_type(s, T=(basestring,_RichTextObject, _Equation), wrapper=_RichTextContainer )
-        self.caption = check_type(para_builder(caption), _RichTextContainer)
+        #para_builder = lambda s: wrap_type(s, T=(basestring,_RichTextObject, _Equation), wrapper=_RichTextContainer )
+        self.caption = check_type(RichTextContainer(caption), _RichTextContainer)
 
 
     def get_type_str(self,):
@@ -578,8 +568,8 @@ class _ListItem(_DocumentObject):
         return v._VisitListItem(self, **kwargs)
     def __init__(self,  para, header=None):
 
-        self.para = ensure_Paragraph(para)
-        self.header = ensure_Paragraph(header) if header else None
+        self.para = RichTextContainer(para)
+        self.header = RichTextContainer(header) if header else None
 
         assert isinstance(self.para,(_RichTextContainer, NoneType) )
         assert isinstance(self.header,(_RichTextContainer, NoneType) )
@@ -666,7 +656,7 @@ class _ImageMPL(_Image):
 def resize_image(fig):
     pylab.figure( fig.number)
     fig.set_size_inches(1.75,1.75)
-    for o in fig.findobj(text.Text):
+    for o in fig.findobj(matplotlib.text.Text):
         o.set_fontsize(7)
     fig.subplots_adjust(left=0.25,right=0.95)
 

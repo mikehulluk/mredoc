@@ -39,7 +39,8 @@
 from mredoc.visitors import VisitorBase
 #from mredoc.objects import Heading, HierachyScope
 
-from mredoc.objects import Heading, HierachyScope
+#from mredoc.objects import _Heading, _HierachyScope
+from mredoc.objects.core import _Heading, _HierachyScope
 
 class EmptySectionRemover(VisitorBase):
     """Each section should return False if it should be removed
@@ -55,7 +56,7 @@ class EmptySectionRemover(VisitorBase):
         
         if len(new_children) == 0:
             return False
-        if len(new_children) == 1 and isinstance( new_children[0] , Heading):
+        if len(new_children) == 1 and isinstance( new_children[0] , _Heading):
             return False
 
         n.children = new_children
@@ -129,9 +130,9 @@ class NormaliseHierachyScope(VisitorBase):
 
     def _VisitHierachyScope(self, n, **kwargs):
         for c in n.children:
-            if not isinstance(c, HierachyScope): 
+            if not isinstance(c, _HierachyScope): 
                 continue
             self.Visit(c,**kwargs)
 
-        if len(n.children) == 1 and isinstance( n.children[0], HierachyScope):
+        if len(n.children) == 1 and isinstance( n.children[0], _HierachyScope):
             n.children = n.children[0].children

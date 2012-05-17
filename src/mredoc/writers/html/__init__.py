@@ -43,7 +43,7 @@ from mredoc import ImageTypes
 from pygments import highlight
 from pygments.lexers import PythonLexer, BashLexer
 from pygments.formatters import HtmlFormatter
-from mredoc.objects.core import Languages, Heading
+from mredoc.objects.core import Languages, _Heading
 
 import hashlib
 from mredoc.visitors import VisitorBase
@@ -171,7 +171,7 @@ class HTMLWriter(VisitorBase):
                 with self.xml.a(href=fNameShort):
                     if isinstance(n,basestring):
                         self.xml.write( n.is_new_page )
-                    elif n.children and isinstance( n.children[0], Heading):
+                    elif n.children and isinstance( n.children[0], _Heading):
                         self.Visit( n.children[0].heading )
                     else:
                         self.xml.write("Link to UNKNOWN")
