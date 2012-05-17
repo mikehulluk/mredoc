@@ -34,6 +34,7 @@
 import os
 from mredoc.objects import ImageTypes, Languages
 from mredoc.visitors import VisitorBase
+from mredoc.util.removeemptysections import EmptySectionRemover
 
 doc_header = r"""
 \documentclass[8pt]{scrartcl}   % list options between brackets
@@ -94,10 +95,10 @@ doc_footer = r"""
 
 
 heading_by_depth = {
-    2:"section",
-    3:"subsection",
-    4:"subsubsection",
-    5:"paragraph",
+    1:"section",
+    2:"subsection",
+    3:"subsubsection",
+    4:"paragraph",
     }
 
 
@@ -132,6 +133,7 @@ class LatexWriter(VisitorBase):
 
     @classmethod
     def BuildPDF(cls, doc, filename):
+
         writer = LatexWriter(doc)
         tex_str = writer.output_tex
         print tex_str
@@ -169,7 +171,7 @@ class LatexWriter(VisitorBase):
 
 
     def _VisitTableOfContents(self, n, **kwargs):
-        return r"\tableofcontents"
+        return r"\tableofcontents" + "\n" + r"\newpage"+ "\n"
 
     # Visit the tree:
     def _VisitDocument(self, n, **kwargs):
@@ -205,6 +207,7 @@ class LatexWriter(VisitorBase):
 
         return "\n".join( [
             r"""\begin{table}[h]""",
+            r"""\scriptsize""",
             r"""\begin{longtable}{%s}"""%alignment,
             r"""\toprule""",
             header_line,

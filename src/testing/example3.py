@@ -1,7 +1,7 @@
 
-from mhlibs.mredoc import Document, Section
-from mhlibs.mredoc import LatexWriter
-from mhlibs.mredoc import HTMLWriter
+from mredoc import Document, Section
+from mredoc import LatexWriter
+from mredoc import HTMLWriter
 
 
 summary = Document(

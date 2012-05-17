@@ -116,7 +116,7 @@ summary = Document(
 
 
 # Create the output:
-LatexWriter.BuildPDF(summary, filename="./_output/example1/pdf/output.pdf")
-HTMLWriter.BuildHTML(summary, output_dir="./_output/example1/html/")
+summary.to_pdf( filename="./_output/example1/pdf/output.pdf")
+summary.to_html( output_dir="./_output/example1/html/")
 
 

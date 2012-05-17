@@ -56,15 +56,8 @@ class EmptySectionRemover(VisitorBase):
         if len(new_children) == 0:
             return False
         if len(new_children) == 1 and isinstance( new_children[0] , Heading):
-            #l = new_children[0]
-            #print type(l)
-            #print Heading
-            #assert False
-            
             return False
 
-        print " - Keeping"
-        
         n.children = new_children
         return True
 
@@ -82,14 +75,22 @@ class EmptySectionRemover(VisitorBase):
 
     def _VisitTableOfContents(self, n, **kwargs):
         return True
-        raise NotImplementedError()
 
     def _VisitHeading(self, n, **kwargs):
         return True
-        raise NotImplementedError()
 
     def _VisitRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
+
+    def _VisitParagraph(self, n, **kwargs):
+        if not n.contents:
+            return False
+        return True
+
+    def _VisitList(self, n, **kwargs):
+        if not n.children:
+            return False
+        return True
 
     def _VisitText(self, **kwargs):
         raise NotImplementedError()

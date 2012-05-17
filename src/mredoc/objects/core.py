@@ -148,20 +148,45 @@ def get_kwargs(kw, *names):
 
 class DocumentObject(object):
 
+    # Syntactic sugar, to make it easy to dumpy any part of a
+    # document to a pdf-file or html
+    def to_pdf(self, filename):
+        from mredoc.writers import LatexWriter
+        return LatexWriter.BuildPDF(self.as_document(), filename=filename)
+    def to_html(self, output_dir):
+        from mredoc.writers import HTMLWriter
+        return HTMLWriter.BuildHTML(self.as_document(), output_dir=output_dir)
+    def as_document(self):
+        return Document(self)
+
 
     def _AcceptVisitor(self, v, **kwargs):
         raise NotImplementedError()
 
 
 class DocumentRoot(DocumentObject):
+    def as_document(self):
+        return self
+
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitDocument(self, **kwargs)
-    def __init__(self, hierachy_root):
+    def __init__(self, hierachy_root, remove_empty_sections=True, normalise_hierachy=True):
         self.hierachy_root = check_type( hierachy_root, HierachyScope)
 
         # Resolve internal references:
         from mredoc.visitors.reference_resolver import RefResolver
         RefResolver(self)
+
+        if remove_empty_sections:
+            from mredoc.util.removeemptysections import EmptySectionRemover
+            EmptySectionRemover().Visit(self)
+
+        if normalise_hierachy:
+            from mredoc.util.removeemptysections import NormaliseHierachyScope
+            NormaliseHierachyScope().Visit(self)
+
+
+
 
 
 
@@ -235,13 +260,24 @@ class Paragraph(DocumentBlockObject):
 
 
 
+def rich_text_from_string(s):
+    s = s.strip()
+    if s[0] == "$" and s[-1] == "$":
+        return InlineEquation(s[1:-1])
+    else:
+        return Text(s)
+
+
+
+
 
 class RichTextContainer(DocumentObject):
     def _AcceptVisitor(self,v,**kwargs):
         return v._VisitRichTextContainer(self, **kwargs)
     def __init__(self, *children):
         
-        strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
+        strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=rich_text_from_string)
+        #strs_to_text = lambda s: wrap_type_seq(s, T=basestring, wrapper=Text)
         eqns_to_inline = lambda s: wrap_type_seq(s, T=Equation, wrapper=InlineEquation)
         self.children = check_seq_type( strs_to_text( eqns_to_inline( children) ), RichTextObject )
 
@@ -519,11 +555,11 @@ def SectionNewPage(header, *children):
     return HierachyScope( *itertools.chain( [Heading(header)], children), new_page=True )
 
 
-def Document(*children):
+def Document(*children, **kwargs) :
     if len(children)==1 and isinstance( children[0], list):
-        return DocumentRoot( HierachyScope( *children[0] ) )
+        return DocumentRoot( HierachyScope( *children[0] ),**kwargs )
     else:
-        return DocumentRoot( HierachyScope( *children))
+        return DocumentRoot( HierachyScope( *children), **kwargs)
 
 def VerticalColTable( header, data ):
     if isinstance(header, basestring):

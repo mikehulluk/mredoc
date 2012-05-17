@@ -47,11 +47,18 @@ Requirements
 
 License
 ~~~~~~~
+**mredoc** is released under the BSD 2 license. 
+
 
 
 
 Installation
 ~~~~~~~~~~~~~
+
+**mredoc** is available on github: 
+
+`https://github.com/mikehulluk/mredoc`
+
 
 
 Acknowledgments
