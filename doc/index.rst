@@ -97,7 +97,10 @@ A Document is a tree of elements. It is possible to create different parts of a 
 RichText
 ~~~~~~~~
 
-In Paragraph and captions of certain block objects, RichText can be used. RichText is a block of text which can contain the following:
+Often we want to use *RichText*, in which we have equations text and hyperlinks
+all inline in a sentence, rather than individual blocks. This requires that our
+paragraphs can contain more than just text and is handled in mredoc using the
+RichTextContainer. RichTextContainer objects can contain:
 
   * Text
   * Inline equations
@@ -111,9 +114,15 @@ In Paragraph and captions of certain block objects, RichText can be used. RichTe
 Object API 
 ~~~~~~~~~~
 
+
+Basic Object Construction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 MReDoc's API is designed to be simple to use as possible. It is quite relaxed
 about the parameters which can be parsed to various constructors, and will try
-to do TheRightThing. 
+to do TheRightThing. Although the internal object representation is quite strict,
+passing a string or a matplotlib image directly to the constructors in the 
+object model will automatically
 The following are the most commonly used objects:
 
 .. autofunction:: mredoc.Section
@@ -121,11 +130,33 @@ The following are the most commonly used objects:
 .. autofunction:: mredoc.Figure
 .. autofunction:: mredoc.Table
 .. autofunction:: mredoc.List
-.. autofunction:: mredoc.CodeBlock
+.. autofunction:: mredoc.CodeListing
 .. autofunction:: mredoc.EquationBlock
+.. autofunction:: mredoc.Document
+
+mredoc is designed for libraries rather than end-users, so its API is designed
+in terms of objects rather than strings (in constrast with Sphinx for example).
+However, it does allow Sphinx-like markup; it will automatically break long text
+strings into RichTextObjects references
+
+For examples::
+
 
 Strings & Matplotlib figures:
 
+Creating Output
+^^^^^^^^^^^^^^^^
+
+HTML and Latex output can be created by calling ``to_pdf`` or ``to_html`` on any 
+mredoc object.
+
+.. autofunction:: mredoc.objects.core._DocumentObject.to_pdf
+.. autofunction:: mredoc.objects.core._DocumentObject.to_html
+
+
+
+Occastionally 
+^^^^^^^^^^^^^^
 Sometimes useful are:
 
 .. autofunction:: mredoc.Heading
