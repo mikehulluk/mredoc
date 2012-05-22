@@ -112,8 +112,8 @@ class ActionerBase(VisitorBase):
     def _VisitInlineEquation(self, n, **kwargs):
         self._ActionInlineEquation( n, **kwargs)
         
-    def _VisitCodeBlock(self, n, **kwargs):
-        self._ActionCodeBlock(n, **kwargs)
+    def _VisitCodeListing(self, n, **kwargs):
+        self._ActionCodeListing(n, **kwargs)
         
     def _VisitLink(self, n, **kwargs):
         self._ActionLink( n, **kwargs)

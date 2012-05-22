@@ -301,7 +301,7 @@ class HTMLWriter(VisitorBase):
         self.xml.write(n.text)
 
 
-    def _VisitCodeBlock(self, n, **kwargs):
+    def _VisitCodeListing(self, n, **kwargs):
         lexer_lut = {
              Languages.Bash: BashLexer,
              Languages.Python: PythonLexer,

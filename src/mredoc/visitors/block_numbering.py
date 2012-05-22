@@ -99,14 +99,12 @@ class BlockNumberer(ActionerBase, dict):
     def _ActionInlineEquation(self, n, **kwargs):
         pass
 
-    def _ActionCodeBlock(self, n, **kwargs):
+    def _ActionCodeListing(self, n, **kwargs):
         self.obj_counts_code += 1
-        #self[n] = self.obj_counts_eqn
         n.number = self.obj_counts_code
 
     def _ActionList(self, n, **kwargs):
         self.obj_counts_list += 1
-        #self[n] = self.obj_counts_eqn
         n.number = self.obj_counts_list
     
     def _ActionListItem(self, n, **kwargs):
