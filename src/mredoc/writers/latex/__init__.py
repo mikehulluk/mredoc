@@ -79,10 +79,15 @@ float=tbfh}
 
 
 \usepackage{graphicx}
+\usepackage{placeins}
 
 \usepackage{bera}
 \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \usepackage[T1]{fontenc}
+
+\setcounter{tocdepth}{10}
+
+
 \begin{document}
 """
 
@@ -99,6 +104,8 @@ heading_by_depth = {
     2:"subsection",
     3:"subsubsection",
     4:"paragraph",
+    5:"subparagraph",
+    6:"subsubparagraph",
     }
 
 
@@ -155,7 +162,7 @@ class LatexWriter(VisitorBase):
             r"""\begin{figure}[htb]""",
             r"""\centering""",
             "\n".join( [ self.Visit(s) for s in n.subfigs] ),
-            r"""\caption{%s}"""%self.Visit(n.caption),
+            r"""\caption{%s}"""%self.Visit(n.caption) if n.caption else "",
             r"""\label{%s}"""%n.reflabel if n.reflabel else "",
             r"""\end{figure}""",
             ])
@@ -187,7 +194,7 @@ class LatexWriter(VisitorBase):
 
     def _VisitHeading(self, n, **kwargs):
         heading_type = heading_by_depth[self.hierachy_depth]
-        return "\%s{%s}\n"%(heading_type, self.Visit(n.heading) )
+        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.Visit(n.heading) )
 
     def _VisitRichTextContainer(self, n, **kwargs):
         return " ".join( [ self.Visit(c) for c in n.children])
@@ -206,7 +213,7 @@ class LatexWriter(VisitorBase):
         alignment = "c"*len(n.header)
 
         return "\n".join( [
-            r"""\begin{table}[h]""",
+            r"""\begin{table}[h!]""",
             r"""\scriptsize""",
             r"""\begin{longtable}{%s}"""%alignment,
             r"""\toprule""",
@@ -216,8 +223,9 @@ class LatexWriter(VisitorBase):
             r"""\bottomrule""",
             r"""\end{longtable}""",
             r"""\caption{%s}"""%self.Visit(n.caption) if n.caption else "",
-            r"""\label{%s}"""%n.reflabel if n.reflabel else "",
+            (r"""\label{%s}"""%n.reflabel )if n.reflabel else "",
             r"""\end{table}""",
+            r"""\FloatBarrier"""
         ])
 
 

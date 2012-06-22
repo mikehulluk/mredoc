@@ -183,7 +183,7 @@ def RichTextContainer(*args,**kwargs):
 
 def rich_text_from_string(s):
     s = s.strip()
-    if s[0] == "$" and s[-1] == "$":
+    if s and s[0] == "$" and s[-1] == "$":
         return InlineEquation(s[1:-1])
     else:
         return Text(s)
@@ -197,6 +197,10 @@ def RichTextObject(o,**kwargs):
         return o
     if isinstance(o, basestring):
         return rich_text_from_string(o)
+    if isinstance(o, int):
+        return rich_text_from_string( str(o) )
+    if isinstance(o, float):
+        return rich_text_from_string( str(o) )
     if isinstance(o, _Equation):
         return InlineEquation( o)
     if isiterable(o):
@@ -364,7 +368,7 @@ class _DocumentRoot(_DocumentObject):
 
 class _DocumentBlockObject(_DocumentObject):
     def __init__(self, caption=None, reflabel=None):
-        self.caption = RichTextObject(caption) 
+        self.caption = RichTextObject(caption)
         self.reflabel = reflabel
         self.number = None
     def get_ref_str(self,):
@@ -459,7 +463,8 @@ class _Figure(_DocumentBlockObject):
         subfigs = [ _Subfigure(s) for s in subfigs]
         self.subfigs = check_seq_type( subfigs, _Subfigure)
 
-        self.caption = check_type(RichTextContainer(caption), _RichTextContainer)
+        if self.caption is not None:
+            self.caption = check_type(RichTextContainer(caption), _RichTextContainer)
 
 
     def get_type_str(self,):
@@ -661,14 +666,14 @@ def Document(*children, **kwargs) :
     else:
         return DocumentRoot( HierachyScope( *children), **kwargs)
 
-def VerticalColTable( header, data ):
+def VerticalColTable( header, data, **kwargs ):
     if isinstance(header, basestring):
         header = header.split("|")
-        data= [ l.split("|") for l in data ]
+        data= [ l.split("|") if isinstance(l, basestring) else l for l in data ]
 
     for line in data:
         assert len(line) ==  len( header)
-    return Table( header=header, data=data )
+    return Table( header=header, data=data, **kwargs )
 
 
 
