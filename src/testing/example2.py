@@ -19,7 +19,7 @@ from mredoc.visitors import BlockNumberer
 
 
 
- 
+
 local_path = os.path.abspath(__file__)
 
 test_file_path = os.path.abspath( os.path.join(os.path.dirname(local_path), "../test_data") )
@@ -54,7 +54,7 @@ op1 = """Bing Bang BonG!"""
 
 
 summary = Document(
-    
+
     Section("Trigonometry from Wikipedia",
         Section("Introduction",
             """Much of this content is copied from """, Link("http://en.wikipedia.org/wiki/Trigonometry"),
@@ -72,13 +72,13 @@ summary = Document(
                  reflabel="L1"
                    ),
             EquationBlock(
-                r""" sin A = \frac{opp}{hyp} = \frac{a}{c}""",    
+                r""" sin A = \frac{opp}{hyp} = \frac{a}{c}""",
                 r""" cos A = \frac{opp}{hyp} = \frac{a}{c}""",
                 r""" tan A = \frac{opp}{hyp} = \frac{a}{c}""",
                 caption="Relations between angles and lengths of a triangle",
                 reflabel="L2"
                 ),
-                
+
             ),
         Section("In python",
             """Python is awesome and lets us do lots of clever things!""",
@@ -93,33 +93,33 @@ summary = Document(
                 "cot",
                 "arcsin",
                 "arcos",
-                ['cosh - where cosh = kl;kl;',Equation("x+x=45")], 
+                ['cosh - where cosh = kl;kl;',Equation("x+x=45")],
             ),
             ),
-            
+
         Section("Hyperbolic functions",
-			r"""In mathematics, hyperbolic functions are analogs of 
-			the ordinary trigonometric, or circular, functions. The 
-			basic hyperbolic functions are the hyperbolic sine 
-			"sinh", and the hyperbolic cosine 
-			"cosh", from which are derived the hyperbolic 
-			tangent "tanh", and so on, corresponding 
-			to the derived trigonometric functions. The inverse 
-			hyperbolic functions are the area hyperbolic sine 
-			"arsinh" (also called "asinh" or sometimes "arcsinh")[2] 
-			and so on. Just as the points (cos t, sin t) form a 
-			circle with a unit radius, the points (cosh t, sinh t) 
+			r"""In mathematics, hyperbolic functions are analogs of
+			the ordinary trigonometric, or circular, functions. The
+			basic hyperbolic functions are the hyperbolic sine
+			"sinh", and the hyperbolic cosine
+			"cosh", from which are derived the hyperbolic
+			tangent "tanh", and so on, corresponding
+			to the derived trigonometric functions. The inverse
+			hyperbolic functions are the area hyperbolic sine
+			"arsinh" (also called "asinh" or sometimes "arcsinh")[2]
+			and so on. Just as the points (cos t, sin t) form a
+			circle with a unit radius, the points (cosh t, sinh t)
 			form the right half of the equilateral hyperbola. """,
             List(
                 ["sinh", Equation(r""" sinh(x) = \frac{e^x-e^{-x}}{2} =\frac{e^{2x}-1}{2e^x}""")],
                 "cosh",
                 "tanh",
-                ['cosh - where cosh = kl;kl;',Equation(r"x+x^2=\frac{45}{3}")], 
+                ['cosh - where cosh = kl;kl;',Equation(r"x+x^2=\frac{45}{3}")],
             ),
             )
         )
     )
-                    
+
 
 
 LatexWriter.BuildPDF(summary, filename="/home/michael/Desktop/f1.pdf")

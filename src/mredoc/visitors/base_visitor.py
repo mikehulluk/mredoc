@@ -5,7 +5,7 @@
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -15,7 +15,7 @@
 #  * Neither the name of the  nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -32,9 +32,9 @@
 
 
 class VisitorBase(object):
-    def Visit(self, n, **kwargs):
+    def visit(self, n, **kwargs):
         print n
-        return n._AcceptVisitor(self, **kwargs)
+        return n._accept_visitor(self, **kwargs)
 
     def _VisitDocument(self, n, **kwargs):
         raise NotImplementedError()
@@ -59,7 +59,7 @@ class VisitorBase(object):
 
     def _VisitRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
-    
+
     def _VisitParagraph(self, n, **kwargs):
         raise NotImplementedError()
 
@@ -80,9 +80,9 @@ class VisitorBase(object):
 
     def _VisitCodeBlock(self, n, **kwargs):
         raise NotImplementedError()
-    
+
     def _VisitLink(self, n, **kwargs):
         raise NotImplementedError()
-    
+
     def _VisitRef(self, n, **kwargs):
         raise NotImplementedError()

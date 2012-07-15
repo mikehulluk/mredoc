@@ -5,7 +5,7 @@
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -15,7 +15,7 @@
 #  * Neither the name of the  nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -47,13 +47,13 @@ class EmptySectionRemover(VisitorBase):
     or True to be kept"""
 
     def _VisitDocument(self, n, **kwargs):
-        return self.Visit(n.hierachy_root)
+        return self.visit(n.hierachy_root)
 
     def _VisitHierachyScope(self, n, **kwargs):
-        new_children = [ c for c in n.children if self.Visit(c) ]
-        
+        new_children = [ c for c in n.children if self.visit(c) ]
+
         print "NewChildren", new_children
-        
+
         if len(new_children) == 0:
             return False
         if len(new_children) == 1 and isinstance( new_children[0] , _Heading):
@@ -126,13 +126,13 @@ class NormaliseHierachyScope(VisitorBase):
 
 
     def _VisitDocument(self, n, **kwargs):
-        return self.Visit(n.hierachy_root)
+        return self.visit(n.hierachy_root)
 
     def _VisitHierachyScope(self, n, **kwargs):
         for c in n.children:
-            if not isinstance(c, _HierachyScope): 
+            if not isinstance(c, _HierachyScope):
                 continue
-            self.Visit(c,**kwargs)
+            self.visit(c,**kwargs)
 
         if len(n.children) == 1 and isinstance( n.children[0], _HierachyScope):
             n.children = n.children[0].children

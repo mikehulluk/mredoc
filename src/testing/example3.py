@@ -5,7 +5,7 @@ from mredoc import HTMLWriter
 
 
 summary = Document(
-    
+
     Section("Simulation Results",
 
     Section(  "Overview",
@@ -25,7 +25,7 @@ summary = Document(
         Section( "Synapses"),
         ),
     Section( "Platform Details"),
-    ) 
+    )
 )
 
 

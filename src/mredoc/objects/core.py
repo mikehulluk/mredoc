@@ -128,10 +128,10 @@ def DocumentBlockObject(*args, **kwargs):
             return a
         if isinstance(a, (_Link,_Ref,basestring)):
             return Paragraph(a)
-        
+
         print type(a), a
         assert False
-    
+
     else:
         return flatten( [DocumentBlockObject(b) for b in args] )
 
@@ -139,7 +139,7 @@ def HierachyScope(*args, **kwargs):
     if len(args) == 1 and isinstance(args[0], _HierachyScope):
         return args[0]
 
-    #Concatenate consecutive 'RichTextContainer' 
+    #Concatenate consecutive 'RichTextContainer'
     # objects into a larger 'Paragraph'
     blocks = []
     current_para_block = None
@@ -330,7 +330,7 @@ class _DocumentObject(object):
         return Document(self)
 
 
-    def _AcceptVisitor(self, v, **kwargs):
+    def _accept_visitor(self, v, **kwargs):
         print "Visitor:", v, type(v)
         print "Target:", self, type(self)
         raise NotImplementedError()
@@ -342,7 +342,7 @@ class _DocumentRoot(_DocumentObject):
     def as_document(self):
         return self
 
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitDocument(self, **kwargs)
     def __init__(self, hierachy_root, remove_empty_sections=True, normalise_hierachy=True):
 
@@ -354,11 +354,11 @@ class _DocumentRoot(_DocumentObject):
 
         if remove_empty_sections:
             from mredoc.util.removeemptysections import EmptySectionRemover
-            EmptySectionRemover().Visit(self)
+            EmptySectionRemover().visit(self)
 
         if normalise_hierachy:
             from mredoc.util.removeemptysections import NormaliseHierachyScope
-            NormaliseHierachyScope().Visit(self)
+            NormaliseHierachyScope().visit(self)
 
 
 
@@ -380,7 +380,7 @@ class _DocumentBlockObject(_DocumentObject):
 
 
 class _HierachyScope(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitHierachyScope(self, **kwargs)
     def __init__(self, *children, **kwargs):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
@@ -389,7 +389,7 @@ class _HierachyScope(_DocumentBlockObject):
 
 
 class _Heading(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitHeading(self, **kwargs)
     def __init__(self, heading):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
@@ -397,7 +397,7 @@ class _Heading(_DocumentBlockObject):
 
 
 class _Paragraph(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitParagraph(self, **kwargs)
     def __init__(self, *children):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
@@ -407,10 +407,10 @@ class _Paragraph(_DocumentBlockObject):
 
 
 class _RichTextContainer(_DocumentObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitRichTextContainer(self, **kwargs)
     def __init__(self, *children):
-        self.children = flatten( [RichTextObject(a) for a in children ] ) 
+        self.children = flatten( [RichTextObject(a) for a in children ] )
         check_seq_type( self.children, _RichTextObject)
 
 
@@ -421,7 +421,7 @@ class _RichTextObject(_DocumentObject):
 
 
 class _Ref(_RichTextObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitRef(self, **kwargs)
     def __init__(self, target, ):
         self.target = target
@@ -429,7 +429,7 @@ class _Ref(_RichTextObject):
         return self.target.get_ref_str()
 
 class _Link(_RichTextObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitLink(self, **kwargs)
     def __init__(self, target, ref_text = None):
         self.target = target
@@ -438,13 +438,13 @@ class _Link(_RichTextObject):
         return self.ref_text or self.target
 
 class _Text(_RichTextObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitText(self, **kwargs)
     def __init__(self, text):
         self.text = check_type(text, basestring)
 
 class _InlineEquation(_RichTextObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitInlineEquation(self,**kwargs)
     def __init__(self, eqn):
         self.eqn = Equation(eqn)
@@ -452,7 +452,7 @@ class _InlineEquation(_RichTextObject):
 
 
 class _Figure(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitFigure(self,**kwargs)
 
     def __init__(self, *subfigs, **kwargs):
@@ -471,7 +471,7 @@ class _Figure(_DocumentBlockObject):
         return "Figure"
 
 class _Subfigure(_DocumentObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitSubfigure(self,**kwargs)
     def __init__(self, img):
         self.img = Image(img)
@@ -480,7 +480,7 @@ class _Subfigure(_DocumentObject):
 
 
 class _Table(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitTable(self,**kwargs)
     def __init__(self, header, data, **kwargs):
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
@@ -495,19 +495,19 @@ class _Table(_DocumentBlockObject):
         return "Table"
 
 class _EquationBlock(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitEquationBlock(self,**kwargs)
     def __init__(self, *equations, **kwargs):
         caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
         _DocumentBlockObject.__init__(self,caption=caption, reflabel=reflabel)
 
-        self.equations = [Equation(eq) for eq in equations] 
+        self.equations = [Equation(eq) for eq in equations]
 
     def get_type_str(self,):
         return "Eqn"
 
 class _Equation(_DocumentObject):
-    def _AcceptVisitor(self, v, **kwargs):
+    def _accept_visitor(self, v, **kwargs):
         return v._VisitEquation(self,**kwargs)
     def __init__(self, eqn):
         self.eqn = eqn
@@ -516,7 +516,7 @@ class _Equation(_DocumentObject):
 
 
 class _List(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitList(self, **kwargs)
 
     def __init__(self, *children, **kwargs):
@@ -528,7 +528,7 @@ class _List(_DocumentBlockObject):
         return "List"
 
 class _ListItem(_DocumentObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitListItem(self, **kwargs)
     def __init__(self,  para, header=None):
         self.para =   RichTextContainer(para)
@@ -537,7 +537,7 @@ class _ListItem(_DocumentObject):
 
 
 class _CodeBlock(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitCodeBlock(self, **kwargs)
     def __init__(self, contents, **kwargs):
         caption,reflabel,language = get_kwargs(kwargs,'caption','reflabel', 'language')
@@ -551,7 +551,7 @@ class _CodeBlock(_DocumentBlockObject):
 
 
 class _TableOfContents(_DocumentBlockObject):
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitTableOfContents(self, **kwargs)
     def __init__(self, *children):
         _DocumentBlockObject.__init__(self,caption=None, reflabel=None)
@@ -587,7 +587,7 @@ class _Image(_DocumentObject):
 
     def get_filename(self, type):
         raise NotImplementedError()
-    def _AcceptVisitor(self,v,**kwargs):
+    def _accept_visitor(self,v,**kwargs):
         return v._VisitImage(self,**kwargs)
 
 

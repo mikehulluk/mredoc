@@ -5,7 +5,7 @@
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -15,7 +15,7 @@
 #  * Neither the name of the  nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -45,82 +45,82 @@ class ActionerBase(VisitorBase):
 
     def _VisitDocument(self, n, **kwargs):
         self._ActionDocument(n, **kwargs)
-        self.Visit(n.hierachy_root, **kwargs) 
+        self.visit(n.hierachy_root, **kwargs)
 
     def _VisitHierachyScope(self, n, **kwargs):
         self._ActionHierachyScope(n, **kwargs)
         for c in n.children:
-            self.Visit(c, **kwargs)
-        
-        
+            self.visit(c, **kwargs)
+
+
 
     def _VisitFigure(self, n, **kwargs):
         self._ActionFigure( n, **kwargs)
         for c in n.subfigs:
-            self.Visit(c, **kwargs)
+            self.visit(c, **kwargs)
 
     def _VisitImage(self, n, **kwargs):
         self._ActionImage( n, **kwargs)
-        
+
     def _VisitSubfigure(self, n, **kwargs):
         self._ActionSubfigure( n, **kwargs)
-        self.Visit(n.img, **kwargs)
-        
+        self.visit(n.img, **kwargs)
+
     def _VisitTableOfContents(self, n, **kwargs):
         self._ActionTableOfContents( n, **kwargs)
-        
+
     def _VisitHeading(self, n, **kwargs):
         self._ActionHeading( n, **kwargs)
-        self.Visit(n.heading, **kwargs)
-        
+        self.visit(n.heading, **kwargs)
+
     def _VisitRichTextContainer(self, n, **kwargs):
         self._ActionRichTextContainer( n, **kwargs)
         for c in n.children:
-            self.Visit(c, **kwargs)
-    
+            self.visit(c, **kwargs)
+
     def _VisitParagraph(self, n, **kwargs):
         self._ActionParagraph( n, **kwargs)
-        self.Visit(n.contents, **kwargs)
+        self.visit(n.contents, **kwargs)
         #for c in n.children:
-        #    self.Visit(c, **kwargs)
-        
+        #    self.visit(c, **kwargs)
+
     def _VisitEquationBlock(self, n, **kwargs):
         self._ActionEquationBlock( n, **kwargs)
         for c in n.equations:
-            self.Visit(c, **kwargs)
+            self.visit(c, **kwargs)
 
     def _VisitList(self, n, **kwargs):
         self._ActionList(n, **kwargs)
         for c in n.children:
-            self.Visit(c, **kwargs)
-        
-    
+            self.visit(c, **kwargs)
+
+
     def _VisitListItem(self, n, **kwargs):
         self._ActionListItem( n, **kwargs)
-        self.Visit(n.para, **kwargs)
+        self.visit(n.para, **kwargs)
 
 
     def _VisitText(self, n, **kwargs):
         self._ActionText( **kwargs)
-        
+
     def _VisitTable(self, n, **kwargs):
         self._ActionTable( n, **kwargs)
 
     def _VisitEquation(self, n, **kwargs):
         self._ActionEquation(n, **kwargs)
-        
+
     def _VisitInlineEquation(self, n, **kwargs):
         self._ActionInlineEquation( n, **kwargs)
-        
+
     def _VisitCodeBlock(self, n, **kwargs):
         self._ActionCodeBlock(n, **kwargs)
-        
+
     def _VisitLink(self, n, **kwargs):
         self._ActionLink( n, **kwargs)
 
     def _VisitRef(self, n, **kwargs):
         self._ActionRef( n, **kwargs)
-        
+
 
 
 
@@ -147,7 +147,7 @@ class ActionerBase(VisitorBase):
 
     def _ActionRichTextContainer(self, n, **kwargs):
         raise NotImplementedError()
-    
+
     def _ActionParagraph(self, n, **kwargs):
         raise NotImplementedError()
 
@@ -173,9 +173,9 @@ class ActionerBase(VisitorBase):
         raise NotImplementedError()
     def _ActionListItem(self, n, **kwargs):
         raise NotImplementedError()
-    
+
     def _ActionRef(self, n, **kwargs):
         raise NotImplementedError()
     def _ActionLink(self, n, **kwargs):
         raise NotImplementedError()
-        
+

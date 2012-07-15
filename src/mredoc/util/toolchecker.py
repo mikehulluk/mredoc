@@ -3,7 +3,7 @@ import subprocess
 import shutil
 
 class RequiredExternalToolNotFound(RuntimeError):
-     pass 
+     pass
 
 class ExternalToolsLinux():
 
@@ -14,7 +14,7 @@ class ExternalToolsLinux():
         if os.path.exists( filename2 ):
             assert os.path.isfile(filename2)
             os.unlink(filename2)
-    
+
         ext = lambda s: os.path.splitext(s)[1]
         if ext(filename1) != ext(filename2):
             ExternalToolsChecker.check_imagemagick()
@@ -23,7 +23,7 @@ class ExternalToolsLinux():
                 raise RuntimeError("File conversion with ImageMagick failed. I was trying to run the command: convert %s %s"%(filename1, filename2) )
         else:
             op = shutil.copy(filename1, filename2)
-                
+
 
 
      @classmethod
@@ -41,7 +41,7 @@ class ExternalToolsCheckerLinux():
         if ExternalToolsCheckerLinux.pdflatex_checked:
             return
         ExternalToolsCheckerLinux.pdflatex_checked = True
-        
+
         try:
             subprocess.check_call("which pdflatex")
         except:
@@ -65,7 +65,7 @@ pl = platform.system()
 print pl
 #assert False
 
-ExternalTools, ExternalToolsChecker = { 
+ExternalTools, ExternalToolsChecker = {
     'Linux' : (ExternalToolsLinux, ExternalToolsCheckerLinux )
 }[pl]
 

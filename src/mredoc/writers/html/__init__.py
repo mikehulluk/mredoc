@@ -101,7 +101,7 @@ class HTMLWriter(VisitorBase):
 
 
         self.xmlstack = [ [self._new_html_witch_obj(), 0] ]
-        self.Visit(doc)
+        self.visit(doc)
 
         # Write the output:
         self._write_file( str( self.xml), "index.html" )
@@ -119,13 +119,13 @@ class HTMLWriter(VisitorBase):
 
 
 
-    # Visit the tree:
+    # visit the tree:
     def _VisitDocument(self, n, **kwargs):
         with self.xml.html:
             self._write_htmlheader_block()
 
             with self.xml.body:
-                self.Visit( n.hierachy_root)
+                self.visit( n.hierachy_root)
 
 
 
@@ -136,7 +136,7 @@ class HTMLWriter(VisitorBase):
                 self.xml.write( n.get_ref_str() + ( ": " if n.caption else ""))
             with self.xml.span(**{'class':'captiontext'} ):
                 if n.caption:
-                    self.Visit(n.caption)
+                    self.visit(n.caption)
 
 
 
@@ -146,7 +146,7 @@ class HTMLWriter(VisitorBase):
         self.xmlstack[-1][1] += 1
         with self.xml.div(**{'class':block_type}) as d:
             for c in n.children:
-                self.Visit(c)
+                self.visit(c)
         self.xmlstack[-1][1] -= 1
 
     def _VisitHierachyScope(self, n, **kwargs):
@@ -172,7 +172,7 @@ class HTMLWriter(VisitorBase):
                     if isinstance(n,basestring):
                         self.xml.write( n.is_new_page )
                     elif n.children and isinstance( n.children[0], _Heading):
-                        self.Visit( n.children[0].heading )
+                        self.visit( n.children[0].heading )
                     else:
                         self.xml.write("Link to UNKNOWN")
         else:
@@ -189,7 +189,7 @@ class HTMLWriter(VisitorBase):
             with self.xml.figure:
                 # Subfigures:
                 for sf in n.subfigs:
-                    self.Visit(sf)
+                    self.visit(sf)
 
                 # Caption:
                 with self.xml.figcaption:
@@ -208,7 +208,7 @@ class HTMLWriter(VisitorBase):
             new_file = os.path.join( self.output_dir_img, new_filename)
             shutil.copyfile(old_file, new_file)
             img_locs[ext] = new_filename
-        
+
         rel_loc = os.path.relpath( self.output_dir_img, self.output_dir)
 
         N = lambda p: os.path.normpath( os.path.join(rel_loc,p))
@@ -216,13 +216,13 @@ class HTMLWriter(VisitorBase):
             self.xml.img(None, src=N(img_locs[ImageTypes.PNG]), alt="ImageFile", width="200")
 
     def _VisitSubfigure(self, n, **kwargs):
-        return self.Visit(n.img)
+        return self.visit(n.img)
 
     def _VisitHeading(self, n, **kwargs):
         header = "h%d"%self.xmlstack[-1][1]
 
         with self.xml[header]:
-            self.Visit(n.heading)
+            self.visit(n.heading)
 
 
 
@@ -242,14 +242,14 @@ class HTMLWriter(VisitorBase):
                 with self.xml.tr:
                     for h in n.header:
                         with self.xml.th:
-                            self.Visit(h)
+                            self.visit(h)
                             #self.xml.write(h)
 
                 for row in n.data:
                     with self.xml.tr:
                         for h in row:
                             with self.xml.td:
-                                self.Visit(h)
+                                self.visit(h)
                                 #self.xml.write(h)
 
                 # Caption:
@@ -266,7 +266,7 @@ class HTMLWriter(VisitorBase):
             with self.xml.div(**{'class':'eqnblockcontents math-header'}):# as d:
                 self.xml.write(r"\begin{align*}")
                 for e in n.equations:
-                    self.Visit(e)
+                    self.visit(e)
                     self.xml.write(r"\\")
                 self.xml.write(r"\end{align*}")
 
@@ -282,18 +282,18 @@ class HTMLWriter(VisitorBase):
     def _VisitInlineEquation(self, n):
         with self.xml.span( **{'class':"math-header"} ):
             self.xml.write("$")
-            
-            self.Visit(n.eqn)
+
+            self.visit(n.eqn)
             self.xml.write("$")
 
     def _VisitRichTextContainer(self, n, **kwargs):
         for c in n.children:
-            self.Visit(c)
+            self.visit(c)
             self.xml.write(" ")
 
     def _VisitParagraph(self, n, **kwargs):
         with self.xml.div(**{'class':'parablock'} ) :
-                self.Visit(n.contents)
+                self.visit(n.contents)
 
 
 
@@ -313,7 +313,7 @@ class HTMLWriter(VisitorBase):
 
             with self.xml.div(**{"class":"codeblockcontents"}) as d:
                 self.xml.write(html)
-                
+
             with self.xml.div(**{"class":"codeblockcaption"}) as d:
                 self._write_block_captiontext(n)
 
@@ -322,13 +322,13 @@ class HTMLWriter(VisitorBase):
         with self.xml.div(**{'class':'listblock'}):
             with self.xml.ul:
                 for c in n.children:
-                    self.Visit(c)
+                    self.visit(c)
 
     def _VisitListItem(self, n, **kwargs):
         with self.xml.li:
             if n.header:
-                self.Visit(n.header)
-            self.Visit(n.para)
+                self.visit(n.header)
+            self.visit(n.para)
 
 
     def _VisitLink(self, n, **kwargs):

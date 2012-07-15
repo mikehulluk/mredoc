@@ -34,7 +34,7 @@
 import os
 from mredoc.objects import ImageTypes, Languages
 from mredoc.visitors import VisitorBase
-from mredoc.util.removeemptysections import EmptySectionRemover
+#from mredoc.util.removeemptysections import EmptySectionRemover
 
 doc_header = r"""
 \documentclass[8pt]{scrartcl}   % list options between brackets
@@ -150,7 +150,7 @@ class LatexWriter(VisitorBase):
 
     def __init__(self, doc):
         self.hierachy_depth=0
-        self.output_tex = self.Visit(doc)
+        self.output_tex = self.visit(doc)
 
 
 
@@ -161,8 +161,8 @@ class LatexWriter(VisitorBase):
         return "\n".join([
             r"""\begin{figure}[htb]""",
             r"""\centering""",
-            "\n".join( [ self.Visit(s) for s in n.subfigs] ),
-            r"""\caption{%s}"""%self.Visit(n.caption) if n.caption else "",
+            "\n".join( [ self.visit(s) for s in n.subfigs] ),
+            r"""\caption{%s}"""%self.visit(n.caption) if n.caption else "",
             r"""\label{%s}"""%n.reflabel if n.reflabel else "",
             r"""\end{figure}""",
             ])
@@ -173,20 +173,20 @@ class LatexWriter(VisitorBase):
         return r"""\includegraphics{%s}"""%( n.get_filename(type=ImageTypes.PDF) )
 
     def _VisitSubfigure(self, n, **kwargs):
-        return self.Visit(n.img)
+        return self.visit(n.img)
 
 
 
     def _VisitTableOfContents(self, n, **kwargs):
         return r"\tableofcontents" + "\n" + r"\newpage"+ "\n"
 
-    # Visit the tree:
+    # visit the tree:
     def _VisitDocument(self, n, **kwargs):
-        return doc_header + self.Visit(n.hierachy_root,**kwargs)  + doc_footer
+        return doc_header + self.visit(n.hierachy_root,**kwargs)  + doc_footer
 
     def _VisitHierachyScope(self, n, **kwargs):
         self.hierachy_depth += 1
-        r = "\n".join( [ self.Visit(c) for c in n.children])
+        r = "\n".join( [ self.visit(c) for c in n.children])
         if n.is_new_page:
             r =  "\n\\newpage\n" + r
         self.hierachy_depth -= 1
@@ -194,19 +194,19 @@ class LatexWriter(VisitorBase):
 
     def _VisitHeading(self, n, **kwargs):
         heading_type = heading_by_depth[self.hierachy_depth]
-        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.Visit(n.heading) )
+        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.visit(n.heading) )
 
     def _VisitRichTextContainer(self, n, **kwargs):
-        return " ".join( [ self.Visit(c) for c in n.children])
+        return " ".join( [ self.visit(c) for c in n.children])
 
     def _VisitParagraph(self, n, **kwargs):
-        return self.Visit(n.contents)
+        return self.visit(n.contents)
 
     def _VisitText(self, n, **kwargs):
         return n.text.replace("&","\&").replace("_","\_")
 
     def _VisitTable(self, n, **kwargs):
-        buildline = lambda line: " & ".join( [self.Visit(l) for l in line ]) + r" \\"
+        buildline = lambda line: " & ".join( [self.visit(l) for l in line ]) + r" \\"
 
         header_line = buildline( n.header)
         contents = "\n".join( [buildline(c) for c in n.data] )
@@ -222,7 +222,7 @@ class LatexWriter(VisitorBase):
             contents,
             r"""\bottomrule""",
             r"""\end{longtable}""",
-            r"""\caption{%s}"""%self.Visit(n.caption) if n.caption else "",
+            r"""\caption{%s}"""%self.visit(n.caption) if n.caption else "",
             (r"""\label{%s}"""%n.reflabel )if n.reflabel else "",
             r"""\end{table}""",
             r"""\FloatBarrier"""
@@ -237,7 +237,7 @@ class LatexWriter(VisitorBase):
         if  not n.equations: return  ""
         return "\n".join([
             r"""\begin{align*}""",
-            "\n".join( [ self.Visit(s) + r"\\" for s in n.equations] ),
+            "\n".join( [ self.visit(s) + r"\\" for s in n.equations] ),
             r"""\end{align*}""",
             ])
 
@@ -257,7 +257,7 @@ class LatexWriter(VisitorBase):
             }[n.language]
 
         options = {
-            'caption':'{%s}'%self.Visit(n.caption) if n.caption else "",
+            'caption':'{%s}'%self.visit(n.caption) if n.caption else "",
             'label': n.reflabel
             }
         # Only include values with value:
@@ -276,14 +276,14 @@ class LatexWriter(VisitorBase):
             return
         return "\n".join([
             r"\begin{itemize}",
-            "\n".join([self.Visit(c) for c in n.children]),
+            "\n".join([self.visit(c) for c in n.children]),
             r"\end{itemize}",
         ])
     def _VisitListItem(self,n, **kwargs):
-        return r"\item %s"%self.Visit(n.para)
+        return r"\item %s"%self.visit(n.para)
 
     def _VisitInlineEquation(self,n, **kwargs):
-        return "$%s$"%self.Visit(n.eqn)
+        return "$%s$"%self.visit(n.eqn)
 
     def _VisitLink(self, n, **kwargs):
         return "\href{%s}{%s}"%(n.target, n.get_link_text() )

@@ -5,7 +5,7 @@
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -15,7 +15,7 @@
 #  * Neither the name of the  nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -36,7 +36,7 @@ from mredoc.visitors import VisitorBase, ActionerBase
 
 
 class BlockNumberer(ActionerBase, dict):
-    
+
     def __init__(self, obj):
         dict.__init__(self)
 
@@ -45,8 +45,8 @@ class BlockNumberer(ActionerBase, dict):
         self.obj_counts_table = 0
         self.obj_counts_code = 0
         self.obj_counts_list = 0
-        
-        self.Visit(obj)
+
+        self.visit(obj)
 
 
     def _ActionFigure(self, n, **kwargs):
@@ -56,7 +56,7 @@ class BlockNumberer(ActionerBase, dict):
     def _ActionTable(self, n, **kwargs):
         self.obj_counts_table += 1
         n.number = self.obj_counts_table
-        
+
     def _ActionEquationBlock(self, n, **kwargs):
         self.obj_counts_eqn += 1
         n.number = self.obj_counts_eqn
@@ -108,6 +108,6 @@ class BlockNumberer(ActionerBase, dict):
         self.obj_counts_list += 1
         #self[n] = self.obj_counts_eqn
         n.number = self.obj_counts_list
-    
+
     def _ActionListItem(self, n, **kwargs):
         pass

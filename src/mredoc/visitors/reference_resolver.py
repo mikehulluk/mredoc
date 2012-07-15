@@ -6,7 +6,7 @@
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
 #  met:
-#  
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #  * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
 #  * Neither the name of the  nor the names of its
 #    contributors may be used to endorse or promote products derived from
 #    this software without specific prior written permission.
-#  
+#
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 #  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -43,13 +43,13 @@ class RefResolver(ActionerBase):
     class Mode:
         Collect = "Collect"
         Assign = "Assign"
-    
+
     def __init__(self, doc):
         self.ref_map = {}
-        self.Visit(doc, mode= RefResolver.Mode.Collect)
-        self.Visit(doc, mode= RefResolver.Mode.Assign)
-        
-    
+        self.visit(doc, mode= RefResolver.Mode.Collect)
+        self.visit(doc, mode= RefResolver.Mode.Assign)
+
+
     def _ActionFigure(self, n, mode=None, **kwargs):
         if mode == RefResolver.Mode.Collect and n.reflabel:
             self.ref_map[n.reflabel] = n
@@ -61,7 +61,7 @@ class RefResolver(ActionerBase):
     def _ActionEquationBlock(self, n, mode=None, **kwargs):
         if mode == RefResolver.Mode.Collect and n.reflabel:
             self.ref_map[n.reflabel] = n
-    
+
     def _ActionCodeBlock(self, n, mode=None, **kwargs):
         if mode == RefResolver.Mode.Collect and n.reflabel:
             self.ref_map[n.reflabel] = n
@@ -70,13 +70,13 @@ class RefResolver(ActionerBase):
         if mode == RefResolver.Mode.Collect and n.reflabel:
             self.ref_map[n.reflabel] = n
 
-    
+
     def _ActionRef(self, n, mode=None, **kwargs):
         if mode == RefResolver.Mode.Assign:
             if isinstance(n.target, basestring):
                 n.target = self.ref_map[n.target]
-            
-            
+
+
     def _ActionDocument(self, n, **kwargs):
         pass
 
@@ -98,7 +98,7 @@ class RefResolver(ActionerBase):
 
     def _ActionRichTextContainer(self, n, **kwargs):
         pass
-    
+
     def _ActionParagraph(self, n, **kwargs):
         pass
 
@@ -113,9 +113,9 @@ class RefResolver(ActionerBase):
 
     def _ActionListItem(self, n, **kwargs):
         pass
-    
+
     def _ActionLink(self, n, **kwargs):
         pass
-                
-        
-    
+
+
+
