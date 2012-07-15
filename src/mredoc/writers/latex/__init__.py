@@ -249,7 +249,7 @@ class LatexWriter(VisitorBase):
         return r"""\newpage""" + "\n\n"
 
 
-    def _VisitCodeBlock(self,n, **kwargs):
+    def _VisitCodeListing(self,n, **kwargs):
         language = {
             Languages.Python:'python',
             Languages.Bash:'bash',

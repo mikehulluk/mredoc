@@ -117,7 +117,7 @@ class EmptySectionRemover(VisitorBase):
     def _VisitInlineEquation(self, n, **kwargs):
         raise NotImplementedError()
 
-    def _VisitCodeBlock(self, n, **kwargs):
+    def _VisitCodeListing(self, n, **kwargs):
         return True
         raise NotImplementedError()
 

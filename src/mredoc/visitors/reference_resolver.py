@@ -62,7 +62,7 @@ class RefResolver(ActionerBase):
         if mode == RefResolver.Mode.Collect and n.reflabel:
             self.ref_map[n.reflabel] = n
 
-    def _ActionCodeBlock(self, n, mode=None, **kwargs):
+    def _ActionCodeListing(self, n, mode=None, **kwargs):
         if mode == RefResolver.Mode.Collect and n.reflabel:
             self.ref_map[n.reflabel] = n
 

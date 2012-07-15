@@ -2,3 +2,7 @@
 *.swp
 
 doc/_build
+doc/generated_src/*
+src/testing/*.out
+src/testing/_output/
+

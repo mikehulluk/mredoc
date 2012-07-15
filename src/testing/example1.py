@@ -2,7 +2,6 @@ import os
 import pylab
 
 from mredoc import Document, Section, Figure, ImageFile, Equation
-from mredoc import HTMLWriter, LatexWriter
 from mredoc import EquationBlock, PythonBlock, Link, Ref
 from mredoc import ListItem, List, Paragraph, Table, InlineEquation
 from mredoc import SectionNewPage
