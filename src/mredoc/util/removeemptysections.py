@@ -37,9 +37,6 @@
 
 
 from mredoc.visitors import VisitorBase
-#from mredoc.objects import Heading, HierachyScope
-
-#from mredoc.objects import _Heading, _HierachyScope
 from mredoc.objects.core import _Heading, _HierachyScope
 
 class EmptySectionRemover(VisitorBase):

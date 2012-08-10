@@ -34,7 +34,6 @@
 import os
 from mredoc.objects import ImageTypes, Languages
 from mredoc.visitors import VisitorBase
-#from mredoc.util.removeemptysections import EmptySectionRemover
 
 doc_header = r"""
 \documentclass[8pt]{scrartcl}   % list options between brackets
@@ -81,7 +80,7 @@ float=tbfh}
 \usepackage{graphicx}
 \usepackage{placeins}
 
-\usepackage{bera}
+%\usepackage{bera}
 \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \usepackage[T1]{fontenc}
 

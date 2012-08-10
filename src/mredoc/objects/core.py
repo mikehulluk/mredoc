@@ -36,7 +36,7 @@ import os
 import collections
 
 import matplotlib
-from types import NoneType
+#from types import NoneType
 
 
 
@@ -82,7 +82,7 @@ def flatten(objs):
         elif o is None:
             continue
         elif isiterable(o):
-            r.extend(o)
+            r.extend(flatten(o))
         else:
             raise InvalidDocumentTree("Unexpected argument: %s (type:%s"%(o, type(o)))
 
@@ -147,12 +147,12 @@ def HierachyScope(*args, **kwargs):
     current_para_block = None
     for c in args:
         if not isinstance(c, _ContentBlock):
-            if not current_para_block:
+            if current_para_block is None:
                 current_para_block = []
             current_para_block.append(c)
         else:
             if current_para_block:
-                blocks.append( Paragraph(*current_para_block))
+                blocks.append( Paragraph(*flatten(current_para_block)))
                 current_para_block = None
             blocks.append(c)
     return _HierachyScope(*blocks, **kwargs)
@@ -162,13 +162,13 @@ def Section(heading, *children ):
     """Creates a new Section, with a heading given by the first parameter. Set
     the first parameter to ``None`` to suppress the heading"""
     if heading:
-        return HierachyScope( *itertools.chain( [Heading(heading)], children) )
+        return HierachyScope( *itertools.chain( [Heading(heading)], flatten(children)) )
     else:
-        return HierachyScope(  *children )
+        return HierachyScope(  *flatten(children) )
 
 # Syntactic Sugar:
 def SectionNewPage(heading, *children):
-    return HierachyScope( *itertools.chain( [Heading(heading)], children), new_page=True )
+    return HierachyScope( *itertools.chain( [Heading(heading)], flatten(children)), new_page=True )
 
 
 
@@ -372,8 +372,9 @@ class _DocumentRoot(_DocumentObject):
     def as_document(self):
         return self
 
-    def _accept_visitor(self,v,**kwargs):
+    def _accept_visitor(self, v, **kwargs):
         return v._VisitDocument(self, **kwargs)
+
     def __init__(self, hierachy_root, remove_empty_sections=True, normalise_hierachy=True):
 
         self.hierachy_root = HierachyScope( hierachy_root)
@@ -389,6 +390,9 @@ class _DocumentRoot(_DocumentObject):
         if normalise_hierachy:
             from mredoc.util.removeemptysections import NormaliseHierachyScope
             NormaliseHierachyScope().visit(self)
+
+    def __str__(self):
+        return '<DocumentRoot: [ %s ]>' % str(self.hierachy_root)
 
 
 
@@ -416,6 +420,9 @@ class _HierachyScope(_ContentBlock):
         _ContentBlock.__init__(self,caption=None, reflabel=None)
         self.is_new_page, = get_kwargs(kwargs,'new_page')
         self.children = check_seq_type(children, _ContentBlock )
+
+    def __str__(self):
+        return '<HierachyScope: [ %s ]>' % ','.join([str(s) for s in self.children])
 
 
 class _Heading(_ContentBlock):
