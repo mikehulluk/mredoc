@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # =====================================================================
 # Copyright (c) 2012, Michael Hull
 # All rights reserved.
@@ -87,6 +90,23 @@ float=tbfh}
 \setcounter{tocdepth}{10}
 
 
+
+% Add new line to 'paragraph' headings and below:
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\makeatletter
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+
 \begin{document}
 """
 
@@ -99,12 +119,11 @@ doc_footer = r"""
 
 
 heading_by_depth = {
-    1:"section",
-    2:"subsection",
-    3:"subsubsection",
-    4:"paragraph",
-    5:"subparagraph",
-    6:"subsubparagraph",
+    1: 'section',
+    2: 'subsection',
+    3: 'subsubsection',
+    4: 'paragraph',
+    5: 'subparagraph',
     }
 
 
@@ -114,28 +133,34 @@ heading_by_depth = {
 
 class LatexWriter(VisitorBase):
 
-    _working_dir = "/tmp/ltxwriter/"
+    _working_dir = '/tmp/ltxwriter/'
 
     @classmethod
     def _compile_pdf(cls, tex_str, output_filename):
-        #working_dir = working_dir or "/tmp"
         if not os.path.exists(cls._working_dir):
             os.makedirs(cls._working_dir)
-        tex_file = cls._working_dir + "/eqnset.tex"
-        tex_pdf = cls._working_dir + "/eqnset.pdf"
+        tex_file = cls._working_dir + '/eqnset.tex'
+        tex_pdf = cls._working_dir + '/eqnset.pdf'
 
         op_dir = os.path.dirname(output_filename)
         if not os.path.exists(op_dir):
             os.makedirs(op_dir)
         # Write to disk and compile:
-        with open(tex_file,'w') as f:
+        with open(tex_file, 'w') as f:
             f.write(tex_str)
-        os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
-        os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
-        os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
-        os.system("cp %s %s"%(tex_pdf,output_filename) )
+
+        compile_cmd = "pdflatex -output-directory %s %s"%(cls._working_dir, tex_file) 
+        os.system(compile_cmd)
+        os.system(compile_cmd)
+        os.system(compile_cmd)
+        os.system(compile_cmd)
+
+        # os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
+        # os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
+
+        os.system('cp %s %s' % (tex_pdf, output_filename))
         if not os.path.exists(output_filename):
-            raise ValueError("Something went wrong building pdf")
+            raise ValueError('Something went wrong building pdf')
 
     @classmethod
     def BuildPDF(cls, doc, filename):
@@ -148,81 +173,81 @@ class LatexWriter(VisitorBase):
 
 
     def __init__(self, doc):
-        self.hierachy_depth=0
+        self.hierachy_depth = 0
         self.output_tex = self.visit(doc)
 
 
 
     def _VisitFigure(self, n, **kwargs):
-        if len( n.subfigs) == 1:
+        if len(n.subfigs) == 1:
             pass
 
-        return "\n".join([
+        return '\n'.join([
             r"""\begin{figure}[htb]""",
             r"""\centering""",
-            "\n".join( [ self.visit(s) for s in n.subfigs] ),
-            r"""\caption{%s}"""%self.visit(n.caption) if n.caption else "",
-            r"""\label{%s}"""%n.reflabel if n.reflabel else "",
+            '\n'.join([self.visit(s) for s in n.subfigs]),
+            (r"""\caption{%s}""" % self.visit(n.caption) if n.caption else ''),
+            (r"""\label{%s}""" % n.reflabel if n.reflabel else ''),
             r"""\end{figure}""",
             ])
 
 
 
     def _VisitImage(self, n, **kwargs):
-        return r"""\includegraphics{%s}"""%( n.get_filename(type=ImageTypes.PDF) )
+        return r"""\includegraphics{%s}""" % ( n.get_filename(type=ImageTypes.PDF) )
 
     def _VisitSubfigure(self, n, **kwargs):
         return self.visit(n.img)
 
-
-
     def _VisitTableOfContents(self, n, **kwargs):
-        return r"\tableofcontents" + "\n" + r"\newpage"+ "\n"
+        return r"\tableofcontents" + '\n' + '\\newpage' + '\n'
 
-    # visit the tree:
     def _VisitDocument(self, n, **kwargs):
         return doc_header + self.visit(n.hierachy_root,**kwargs)  + doc_footer
 
     def _VisitHierachyScope(self, n, **kwargs):
         self.hierachy_depth += 1
-        r = "\n".join( [ self.visit(c) for c in n.children])
+        r = '\n'.join([self.visit(c) for c in n.children])
         if n.is_new_page:
             r =  "\n\\newpage\n" + r
         self.hierachy_depth -= 1
         return r
 
     def _VisitHeading(self, n, **kwargs):
+        assert self.hierachy_depth <= 5, \
+            'Deep documents not properly handled yet. TODO FIX HERE'
+
         heading_type = heading_by_depth[self.hierachy_depth]
         return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.visit(n.heading) )
 
     def _VisitRichTextContainer(self, n, **kwargs):
-        return " ".join( [ self.visit(c) for c in n.children])
+        return ' '.join([self.visit(c) for c in n.children])
 
     def _VisitParagraph(self, n, **kwargs):
         return self.visit(n.contents)
 
     def _VisitText(self, n, **kwargs):
-        return n.text.replace("&","\&").replace("_","\_")
+        return n.text.replace('&', "\&").replace('_', "\_")
 
     def _VisitTable(self, n, **kwargs):
         buildline = lambda line: " & ".join( [self.visit(l) for l in line ]) + r" \\"
 
-        header_line = buildline( n.header)
-        contents = "\n".join( [buildline(c) for c in n.data] )
-        alignment = "c"*len(n.header)
+        header_line = buildline(n.header)
+        contents = '\n'.join([buildline(c) for c in n.data])
+        alignment = 'c' * len(n.header)
 
-        return "\n".join( [
+        return '\n'.join([
             r"""\begin{table}[h!]""",
             r"""\scriptsize""",
-            r"""\begin{longtable}{%s}"""%alignment,
+            r"""\begin{longtable}{%s}""" % alignment,
             r"""\toprule""",
             header_line,
             r"""\midrule""",
             contents,
             r"""\bottomrule""",
             r"""\end{longtable}""",
-            r"""\caption{%s}"""%self.visit(n.caption) if n.caption else "",
-            (r"""\label{%s}"""%n.reflabel )if n.reflabel else "",
+            r"""\caption{%s}""" % self.visit(n.caption) if n.caption else "",
+            (r"""\label{%s}""" % n.reflabel) if n.reflabel else "",
             r"""\end{table}""",
             r"""\FloatBarrier"""
         ])
@@ -233,10 +258,10 @@ class LatexWriter(VisitorBase):
 
 
     def _VisitEquationBlock(self, n, **kwargs):
-        if  not n.equations: return  ""
-        return "\n".join([
+        if  not n.equations: return ''
+        return '\n'.join([
             r"""\begin{align*}""",
-            "\n".join( [ self.visit(s) + r"\\" for s in n.equations] ),
+            '\n'.join([self.visit(s) + r"\\" for s in n.equations] ),
             r"""\end{align*}""",
             ])
 
@@ -278,13 +303,15 @@ class LatexWriter(VisitorBase):
             "\n".join([self.visit(c) for c in n.children]),
             r"\end{itemize}",
         ])
-    def _VisitListItem(self,n, **kwargs):
-        return r"\item %s"%self.visit(n.para)
 
-    def _VisitInlineEquation(self,n, **kwargs):
-        return "$%s$"%self.visit(n.eqn)
+    def _VisitListItem(self, n, **kwargs):
+        return r"\item %s" % self.visit(n.para)
+
+    def _VisitInlineEquation(self, n, **kwargs):
+        return '$%s$' % self.visit(n.eqn)
 
     def _VisitLink(self, n, **kwargs):
-        return "\href{%s}{%s}"%(n.target, n.get_link_text() )
+        return "\href{%s}{%s}" % (n.target, n.get_link_text())
     def _VisitRef(self, n, **kwargs):
-        return r"%s \ref{%s}"%(n.target.get_type_str(), n.target.reflabel)
+        return r"%s \ref{%s}" % (n.target.get_type_str(),
+                                 n.target.reflabel)

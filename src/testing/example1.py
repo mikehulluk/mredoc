@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import os
 import pylab
 
@@ -8,18 +11,18 @@ from mredoc import SectionNewPage
 
 
 # Setup paths relative to this file for images:
-local_path = os.path.abspath(__file__)
-test_file_path = os.path.abspath( os.path.join(os.path.dirname(local_path), "../test_data") )
+local_path = os.path.dirname(os.path.abspath(__file__))
+test_file_path = os.path.abspath(os.path.join(local_path, "../test_data"))
 
 
 # Generate the figure in matplolib that we will embed:
 import numpy as np
-x = np.linspace(-5,5,100)
+x = np.linspace(-5, 5, 100)
 y1 = np.sin(x)
-y2 = np.sin(2*x)
+y2 = np.sin(2 * x)
 fig = pylab.figure()
-pylab.plot(x,y1, label="y=sin(x)")
-pylab.plot(x,y2, label="y=sin(2x)")
+pylab.plot(x, y1, label='y=sin(x)')
+pylab.plot(x, y2, label='y=sin(2x)')
 pylab.legend()
 
 code1 = """

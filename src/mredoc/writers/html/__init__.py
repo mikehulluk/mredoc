@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # =====================================================================
 # Copyright (c) 2012, Michael Hull
 # All rights reserved.
@@ -33,7 +36,6 @@
 
 
 import xmlwitch
-#from mredoc.writers.latex import DocumentVisitor
 
 import os
 import shutil
@@ -69,15 +71,16 @@ class HTMLWriter(VisitorBase):
         return HTMLWriter(doc=doc, output_dir=output_dir)
 
 
-    def _new_html_witch_obj(self,):
-        o = xmlwitch.Builder(version='1.0', encoding='utf-8', indent="")
-        o.write( """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">\n""")
+    def _new_html_witch_obj(self):
+        o = xmlwitch.Builder(version='1.0', encoding='utf-8', indent='')
+        o.write("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">\n"""
+                )
         return o
 
 
     def _write_htmlheader_block(self):
         with self.xml.head:
-            self.xml.title("MReDoc Generated Page")
+            self.xml.title('MReDoc Generated Page')
 
             # Using the xmlwitch style does not work for this. I don't know why! To be investigated!
             self.xml.write(r"""<script type="text/x-mathjax-config"> MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}}); </script>""")
@@ -85,8 +88,9 @@ class HTMLWriter(VisitorBase):
             self.xml.write(r"""<link rel="stylesheet" type="text/css" href="defaultstyle.css"/>""")
 
     def _write_file(self, contents, relative_filename):
-        with open(os.path.join( self.output_dir, relative_filename),"w") as f:
-            f.write( contents )
+        fname = os.path.join(self.output_dir, relative_filename)
+        with open(fname, 'w') as f:
+            f.write(contents)
 
 
 
@@ -97,20 +101,21 @@ class HTMLWriter(VisitorBase):
 
         # Output locations:
         self.output_dir = EnsureExists(output_dir)
-        self.output_dir_img = EnsureExists(output_dir+"/imgs/")
+        self.output_dir_img = EnsureExists(output_dir + '/imgs/')
 
 
-        self.xmlstack = [ [self._new_html_witch_obj(), 0] ]
+        self.xmlstack = [[self._new_html_witch_obj(), 0]]
         self.visit(doc)
 
         # Write the output:
-        self._write_file( str( self.xml), "index.html" )
+        self._write_file(str(self.xml), 'index.html')
 
         # Copy accross the CSS:
         import os
         path = os.path.abspath(__file__)
         dir_path = os.path.dirname(path)
-        css_file = os.path.join(dir_path,"../../../resources/defaultstyle.css")
+        pkg_path = os.path.join(dir_path, '../../../')
+        css_file = os.path.join(pkg_path, 'resources/defaultstyle.css')
         shutil.copy(css_file, self.output_dir)
 
     @property
@@ -125,33 +130,34 @@ class HTMLWriter(VisitorBase):
             self._write_htmlheader_block()
 
             with self.xml.body:
-                self.visit( n.hierachy_root)
+                self.visit(n.hierachy_root)
 
 
 
 
 
-    def _write_block_captiontext(self,n):
-            with self.xml.span(**{'class':'captionheader'} ):
-                self.xml.write( n.get_ref_str() + ( ": " if n.caption else ""))
-            with self.xml.span(**{'class':'captiontext'} ):
-                if n.caption:
-                    self.visit(n.caption)
+    def _write_block_captiontext(self, n):
+        with self.xml.span(**{'class':'captionheader'}):
+            self.xml.write(n.get_ref_str() + (": " if n.caption else ""))
+        with self.xml.span(**{'class':'captiontext'}):
+            if n.caption:
+                self.visit(n.caption)
 
 
 
 
     def _VisitHierachyScopeInternal(self, n):
-        block_type = "hierachyblock" if self.xmlstack[-1][1] != 0 else "pageblock"
+        block_type = ('hierachyblock' if self.xmlstack[-1][1]
+                      != 0 else 'pageblock')
         self.xmlstack[-1][1] += 1
-        with self.xml.div(**{'class':block_type}) as d:
+        with self.xml.div(**{'class': block_type}) as d:
             for c in n.children:
                 self.visit(c)
         self.xmlstack[-1][1] -= 1
 
     def _VisitHierachyScope(self, n, **kwargs):
         if n.is_new_page:
-            self.xmlstack.append( [self._new_html_witch_obj(), 0] )
+            self.xmlstack.append([self._new_html_witch_obj(), 0])
             self._write_htmlheader_block()
             with self.xml.body:
                 # In either case, visit all the children
@@ -165,16 +171,16 @@ class HTMLWriter(VisitorBase):
 
                 # Write the new HTML file out:
                 fNameShort =  "f_%s.html"%hashlib.md5(xml_block).hexdigest()
-                self._write_file( xml_block, fNameShort )
+                self._write_file(xml_block, fNameShort)
 
                 # Create a link in the local document:
                 with self.xml.a(href=fNameShort):
-                    if isinstance(n,basestring):
-                        self.xml.write( n.is_new_page )
-                    elif n.children and isinstance( n.children[0], _Heading):
-                        self.visit( n.children[0].heading )
+                    if isinstance(n, basestring):
+                        self.xml.write(n.is_new_page)
+                    elif n.children and isinstance(n.children[0], _Heading):
+                        self.visit(n.children[0].heading)
                     else:
-                        self.xml.write("Link to UNKNOWN")
+                        self.xml.write('Link to UNKNOWN')
         else:
             self._VisitHierachyScopeInternal(n)
 
@@ -184,7 +190,7 @@ class HTMLWriter(VisitorBase):
 
     def _VisitFigure(self, n, **kwargs):
 
-        with self.xml.div(**{'class':'figblock'}) as d:
+        with self.xml.div(**{'class': 'figblock'}) as d:
 
             with self.xml.figure:
                 # Subfigures:
@@ -198,28 +204,29 @@ class HTMLWriter(VisitorBase):
 
     def _VisitImage(self, n, **kwargs):
         base_name = n.fNameBase
-        dirname, name = os.path.split(base_name)
+        (dirname, name) = os.path.split(base_name)
 
         # Copy the files accross:
         img_locs = {}
         for ext in [ImageTypes.SVG, ImageTypes.PDF, ImageTypes.PNG]:
             old_file = n.get_filename(type=ext)
-            new_filename =  name+"."+ext
-            new_file = os.path.join( self.output_dir_img, new_filename)
+            new_filename = name + '.' + ext
+            new_file = os.path.join(self.output_dir_img, new_filename)
             shutil.copyfile(old_file, new_file)
             img_locs[ext] = new_filename
 
-        rel_loc = os.path.relpath( self.output_dir_img, self.output_dir)
+        rel_loc = os.path.relpath(self.output_dir_img, self.output_dir)
 
-        N = lambda p: os.path.normpath( os.path.join(rel_loc,p))
+        N = lambda p: os.path.normpath(os.path.join(rel_loc, p))
         with self.xml.a(href=N(img_locs[ImageTypes.SVG])):
-            self.xml.img(None, src=N(img_locs[ImageTypes.PNG]), alt="ImageFile", width="200")
+            self.xml.img(None, src=N(img_locs[ImageTypes.PNG]),
+                         alt='ImageFile', width='200')
 
     def _VisitSubfigure(self, n, **kwargs):
         return self.visit(n.img)
 
     def _VisitHeading(self, n, **kwargs):
-        header = "h%d"%self.xmlstack[-1][1]
+        header = 'h%d' % self.xmlstack[-1][1]
 
         with self.xml[header]:
             self.visit(n.heading)
@@ -228,14 +235,15 @@ class HTMLWriter(VisitorBase):
 
     def _VisitTableOfContents(self, n, **kwargs):
         pass
-    def _VisitPageBreak(self,n, **kwargs):
+
+    def _VisitPageBreak(self, n, **kwargs):
         return
 
 
 
     def _VisitTable(self, n, **kwargs):
 
-        with self.xml.div( **{'class':'tableblock'} ) as d:
+        with self.xml.div(**{'class': 'tableblock'}) as d:
 
 
             with self.xml.table:
@@ -243,15 +251,13 @@ class HTMLWriter(VisitorBase):
                     for h in n.header:
                         with self.xml.th:
                             self.visit(h)
-                            #self.xml.write(h)
-
+                            
                 for row in n.data:
                     with self.xml.tr:
                         for h in row:
                             with self.xml.td:
                                 self.visit(h)
-                                #self.xml.write(h)
-
+                                
                 # Caption:
                 with self.xml.caption:
                     self._write_block_captiontext(n)
@@ -260,7 +266,7 @@ class HTMLWriter(VisitorBase):
 
 
     def _VisitEquationBlock(self, n, **kwargs):
-        with self.xml.div(**{'class':'eqnblock'} ) as dout:
+        with self.xml.div(**{'class': 'eqnblock'}) as dout:
 
 
             with self.xml.div(**{'class':'eqnblockcontents math-header'}):# as d:
@@ -274,26 +280,26 @@ class HTMLWriter(VisitorBase):
                 self._write_block_captiontext(n)
 
     def _VisitEquation(self, n, **kwargs):
-        self.xml.write( r" %s \\" % n.eqn  )
+        self.xml.write(r" %s \\" % n.eqn)
 
 
 
 
     def _VisitInlineEquation(self, n):
-        with self.xml.span( **{'class':"math-header"} ):
-            self.xml.write("$")
+        with self.xml.span(**{'class': 'math-header'}):
+            self.xml.write('$')
 
             self.visit(n.eqn)
-            self.xml.write("$")
+            self.xml.write('$')
 
     def _VisitRichTextContainer(self, n, **kwargs):
         for c in n.children:
             self.visit(c)
-            self.xml.write(" ")
+            self.xml.write(' ')
 
     def _VisitParagraph(self, n, **kwargs):
-        with self.xml.div(**{'class':'parablock'} ) :
-                self.visit(n.contents)
+        with self.xml.div(**{'class': 'parablock'}):
+            self.visit(n.contents)
 
 
 
@@ -309,17 +315,17 @@ class HTMLWriter(VisitorBase):
         lexer = lexer_lut.get( n.language, None)
         html = highlight(n.contents, PythonLexer(), HtmlFormatter()) if lexer else "<pre>%s</pre>"%n.contents
 
-        with self.xml.div(**{"class":"codeblock"}) as d:
+        with self.xml.div(**{'class': 'codeblock'}) as d:
 
-            with self.xml.div(**{"class":"codeblockcontents"}) as d:
+            with self.xml.div(**{'class': 'codeblockcontents'}) as d:
                 self.xml.write(html)
 
-            with self.xml.div(**{"class":"codeblockcaption"}) as d:
+            with self.xml.div(**{'class': 'codeblockcaption'}) as d:
                 self._write_block_captiontext(n)
 
 
     def _VisitList(self, n, **kwargs):
-        with self.xml.div(**{'class':'listblock'}):
+        with self.xml.div(**{'class': 'listblock'}):
             with self.xml.ul:
                 for c in n.children:
                     self.visit(c)

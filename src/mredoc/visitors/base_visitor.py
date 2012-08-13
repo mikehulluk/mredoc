@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # =====================================================================
 # Copyright (c) 2012, Michael Hull
 # All rights reserved.
@@ -63,7 +66,7 @@ class VisitorBase(object):
     def _VisitParagraph(self, n, **kwargs):
         raise NotImplementedError()
 
-    def _VisitText(self,n, **kwargs):
+    def _VisitText(self, n, **kwargs):
         raise NotImplementedError()
 
     def _VisitTable(self, n, **kwargs):

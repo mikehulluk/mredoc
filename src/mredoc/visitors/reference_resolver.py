@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # =====================================================================
 # Copyright (c) 2012, Michael Hull
@@ -41,13 +43,13 @@ from mredoc.visitors import ActionerBase
 class RefResolver(ActionerBase):
 
     class Mode:
-        Collect = "Collect"
-        Assign = "Assign"
+        Collect = 'Collect'
+        Assign = 'Assign'
 
     def __init__(self, doc):
         self.ref_map = {}
-        self.visit(doc, mode= RefResolver.Mode.Collect)
-        self.visit(doc, mode= RefResolver.Mode.Assign)
+        self.visit(doc, mode=RefResolver.Mode.Collect)
+        self.visit(doc, mode=RefResolver.Mode.Assign)
 
 
     def _ActionFigure(self, n, mode=None, **kwargs):

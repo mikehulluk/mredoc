@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # XML Witch
 # (Released under a BSD license)
 # This code has been taken from github:
@@ -14,22 +17,26 @@ from keyword import kwlist as PYTHON_KWORD_LIST
 __all__ = ['Builder', 'Element']
 __license__ = 'BSD'
 __version__ = '0.2.1'
-__author__ = "Jonas Galvez <http://jonasgalvez.com.br/>"
-__contributors__ = ["bbolli <http://github.com/bbolli/>",
-                    "masklinn <http://github.com/masklinn/>"]
+__author__ = 'Jonas Galvez <http://jonasgalvez.com.br/>'
+__contributors__ = ['bbolli <http://github.com/bbolli/>',
+                    'masklinn <http://github.com/masklinn/>']
 
 class Builder:
 
-    def __init__(self, encoding='utf-8', indent=' '*2, version=None):
+    def __init__(
+        self,
+        encoding='utf-8',
+        indent=' ' * 2,
+        version=None,
+        ):
         self._document = StringIO()
         self._encoding = encoding
         self._indent = indent
         self._indentation = 0
-        self.line_separator = ""
+        self.line_separator = ''
         if version is not None:
-            self.write('<?xml version="%s" encoding="%s"?>\n' % (
-                version, encoding
-            ))
+            self.write('<?xml version="%s" encoding="%s"?>\n'
+                       % (version, encoding))
 
     def __getattr__(self, name):
         return Element(name, self)
@@ -55,7 +62,9 @@ class Builder:
 
     def write_indented(self, content):
         """Write indented content to the document"""
+
         self.write('%s%s%s' % (self._indent * self._indentation, content, self.line_separator))
+
 
 builder = Builder # 0.1 backward compatibility
 
@@ -70,9 +79,8 @@ class Element:
 
     def __enter__(self):
         """Add a parent element to the document"""
-        self.builder.write_indented('<%s%s>' % (
-            self.name, self._serialized_attrs()
-        ))
+        self.builder.write_indented('<%s%s>' % (self.name,
+                                    self._serialized_attrs()))
         self.builder._indentation += 1
         return self
 
@@ -90,23 +98,21 @@ class Element:
             value = args[1]
             if value is None:
 
-                self.builder.write_indented('<%s%s />' % (
-                    self.name, self._serialized_attrs()
-                ))
+                self.builder.write_indented('<%s%s />' % (self.name,
+                        self._serialized_attrs()))
             else:
                 value = saxutils.escape(value)
-                self.builder.write_indented('<%s%s>%s</%s>' % (
-                    self.name, self._serialized_attrs(), value, self.name
-                ))
+                self.builder.write_indented('<%s%s>%s</%s>'
+                        % (self.name, self._serialized_attrs(), value,
+                        self.name))
         return self
 
     def _serialized_attrs(self):
         """Serialize attributes for element insertion"""
         serialized = []
-        for attr, value in self.attributes.items():
-            serialized.append(' %s=%s' % (
-                self._nameprep(attr), saxutils.quoteattr(value)
-            ))
+        for (attr, value) in self.attributes.items():
+            serialized.append(' %s=%s' % (self._nameprep(attr),
+                              saxutils.quoteattr(value)))
         return ''.join(serialized)
 
     def _nameprep(self, name):

@@ -1,17 +1,22 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import os
 import subprocess
 import shutil
 
 class RequiredExternalToolNotFound(RuntimeError):
-     pass
 
-class ExternalToolsLinux():
+    pass
 
-     @classmethod
-     def ConvertImage(cls, filename1, filename2):
+
+class ExternalToolsLinux(object):
+
+    @classmethod
+    def ConvertImage(cls, filename1, filename2):
         # Does it exist? If so then delete it
         # so we can flag if the conversion fails.
-        if os.path.exists( filename2 ):
+        if os.path.exists(filename2):
             assert os.path.isfile(filename2)
             os.unlink(filename2)
 
@@ -26,12 +31,12 @@ class ExternalToolsLinux():
 
 
 
-     @classmethod
-     def RunPDFLatex(cls, texfile, working_dir=None):
+    @classmethod
+    def RunPDFLatex(cls, texfile, working_dir=None):
          ExternalToolsChecker.check_pdflatex()
 
 
-class ExternalToolsCheckerLinux():
+class ExternalToolsCheckerLinux(object):
 
     pdflatex_checked = False
     imagemagick_checked = False
@@ -43,7 +48,7 @@ class ExternalToolsCheckerLinux():
         ExternalToolsCheckerLinux.pdflatex_checked = True
 
         try:
-            subprocess.check_call("which pdflatex")
+            subprocess.check_call('which pdflatex')
         except:
             raise RequiredExternalToolNotFound("Can't find pdf_latex")
 
@@ -54,18 +59,17 @@ class ExternalToolsCheckerLinux():
         ExternalToolsCheckerLinux.imagemagick_checked = True
 
         try:
-            subprocess.check_call(["which","convert"])
+            subprocess.check_call(['which', 'convert'])
         except:
-            raise RequiredExternalToolNotFound("Can't find ImageMagick (convert)")
+            raise RequiredExternalToolNotFound("Can't find ImageMagick(convert)")
 
 
 
 import platform
 pl = platform.system()
-print pl
-#assert False
+
 
 ExternalTools, ExternalToolsChecker = {
-    'Linux' : (ExternalToolsLinux, ExternalToolsCheckerLinux )
+    'Linux': (ExternalToolsLinux, ExternalToolsCheckerLinux)
 }[pl]
 

@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # =====================================================================
 # Copyright (c) 2012, Michael Hull
 # All rights reserved.
@@ -47,13 +50,14 @@ class EmptySectionRemover(VisitorBase):
         return self.visit(n.hierachy_root)
 
     def _VisitHierachyScope(self, n, **kwargs):
-        new_children = [ c for c in n.children if self.visit(c) ]
+        new_children = [c for c in n.children if self.visit(c)]
 
-        print "NewChildren", new_children
+        # print 'NewChildren', new_children
 
         if len(new_children) == 0:
             return False
-        if len(new_children) == 1 and isinstance( new_children[0] , _Heading):
+        if len(new_children) == 1 and \
+           isinstance(new_children[0], _Heading):
             return False
 
         n.children = new_children
@@ -106,7 +110,7 @@ class EmptySectionRemover(VisitorBase):
     def _VisitEquation(self, n, **kwargs):
         raise NotImplementedError()
 
-    def _VisitPageBreak(self,n, **kwargs):
+    def _VisitPageBreak(self, n, **kwargs):
 
         return True
         raise NotImplementedError()
@@ -129,7 +133,8 @@ class NormaliseHierachyScope(VisitorBase):
         for c in n.children:
             if not isinstance(c, _HierachyScope):
                 continue
-            self.visit(c,**kwargs)
+            self.visit(c, **kwargs)
 
-        if len(n.children) == 1 and isinstance( n.children[0], _HierachyScope):
+        if len(n.children) == 1 and \
+           isinstance(n.children[0], _HierachyScope):
             n.children = n.children[0].children

@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # =====================================================================
 # Copyright (c) 2012, Michael Hull
 # All rights reserved.
@@ -55,37 +58,37 @@ class ActionerBase(VisitorBase):
 
 
     def _VisitFigure(self, n, **kwargs):
-        self._ActionFigure( n, **kwargs)
+        self._ActionFigure(n, **kwargs)
         for c in n.subfigs:
             self.visit(c, **kwargs)
 
     def _VisitImage(self, n, **kwargs):
-        self._ActionImage( n, **kwargs)
+        self._ActionImage(n, **kwargs)
 
     def _VisitSubfigure(self, n, **kwargs):
-        self._ActionSubfigure( n, **kwargs)
+        self._ActionSubfigure(n, **kwargs)
         self.visit(n.img, **kwargs)
 
     def _VisitTableOfContents(self, n, **kwargs):
-        self._ActionTableOfContents( n, **kwargs)
+        self._ActionTableOfContents(n, **kwargs)
 
     def _VisitHeading(self, n, **kwargs):
-        self._ActionHeading( n, **kwargs)
+        self._ActionHeading(n, **kwargs)
         self.visit(n.heading, **kwargs)
 
     def _VisitRichTextContainer(self, n, **kwargs):
-        self._ActionRichTextContainer( n, **kwargs)
+        self._ActionRichTextContainer(n, **kwargs)
         for c in n.children:
             self.visit(c, **kwargs)
 
     def _VisitParagraph(self, n, **kwargs):
-        self._ActionParagraph( n, **kwargs)
+        self._ActionParagraph(n, **kwargs)
         self.visit(n.contents, **kwargs)
-        #for c in n.children:
+        # for c in n.children:
         #    self.visit(c, **kwargs)
 
     def _VisitEquationBlock(self, n, **kwargs):
-        self._ActionEquationBlock( n, **kwargs)
+        self._ActionEquationBlock(n, **kwargs)
         for c in n.equations:
             self.visit(c, **kwargs)
 
@@ -96,30 +99,30 @@ class ActionerBase(VisitorBase):
 
 
     def _VisitListItem(self, n, **kwargs):
-        self._ActionListItem( n, **kwargs)
+        self._ActionListItem(n, **kwargs)
         self.visit(n.para, **kwargs)
 
 
     def _VisitText(self, n, **kwargs):
-        self._ActionText( **kwargs)
+        self._ActionText(**kwargs)
 
     def _VisitTable(self, n, **kwargs):
-        self._ActionTable( n, **kwargs)
+        self._ActionTable(n, **kwargs)
 
     def _VisitEquation(self, n, **kwargs):
         self._ActionEquation(n, **kwargs)
 
     def _VisitInlineEquation(self, n, **kwargs):
-        self._ActionInlineEquation( n, **kwargs)
+        self._ActionInlineEquation(n, **kwargs)
 
     def _VisitCodeListing(self, n, **kwargs):
         self._ActionCodeListing(n, **kwargs)
 
     def _VisitLink(self, n, **kwargs):
-        self._ActionLink( n, **kwargs)
+        self._ActionLink(n, **kwargs)
 
     def _VisitRef(self, n, **kwargs):
-        self._ActionRef( n, **kwargs)
+        self._ActionRef(n, **kwargs)
 
 
 

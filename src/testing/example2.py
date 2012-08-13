@@ -11,7 +11,8 @@ from mredoc import Figure, ImageFile, Equation
 
 from mredoc import LatexWriter
 from mredoc import HTMLWriter
-from mredoc import EquationBlock, PythonBlock, VerbatimBlock, RichTextContainer, Link
+from mredoc import EquationBlock, PythonBlock, VerbatimBlock, \
+    RichTextContainer, Link
 from mredoc.objects.core import ListItem, List, Paragraph
 from mredoc import SectionNewPage, Ref
 from mredoc.visitors import BlockNumberer
@@ -20,19 +21,19 @@ from mredoc.visitors import BlockNumberer
 
 
 
-local_path = os.path.abspath(__file__)
+local_path = os.path.dirname(os.path.abspath(__file__))
 
-test_file_path = os.path.abspath( os.path.join(os.path.dirname(local_path), "../test_data") )
+test_file_path = os.path.abspath(os.path.join(local_path, "../test_data") )
 
 
 # Generate the figure:
 import numpy as np
-x = np.linspace(-5,5,100)
+x = np.linspace(-5, 5, 100)
 y1 = np.sin(x)
-y2 = np.sin(2*x)
+y2 = np.sin(2 * x)
 fig = pylab.figure()
-pylab.plot(x,y1, label="y=sin(x)")
-pylab.plot(x,y2, label="y=sin(2x)")
+pylab.plot(x, y1, label='y=sin(x)')
+pylab.plot(x, y2, label='y=sin(2x)')
 pylab.legend()
 
 
