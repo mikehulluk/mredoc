@@ -163,7 +163,7 @@ class LatexWriter(VisitorBase):
             raise ValueError('Something went wrong building pdf')
 
     @classmethod
-    def BuildPDF(cls, doc, filename):
+    def build_pdf(cls, doc, filename):
 
         writer = LatexWriter(doc)
         tex_str = writer.output_tex

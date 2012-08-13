@@ -39,36 +39,9 @@ import os
 import collections
 
 import matplotlib
-#from types import NoneType
 
-
-
-
-class ImageTypes:
-    SVG = 'svg'
-    PNG = 'png'
-    PDF = 'pdf'
-    EPS = 'eps'
-
-class Languages:
-    Verbatim = "Verbatim"
-    Python = "Python"
-    Bash = "Bash"
-
-
-
-
-
-
-
-
-
-
-
-
-
-class InvalidDocumentTree(Exception):
-    pass
+from mredoc.errors import InvalidDocumentTree
+from mredoc.constants import ImageTypes, Languages
 
 
 
@@ -88,11 +61,7 @@ def flatten(objs):
             r.extend(flatten(o))
         else:
             raise InvalidDocumentTree("Unexpected argument: %s (type:%s"%(o, type(o)))
-
     return r
-
-
-
 
 
 def check_type(o,t):
@@ -109,7 +78,7 @@ def check_seq_type(seq, t):
 
 
 
-def get_kwargs(kw, *names):
+def _get_kwargs(kw, *names):
     for k in kw:
         assert k in names, "Can't find name: %s in %s" % (k, names)
     return [kw.get(n, None) for n in names]
@@ -131,12 +100,10 @@ def ContentBlock(*args, **kwargs):
         a = args[0]
         if isinstance(a, _ContentBlock):
             return a
-        if isinstance(a, (_Link, _Ref, basestring)):
+        elif isinstance(a, (_Link, _Ref, basestring)):
             return Paragraph(a)
-
-        print type(a), a
-        assert False
-
+        else:
+            raise ValueError('Unexpected object passed to ContentBlock: %s (%s)'% (type(a), a) )
     else:
         return flatten([ContentBlock(b) for b in args])
 
@@ -144,7 +111,7 @@ def HierachyScope(*args, **kwargs):
     if len(args) == 1 and isinstance(args[0], _HierachyScope):
         return args[0]
 
-    #Concatenate consecutive 'RichTextContainer'
+    # Concatenate consecutive 'RichTextContainer'
     # objects into a larger 'Paragraph'
     blocks = []
     current_para_block = None
@@ -162,7 +129,7 @@ def HierachyScope(*args, **kwargs):
 
 
 def Section(heading, *children):
-    """Creates a new Section, with a heading given by the first parameter. Set
+    """ Creates a new Section, with a heading given by the first parameter. Set
     the first parameter to ``None`` to suppress the heading"""
 
     children = flatten(children)
@@ -173,8 +140,6 @@ def Section(heading, *children):
 # Syntactic Sugar:
 def SectionNewPage(heading, *children):
     return HierachyScope( *itertools.chain([Heading(heading)], flatten(children)), new_page=True )
-
-
 
 
 def Heading(heading):
@@ -192,7 +157,7 @@ def RichTextContainer(*args, **kwargs):
 
 
 
-def rich_text_from_string(s):
+def _rich_text_from_string(s):
     s = s.strip()
     if not s:
         return None
@@ -206,21 +171,20 @@ def RichTextObject(o, **kwargs):
     if o is None:
         return None
 
-    if isinstance(o, _RichTextObject):
+    elif isinstance(o, _RichTextObject):
         return o
-    if isinstance(o, basestring):
-        return rich_text_from_string(o)
-    if isinstance(o, int):
-        return rich_text_from_string(str(o))
-    if isinstance(o, float):
-        return rich_text_from_string(str(o))
-    if isinstance(o, _Equation):
+    elif isinstance(o, basestring):
+        return _rich_text_from_string(o)
+    elif isinstance(o, int):
+        return _rich_text_from_string(str(o))
+    elif isinstance(o, float):
+        return _rich_text_from_string(str(o))
+    elif isinstance(o, _Equation):
         return InlineEquation(o)
-    if isiterable(o):
+    elif isiterable(o):
         return flatten([RichTextObject(a, **kwargs) for a in o])
-
-    print type(o), o
-    assert False
+    else:
+        raise ValueError('Unexpected object passed to RichTextObject: %s (%s)' %(type(o), o))
 
 def Ref(*args, **kwargs):
     return _Ref(*args, **kwargs)
@@ -248,6 +212,7 @@ def Table(*args, **kwargs):
      * *args* : The first argument is the header data, and the second the 
        data for the body of the table. These should both be iterables.
      * *kwargs*\ : ``caption`` and ``reflabel`` """
+
     return _Table(*args, **kwargs)
 
 def EquationBlock(*args, **kwargs):
@@ -255,6 +220,7 @@ def EquationBlock(*args, **kwargs):
 
      * *args* : A list of ``Equation`` objects or strings
      * *kwargs*\ : ``caption`` and ``reflabel`` """
+
     return _EquationBlock(*args, **kwargs)
 
 def Equation(e, **kwargs):
@@ -285,7 +251,7 @@ def CodeListing(*args, **kwargs):
 
      * *args* is a single object, with a string of the contents.
      * *kwargs*\ : ``language``, ``caption`` and ``reflabel`` 
-     
+
     *language* is a string and can be ``Verbatim``\ , ``Python`` or ``Bash``\ .
      """
     return _CodeListing(*args, **kwargs)
@@ -314,7 +280,6 @@ def Image(img, **kwargs):
 def ImageMPL(*args, **kwargs):
     return _ImageMPL(*args, **kwargs)
 
-
 def ImageFile(*args, **kwargs):
     return _ImageFile(*args, **kwargs)
 
@@ -331,12 +296,13 @@ class _DocumentObject(object):
         """Creates a .pdf file of the object. It does this by generating LaTeX
         code, and running ``pdflatex`` on that code twice"""
         from mredoc.writers import LatexWriter
-        return LatexWriter.BuildPDF(self.as_document(), filename=filename)
+        return LatexWriter.build_pdf(self.as_document(), filename=filename)
+
     def to_html(self, output_dir):
         """Creates a html. It will create a file ``index.html`` in the directory 
         specified by output_dir."""
         from mredoc.writers import HTMLWriter
-        return HTMLWriter.BuildHTML(self.as_document(), output_dir=output_dir)
+        return HTMLWriter.build_html(self.as_document(), output_dir=output_dir)
     def as_document(self):
         return Document(self)
 
@@ -399,7 +365,7 @@ class _HierachyScope(_ContentBlock):
         return v._VisitHierachyScope(self, **kwargs)
     def __init__(self, *children, **kwargs):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
-        (self.is_new_page, ) = get_kwargs(kwargs, 'new_page')
+        (self.is_new_page, ) = _get_kwargs(kwargs, 'new_page')
         self.children = check_seq_type(children, _ContentBlock)
 
     def __str__(self):
@@ -475,7 +441,7 @@ class _Figure(_ContentBlock):
 
     def __init__(self, *subfigs, **kwargs):
         # Unpack kwargs:
-        caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
+        caption,reflabel = _get_kwargs(kwargs,'caption','reflabel')
         _ContentBlock.__init__(self,caption=caption, reflabel=reflabel)
 
         subfigs = [_Subfigure(s) for s in subfigs]
@@ -501,7 +467,7 @@ class _Table(_ContentBlock):
     def _accept_visitor(self,v,**kwargs):
         return v._VisitTable(self,**kwargs)
     def __init__(self, header, data, **kwargs):
-        caption,reflabel = get_kwargs(kwargs,'caption','reflabel')
+        caption,reflabel = _get_kwargs(kwargs,'caption','reflabel')
         _ContentBlock.__init__(self,caption=caption, reflabel=reflabel)
         self.data = data
         self.header = header
@@ -516,7 +482,7 @@ class _EquationBlock(_ContentBlock):
     def _accept_visitor(self, v, **kwargs):
         return v._VisitEquationBlock(self, **kwargs)
     def __init__(self, *equations, **kwargs):
-        (caption, reflabel) = get_kwargs(kwargs, 'caption', 'reflabel')
+        (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
         _ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
 
         self.equations = [Equation(eq) for eq in equations]
@@ -538,7 +504,7 @@ class _List(_ContentBlock):
         return v._VisitList(self, **kwargs)
 
     def __init__(self, *children, **kwargs):
-        (caption, reflabel) = get_kwargs(kwargs, 'caption', 'reflabel')
+        (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
         _ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
         self.children = [ListItem(li) for li in children]
 
@@ -558,7 +524,7 @@ class _CodeListing(_ContentBlock):
     def _accept_visitor(self, v, **kwargs):
         return v._VisitCodeListing(self, **kwargs)
     def __init__(self, contents, **kwargs):
-        caption,reflabel,language = get_kwargs(kwargs,'caption','reflabel', 'language')
+        caption,reflabel,language = _get_kwargs(kwargs,'caption','reflabel', 'language')
         _ContentBlock.__init__(self,caption=caption, reflabel=reflabel)
 
         self.language = language
@@ -574,17 +540,14 @@ class _TableOfContents(_ContentBlock):
     def __init__(self, *children):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
 
-
-
 class _PythonBlock(_CodeListing):
     def __init__(self, *args, **kwargs):
-        super(_PythonBlock, self).__init__(language=Languages.Python,
-                *args, **kwargs)
+        super(_PythonBlock, self).__init__(language=Languages.Python, *args, **kwargs)
 class _VerbatimBlock(_CodeListing):
-    def __init__(self, *args,**kwargs):
-        super(_VerbatimBlock,self).__init__(*args, language=Languages.Verbatim,**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(_VerbatimBlock, self).__init__(*args, language=Languages.Verbatim,**kwargs)
 class _BashBlock(_CodeListing):
-    def __init__(self, *args,**kwargs):
+    def __init__(self, *args, **kwargs):
         super(_BashBlock,self).__init__(*args, language=Languages.BashBlock,**kwargs)
 
 

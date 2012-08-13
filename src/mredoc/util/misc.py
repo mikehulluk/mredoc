@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
@@ -31,13 +32,4 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# ====================================================================
-
-from removeemptysections import EmptySectionRemover
-from toolchecker import ExternalTools, ExternalToolsChecker
-
-__all__ = [
-    'EmptySectionRemover',
-    'ExternalTools',
-    'ExternalToolsChecker'
-        ]
+#  ====================================================================

@@ -14,6 +14,9 @@ doc: examples force_look
 examples: force_look
 	make -C src/testing/ 
 
+lint: force_look
+	pylint --output-format=html --disable='C0301,C0111' src/mredoc/ > pylint_out.html
+
 
 
 force_look: 
@@ -23,3 +26,4 @@ clean:
 	make -C src/testing/ clean
 	make -C doc/ clean
 	rm -rf *.pyc
+	rm -f pylint_out.html

@@ -31,13 +31,18 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# ====================================================================
+#  ====================================================================
 
-from removeemptysections import EmptySectionRemover
-from toolchecker import ExternalTools, ExternalToolsChecker
+class ImageTypes:
+    SVG = 'svg'
+    PNG = 'png'
+    PDF = 'pdf'
+    EPS = 'eps'
 
-__all__ = [
-    'EmptySectionRemover',
-    'ExternalTools',
-    'ExternalToolsChecker'
-        ]
+class Languages:
+    Verbatim = "Verbatim"
+    Python = "Python"
+    Bash = "Bash"
+
+
+

@@ -34,40 +34,32 @@
 # ====================================================================
 
 
-
-import xmlwitch
-
 import os
 import shutil
-from mredoc import ImageTypes
 
 
 from pygments import highlight
 from pygments.lexers import PythonLexer, BashLexer
 from pygments.formatters import HtmlFormatter
-from mredoc.objects.core import Languages, _Heading
 
 import hashlib
+from mredoc import ImageTypes
+from mredoc.objects.core import Languages, _Heading
+from mredoc.writers.html import xmlwitch
 from mredoc.visitors import VisitorBase
 from mredoc.visitors import BlockNumberer
 
-def EnsureExists(l):
-    d = os.path.dirname(l)
-    if not os.path.exists(d):
-        os.makedirs(d)
-    return l
-
-
-
-def string_hash(s):
-    return hashlib.md5(s).hexdigest()
+def _ensure_location_exists(loc):
+    dir_name = os.path.dirname(loc)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    return loc
 
 
 class HTMLWriter(VisitorBase):
 
-
     @classmethod
-    def BuildHTML(cls, doc, output_dir):
+    def build_html(cls, doc, output_dir):
         return HTMLWriter(doc=doc, output_dir=output_dir)
 
 
@@ -98,11 +90,9 @@ class HTMLWriter(VisitorBase):
         # Assign numbers to all the objects:
         self.block_numbers = BlockNumberer(doc)
 
-
         # Output locations:
-        self.output_dir = EnsureExists(output_dir)
-        self.output_dir_img = EnsureExists(output_dir + '/imgs/')
-
+        self.output_dir = _ensure_location_exists(output_dir)
+        self.output_dir_img = _ensure_location_exists(output_dir + '/imgs/')
 
         self.xmlstack = [[self._new_html_witch_obj(), 0]]
         self.visit(doc)
@@ -128,12 +118,8 @@ class HTMLWriter(VisitorBase):
     def _VisitDocument(self, n, **kwargs):
         with self.xml.html:
             self._write_htmlheader_block()
-
             with self.xml.body:
                 self.visit(n.hierachy_root)
-
-
-
 
 
     def _write_block_captiontext(self, n):
