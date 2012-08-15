@@ -135,41 +135,13 @@ class LatexWriter(VisitorBase):
 
     _working_dir = '/tmp/ltxwriter/'
 
-    #@classmethod
-    #def _compile_pdf(cls, tex_str, output_filename):
-    #    if not os.path.exists(cls._working_dir):
-    #        os.makedirs(cls._working_dir)
-    #    tex_file = cls._working_dir + '/eqnset.tex'
-    #    tex_pdf = cls._working_dir + '/eqnset.pdf'
-
-    #    op_dir = os.path.dirname(output_filename)
-    #    if not os.path.exists(op_dir):
-    #        os.makedirs(op_dir)
-    #    # Write to disk and compile:
-    #    with open(tex_file, 'w') as fobj:
-    #        fobj.write(tex_str)
-
-    #    compile_cmd = 'pdflatex -output-directory %s %s' \
-    #        % (cls._working_dir, tex_file)
-    #    os.system(compile_cmd)
-    #    os.system(compile_cmd)
-    #    os.system(compile_cmd)
-    #    os.system(compile_cmd)
-
-    #    os.system('cp %s %s' % (tex_pdf, output_filename))
-    #    if not os.path.exists(output_filename):
-    #        raise ValueError('Something went wrong building pdf')
-
     @classmethod
     def build_pdf(cls, doc, filename):
 
         writer = LatexWriter(doc)
         tex_str = writer.output_tex
-        print tex_str
-        #cls._compile_pdf(tex_str, filename)
         from mredoc.util.toolchecker import ExternalTools
-        ExternalTools.RunPDFLatex(tex_str, output_filename=filename)
-        print 'Build pdf:', filename
+        ExternalTools.run_pdflatex(tex_str, output_filename=filename)
 
 
     def __init__(self, doc):

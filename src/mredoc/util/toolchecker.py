@@ -34,7 +34,7 @@ class ExternalToolsLinux(object):
             shutil.copy(filename1, filename2)
 
     @classmethod
-    def RunPDFLatex(cls, tex_str, working_dir=None, output_filename=None):
+    def run_pdflatex(cls, tex_str, working_dir=None, output_filename=None):
         ExternalToolsChecker.check_pdflatex()
 
         if working_dir is None:
@@ -56,21 +56,13 @@ class ExternalToolsLinux(object):
         with open(tex_file, 'w') as fobj:
             fobj.write(tex_str)
 
-        #compile_cmd = 'pdflatex -output-directory %s %s' \
-        #    % (working_dir, tex_file)
-        #os.system(compile_cmd)
-        #os.system(compile_cmd)
-
         for i in range(2):
             subprocess.check_call([
                     'pdflatex', '-output-directory', 
                     working_dir, tex_file])
 
-
-        #os.system(compile_cmd)
-        #os.system(compile_cmd)
-
-        os.system('cp %s %s' % (tex_pdf, output_filename))
+        # Copy the file to the output:
+        shutil.copyfile(tex_pdf, output_filename)
         if not os.path.exists(output_filename):
             raise ValueError('Something went wrong building pdf')
 
