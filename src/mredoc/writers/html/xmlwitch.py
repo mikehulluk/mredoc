@@ -67,7 +67,7 @@ class Builder:
                    content, self.line_separator))
 
 
-builder = Builder  # 0.1 backward compatibility
+#builder = Builder  # 0.1 backward compatibility
 
 class Element:
 
@@ -81,7 +81,7 @@ class Element:
     def __enter__(self):
         """Add a parent element to the document"""
         self.builder.write_indented('<%s%s>' % (self.name,
-                                    self._serialized_attrs()))
+                                    self.serialized_attrs()))
         self.builder._indentation += 1
         return self
 
@@ -90,23 +90,22 @@ class Element:
         self.builder._indentation -= 1
         self.builder.write_indented('</%s>' % self.name)
 
-    def __call__(*args, **kargs):
+    def __call__(self, *args, **kargs):
         """Add a child element to the document"""
-        self = args[0]
         self.attributes.update(kargs)
-        if len(args) > 1:
-            value = args[1]
+        if len(args) > 0:
+            value = args[0]
             if value is None:
                 self.builder.write_indented('<%s%s />' % (self.name,
-                        self._serialized_attrs()))
+                        self.serialized_attrs()))
             else:
                 value = saxutils.escape(value)
                 self.builder.write_indented('<%s%s>%s</%s>'
-                        % (self.name, self._serialized_attrs(), value,
+                        % (self.name, self.serialized_attrs(), value,
                         self.name))
         return self
 
-    def _serialized_attrs(self):
+    def serialized_attrs(self):
         """Serialize attributes for element insertion"""
         serialized = []
         for (attr, value) in self.attributes.items():

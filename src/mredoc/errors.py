@@ -33,6 +33,30 @@
 
 #  ====================================================================
 
+import sys
 
 class InvalidDocumentTree(Exception):
     pass
+
+class InternalError(Exception):
+    pass
+
+class UnexpectedMethodCall(InternalError):
+    def __init__(self, cls, method_name=None):
+        super(UnexpectedMethodCall, self).__init__()
+
+        # If no method name is supplied, then 
+        # assume it is from the function raising the
+        # exception. Technique taken from:
+        # http://code.activestate.com/recipes/66062-determining-current-function-name/
+
+        if method_name is None:
+            method_name = sys._getframe(1).f_code.co_name
+
+        self.cls = cls
+        self.method_name = method_name
+
+    def __str__(self):
+        return 'UnexpectedMethodCall: %s.%s' % \
+                (self.cls, self.method_name)
+

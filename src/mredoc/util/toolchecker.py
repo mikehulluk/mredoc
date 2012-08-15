@@ -14,6 +14,8 @@ class RequiredExternalToolNotFound(RuntimeError):
 
 class ExternalToolsLinux(object):
 
+    _default_working_directory = '/tmp/mredoc/build/pdflatex/'
+
     @classmethod
     def convert_image(cls, filename1, filename2):
         # Does it exist? If so then delete it
@@ -31,20 +33,23 @@ class ExternalToolsLinux(object):
         else:
             shutil.copy(filename1, filename2)
 
-
-
     @classmethod
     def RunPDFLatex(cls, tex_str, working_dir=None, output_filename=None):
         ExternalToolsChecker.check_pdflatex()
 
-        if not os.path.exists(cls._working_dir):
-            os.makedirs(cls._working_dir)
+        if working_dir is None:
+            working_dir = cls._default_working_directory
+
+        #if not os.path.exists(working_dir):
+        #    os.makedirs(working_dir)
+
         tex_file = working_dir + '/eqnset.tex'
         tex_pdf = working_dir + '/eqnset.pdf'
 
         op_dir = os.path.dirname(output_filename)
         if not os.path.exists(op_dir):
             os.makedirs(op_dir)
+
         # Write to disk and compile:
         with open(tex_file, 'w') as fobj:
             fobj.write(tex_str)
@@ -90,10 +95,10 @@ class ExternalToolsCheckerLinux(object):
 
 
 import platform
-pl = platform.system()
+this_platform = platform.system()
 
-
-ExternalTools, ExternalToolsChecker = {
+_TOOLS_LUT = {
     'Linux': (ExternalToolsLinux, ExternalToolsCheckerLinux)
-}[pl]
+}
+(ExternalTools, ExternalToolsChecker) = _TOOLS_LUT[this_platform]
 

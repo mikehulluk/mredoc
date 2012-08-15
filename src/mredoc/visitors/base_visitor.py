@@ -39,7 +39,7 @@ class VisitorBase(object):
         print node
         return node._accept_visitor(self, **kwargs)
 
-    def _visit_document(self, node, **kwargs):
+    def visit_document(self, node, **kwargs):
         raise NotImplementedError()
 
     def visit_hierachyscope(self, node, **kwargs):
@@ -81,7 +81,7 @@ class VisitorBase(object):
     def visit_inlineequation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def visit_codeblock(self, node, **kwargs):
+    def visit_codelisting(self, node, **kwargs):
         raise NotImplementedError()
 
     def visit_link(self, node, **kwargs):

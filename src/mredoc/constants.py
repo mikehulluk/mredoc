@@ -33,13 +33,13 @@
 
 #  ====================================================================
 
-class ImageTypes:
+class ImageTypes(object):
     SVG = 'svg'
     PNG = 'png'
     PDF = 'pdf'
     EPS = 'eps'
 
-class Languages:
+class Languages(object):
     Verbatim = "Verbatim"
     Python = "Python"
     Bash = "Bash"

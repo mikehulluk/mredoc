@@ -15,10 +15,11 @@ examples: force_look
 	make -C src/testing/ 
 
 lint: force_look
-	pylint --output-format=html --disable='C0301,C0111,W0142' src/mredoc/ > pylint_out.html
+	pylint --output-format=html --disable='C0301,C0111,W0142,R0904,R0903' src/mredoc/ > pylint_out.html
 	# C0301 - long lines
 	# C0111 - 
 	# W0142 'Used * or ** magic'
+	# R0903/4 are too many or too few methods in class
 
 
 

@@ -37,15 +37,16 @@
 
 from mredoc.visitors import VisitorBase
 from mredoc.objects.core import _Heading, _HierachyScope
+from mredoc.errors import UnexpectedMethodCall
 
 class EmptySectionRemover(VisitorBase):
     """Each section should return False if it should be removed
     or True to be kept"""
 
-    def _visit_document(self, node, **kwargs):
+    def visit_document(self, node, **_kwargs):
         return self.visit(node.hierachy_root)
 
-    def visit_hierachyscope(self, node, **kwargs):
+    def visit_hierachyscope(self, node, **_kwargs):
         new_children = [child for child in node.children if self.visit(child)]
 
         if len(new_children) == 0:
@@ -58,63 +59,63 @@ class EmptySectionRemover(VisitorBase):
         return True
 
 
-    def visit_figure(self, node, **kwargs):
+    def visit_figure(self, node, **_kwargs):
         if not node.subfigs:
             return False
         return True
 
-    def visit_image(self, node, **kwargs):
+    def visit_image(self, _node, **_kwargs):
         raise NotImplementedError()
 
-    def visit_subfigure(self, node, **kwargs):
+    def visit_subfigure(self, _node, **_kwargs):
         raise NotImplementedError()
 
-    def visit_tableofcontents(self, node, **kwargs):
+    def visit_tableofcontents(self, _node, **_kwargs):
         return True
 
-    def visit_heading(self, node, **kwargs):
+    def visit_heading(self, _node, **_kwargs):
         return True
 
-    def visit_richtextcontainer(self, node, **kwargs):
+    def visit_richtextcontainer(self, _node, **_kwargs):
         raise NotImplementedError()
 
-    def visit_paragraph(self, node, **kwargs):
+    def visit_paragraph(self, node, **_kwargs):
         if not node.contents:
             return False
         return True
 
-    def visit_list(self, node, **kwargs):
+    def visit_list(self, node, **_kwargs):
         if not node.children:
             return False
         return True
 
-    def visit_text(self, **kwargs):
+    def visit_text(self, node, **_kwargs):
         raise NotImplementedError()
 
-    def visit_table(self, node, **kwargs):
+    def visit_table(self, _node, **_kwargs):
         return True
 
-    def visit_equationblock(self, node, **kwargs):
+    def visit_equationblock(self, node, **_kwargs):
         if len(node.equations) == 0:
             return False
         return True
 
-    def visit_equation(self, node, **kwargs):
+    def visit_equation(self, _node, **_kwargs):
         raise NotImplementedError()
 
-    def visit_pagebreak(self, node, **kwargs):
+    def visit_pagebreak(self, _node, **_kwargs):
         return True
 
-    def visit_inlineequation(self, node, **kwargs):
+    def visit_inlineequation(self, _node, **_kwargs):
         raise NotImplementedError()
 
-    def visit_codelisting(self, node, **kwargs):
+    def visit_codelisting(self, _node, **_kwargs):
         return True
 
 
 class NormaliseHierachyScope(VisitorBase):
 
-    def _visit_document(self, node, **kwargs):
+    def visit_document(self, node, **_kwargs):
         return self.visit(node.hierachy_root)
 
     def visit_hierachyscope(self, node, **kwargs):
@@ -126,3 +127,49 @@ class NormaliseHierachyScope(VisitorBase):
         if len(node.children) == 1 and \
            isinstance(node.children[0], _HierachyScope):
             node.children = node.children[0].children
+
+    def visit_tableofcontents(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_text(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_equationblock(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_paragraph(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_figure(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_heading(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_equation(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_subfigure(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_ref(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_richtextcontainer(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_inlineequation(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_codelisting(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_image(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_link(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+
+    def visit_table(self, _node, **_kwargs):
+        raise UnexpectedMethodCall(cls=type(self).__name__)
+

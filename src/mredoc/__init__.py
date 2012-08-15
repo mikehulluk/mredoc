@@ -42,11 +42,10 @@ from objects import EquationBlock, Equation, InlineEquation
 from objects import List, ListItem
 from objects import CodeListing, PythonBlock, VerbatimBlock, BashBlock
 from objects import TableOfContents
-
 from objects import VerticalColTable
 
-
 from constants import ImageTypes, Languages
+
 
 
 __all__ = [

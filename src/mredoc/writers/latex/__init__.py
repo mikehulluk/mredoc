@@ -35,10 +35,10 @@
 
 
 import os
-from mredoc.objects import ImageTypes, Languages
+from mredoc.constants import ImageTypes, Languages
 from mredoc.visitors import VisitorBase
 
-doc_header = r"""
+_DOC_HEADER = r"""
 \documentclass[8pt]{scrartcl}   % list options between brackets
 \usepackage[margin=0.5in]{geometry}
 \usepackage{amsmath}
@@ -111,14 +111,14 @@ float=tbfh}
 """
 
 
-doc_footer = r"""
+_DOC_FOOTER = r"""
 \end{document}
 
 """
 
 
 
-heading_by_depth = {
+_HEADING_BY_DEPTH = {
     1: 'section',
     2: 'subsection',
     3: 'subsubsection',
@@ -171,6 +171,7 @@ class LatexWriter(VisitorBase):
 
 
     def __init__(self, doc):
+        super(LatexWriter, self).__init__()
         self.hierachy_depth = 0
         self.output_tex = self.visit(doc)
 
@@ -195,7 +196,7 @@ class LatexWriter(VisitorBase):
 
     def visit_image(self, node, **kwargs):
         return r"""\includegraphics{%s}""" \
-            % node.get_filename(type=ImageTypes.PDF)
+            % node.get_filename(file_type=ImageTypes.PDF)
 
     def visit_subfigure(self, node, **kwargs):
         return self.visit(node.img)
@@ -203,34 +204,37 @@ class LatexWriter(VisitorBase):
     def visit_tableofcontents(self, node, **kwargs):
         return r"\tableofcontents" + '\n' + r"""\newpage""" + '\n'
 
-    def _visit_document(self, node, **kwargs):
-        return doc_header + self.visit(node.hierachy_root,**kwargs)  + doc_footer
+    def visit_document(self, node, **kwargs):
+        return _DOC_HEADER + \
+               self.visit(node.hierachy_root, **kwargs)  + \
+               _DOC_FOOTER
 
     def visit_hierachyscope(self, node, **kwargs):
         self.hierachy_depth += 1
-        r = '\n'.join([self.visit(child) for child in node.children])
+        txt = '\n'.join([self.visit(child) for child in node.children])
         if node.is_new_page:
-            r =  "\n\\newpage\n" + r
+            txt =  "\n\\newpage\n" + txt
         self.hierachy_depth -= 1
-        return r
+        return txt
 
-    def visit_heading(self, node, **kwargs):
+    def visit_heading(self, node, **_kwargs):
         assert self.hierachy_depth <= 5, \
             'Deep documents not properly handled yet. TODO FIX HERE'
 
-        heading_type = heading_by_depth[self.hierachy_depth]
-        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.visit(node.heading) )
+        heading_type = _HEADING_BY_DEPTH[self.hierachy_depth]
+        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n" % \
+                (heading_type, self.visit(node.heading) )
 
-    def visit_richtextcontainer(self, node, **kwargs):
+    def visit_richtextcontainer(self, node, **_kwargs):
         return ' '.join([self.visit(child) for child in node.children])
 
-    def visit_paragraph(self, node, **kwargs):
+    def visit_paragraph(self, node, **_kwargs):
         return self.visit(node.contents)
 
-    def visit_text(self, node, **kwargs):
+    def visit_text(self, node, **_kwargs):
         return node.text.replace('&', "\&").replace('_', "\_")
 
-    def visit_table(self, node, **kwargs):
+    def visit_table(self, node, **_kwargs):
         buildline = lambda line: ' & '.join([self.visit(l) for l in
                 line]) + r" \\"
 
@@ -259,36 +263,38 @@ class LatexWriter(VisitorBase):
 
 
 
-    def visit_equationblock(self, node, **kwargs):
-        if  not node.equations: return ''
+    def visit_equationblock(self, node, **_kwargs):
+        if not node.equations: 
+            return ''
         return '\n'.join([
             r"""\begin{align*}""",
             '\n'.join([self.visit(s) + r"\\" for s in node.equations] ),
             r"""\end{align*}""",
             ])
 
-    def visit_equation(self, node, **kwargs):
+    def visit_equation(self, node, **_kwargs):
         return node.eqn
 
 
-    def visit_pagebreak(self,node, **kwargs):
+    def visit_pagebreak(self, _node, **_kwargs):
         return r"""\newpage""" + "\n\n"
 
 
-    def visit_codelisting(self,node, **kwargs):
+    def visit_codelisting(self, node, **kwargs):
         language = {
             Languages.Python:'python',
             Languages.Bash:'bash',
             Languages.Verbatim:'', #Listings package uses empty language
             }[node.language]
 
+        caption = self.visit(node.caption) if node.caption else ""
         options = {
-            'caption':'{%s}'%self.visit(node.caption) if node.caption else "",
+            'caption':'{%s}' % caption,
             'label': node.reflabel
             }
         # Only include values with value:
-        opt_str = ",".join( '%s=%s'%(k,v) for k,v in options.iteritems() if v)
-        opt_str = "[%s]"% opt_str if opt_str else ""
+        opt_str = ",".join('%s=%s' % (k, v) for (k, v) in options.iteritems() if v)
+        opt_str = "[%s]" % opt_str if opt_str else ""
 
         return "\n".join([
             r"""\lstset{language=%s}"""%language,
@@ -297,7 +303,7 @@ class LatexWriter(VisitorBase):
             r"""\end{lstlisting}""",
             ])
 
-    def visit_list(self,node, **kwargs):
+    def visit_list(self, node, **_kwargs):
         if not node.children:
             return
         return "\n".join([
@@ -306,14 +312,14 @@ class LatexWriter(VisitorBase):
             r"\end{itemize}",
         ])
 
-    def visit_listItem(self, node, **kwargs):
+    def visit_listitem(self, node, **_kwargs):
         return r"\item %s" % self.visit(node.para)
 
-    def visit_inlineequation(self, node, **kwargs):
+    def visit_inlineequation(self, node, **_kwargs):
         return '$%s$' % self.visit(node.eqn)
 
-    def visit_link(self, node, **kwargs):
+    def visit_link(self, node, **_kwargs):
         return "\href{%s}{%s}" % (node.target, node.get_link_text())
-    def visit_ref(self, node, **kwargs):
+    def visit_ref(self, node, **_kwargs):
         return r"%s \ref{%s}" % (node.target.get_type_str(),
                                  node.target.reflabel)

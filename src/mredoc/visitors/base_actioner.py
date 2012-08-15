@@ -46,7 +46,7 @@ from mredoc.visitors import VisitorBase
 class ActionerBase(VisitorBase):
 
 
-    def _visit_document(self, node, **kwargs):
+    def visit_document(self, node, **kwargs):
         self.action_document(node, **kwargs)
         self.visit(node.hierachy_root, **kwargs)
 
@@ -96,8 +96,8 @@ class ActionerBase(VisitorBase):
             self.visit(child, **kwargs)
 
 
-    def visit_listItem(self, node, **kwargs):
-        self.action_listItem(node, **kwargs)
+    def visit_listitem(self, node, **kwargs):
+        self.action_listitem(node, **kwargs)
         self.visit(node.para, **kwargs)
 
 
@@ -167,12 +167,12 @@ class ActionerBase(VisitorBase):
     def action_inlineequation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def action_codeblock(self, node, **kwargs):
+    def action_codelisting(self, node, **kwargs):
         raise NotImplementedError()
 
     def action_list(self, node, **kwargs):
         raise NotImplementedError()
-    def action_listItem(self, node, **kwargs):
+    def action_listitem(self, node, **kwargs):
         raise NotImplementedError()
 
     def action_ref(self, node, **kwargs):

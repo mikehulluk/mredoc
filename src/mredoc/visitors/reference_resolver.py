@@ -33,20 +33,16 @@
 
 # ====================================================================
 
-
-
-
 from mredoc.visitors import ActionerBase
-
-
 
 class RefResolver(ActionerBase):
 
-    class Mode:
+    class Mode(object):
         Collect = 'Collect'
         Assign = 'Assign'
 
     def __init__(self, doc):
+        super(RefResolver, self).__init__()
         self.ref_map = {}
         self.visit(doc, mode=RefResolver.Mode.Collect)
         self.visit(doc, mode=RefResolver.Mode.Assign)
@@ -113,7 +109,7 @@ class RefResolver(ActionerBase):
     def action_inlineequation(self, node, **kwargs):
         pass
 
-    def action_listItem(self, node, **kwargs):
+    def action_listitem(self, node, **kwargs):
         pass
 
     def action_link(self, node, **kwargs):

@@ -35,13 +35,13 @@
 
 
 
-from mredoc.visitors import VisitorBase, ActionerBase
+from mredoc.visitors import ActionerBase
 
 
 class BlockNumberer(ActionerBase, dict):
 
     def __init__(self, obj):
-        dict.__init__(self)
+        super(BlockNumberer, self).__init__()
 
         self.obj_counts_figure = 0
         self.obj_counts_eqn = 0
@@ -50,7 +50,6 @@ class BlockNumberer(ActionerBase, dict):
         self.obj_counts_list = 0
 
         self.visit(obj)
-
 
     def action_figure(self, node, **kwargs):
         self.obj_counts_figure += 1
@@ -110,5 +109,5 @@ class BlockNumberer(ActionerBase, dict):
         self.obj_counts_list += 1
         node.number = self.obj_counts_list
 
-    def action_listItem(self, node, **kwargs):
+    def action_listitem(self, node, **kwargs):
         pass
