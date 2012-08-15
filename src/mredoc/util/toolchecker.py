@@ -40,13 +40,15 @@ class ExternalToolsLinux(object):
         if working_dir is None:
             working_dir = cls._default_working_directory
 
-        #if not os.path.exists(working_dir):
-        #    os.makedirs(working_dir)
 
+        # Setup locations:
         tex_file = working_dir + '/eqnset.tex'
         tex_pdf = working_dir + '/eqnset.pdf'
-
         op_dir = os.path.dirname(output_filename)
+
+        # make sure directories exist:
+        if not os.path.exists(working_dir):
+            os.makedirs(working_dir)
         if not os.path.exists(op_dir):
             os.makedirs(op_dir)
 
@@ -54,12 +56,19 @@ class ExternalToolsLinux(object):
         with open(tex_file, 'w') as fobj:
             fobj.write(tex_str)
 
-        compile_cmd = 'pdflatex -output-directory %s %s' \
-            % (working_dir, tex_file)
-        os.system(compile_cmd)
-        os.system(compile_cmd)
-        os.system(compile_cmd)
-        os.system(compile_cmd)
+        #compile_cmd = 'pdflatex -output-directory %s %s' \
+        #    % (working_dir, tex_file)
+        #os.system(compile_cmd)
+        #os.system(compile_cmd)
+
+        for i in range(2):
+            subprocess.check_call([
+                    'pdflatex', '-output-directory', 
+                    working_dir, tex_file])
+
+
+        #os.system(compile_cmd)
+        #os.system(compile_cmd)
 
         os.system('cp %s %s' % (tex_pdf, output_filename))
         if not os.path.exists(output_filename):
@@ -77,7 +86,7 @@ class ExternalToolsCheckerLinux(object):
         ExternalToolsCheckerLinux.pdflatex_checked = True
 
         try:
-            subprocess.check_call('which pdflatex')
+            subprocess.check_call(['which', 'pdflatex'])
         except:
             raise RequiredExternalToolNotFound("Can't find pdf_latex")
 
