@@ -32,3 +32,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #  ====================================================================
+
+import os
+
+def ensure_location_exists(loc):
+    dir_name = os.path.dirname(loc)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    return loc

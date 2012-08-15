@@ -4,6 +4,7 @@
 import os
 import subprocess
 import shutil
+import cStringIO
 
 class RequiredExternalToolNotFound(RuntimeError):
     def __init__(self, toolname):
@@ -43,6 +44,7 @@ class ExternalToolsLinux(object):
         # Setup locations:
         tex_file = working_dir + '/eqnset.tex'
         tex_pdf = working_dir + '/eqnset.pdf'
+        tex_op = working_dir + '/eqnset.output'
         op_dir = os.path.dirname(output_filename)
 
         # make sure directories exist:
@@ -55,10 +57,14 @@ class ExternalToolsLinux(object):
         with open(tex_file, 'w') as fobj:
             fobj.write(tex_str)
 
-        for i in range(2):
-            subprocess.check_call([
-                    'pdflatex', '-output-directory', 
-                    working_dir, tex_file])
+        for _i in range(2):
+            with open(tex_op,'w') as fobj:
+                subprocess.check_call([
+                        'pdflatex', '-output-directory', 
+                        working_dir, tex_file],
+                        stdout = fobj,
+                        stderr = subprocess.PIPE
+                        )
 
         # Copy the file to the output:
         shutil.copyfile(tex_pdf, output_filename)

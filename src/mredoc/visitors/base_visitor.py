@@ -36,7 +36,6 @@
 
 class VisitorBase(object):
     def visit(self, node, **kwargs):
-        print node
         return node._accept_visitor(self, **kwargs)
 
     def visit_document(self, node, **kwargs):

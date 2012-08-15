@@ -34,6 +34,5 @@
 # ====================================================================
 
 
-
 from html import HTMLWriter
 from latex import LatexWriter

@@ -42,7 +42,6 @@ import matplotlib
 
 from mredoc.errors import InvalidDocumentTree
 from mredoc.constants import ImageTypes, Languages
-import mredoc.writers
 
 # Since we have 'fake' class wrappers, we let functions look like classes:
 # pylint: disable-msg=C0103 
@@ -303,13 +302,14 @@ class _DocumentObject(object):
     def to_pdf(self, filename):
         """Creates a .pdf file of the object. It does this by generating LaTeX
         code, and running ``pdflatex`` on that code twice"""
+        import mredoc.writers
         return mredoc.writers.LatexWriter.build_pdf(self.as_document(),
                 filename=filename)
 
     def to_html(self, output_dir):
         """Creates a html. It will create a file ``index.html`` in the directory 
         specified by output_dir."""
-        #from mredoc.writers import HTMLWriter
+        import mredoc.writers
         return mredoc.writers.HTMLWriter.build_html(self.as_document(),
                 output_dir=output_dir)
     def as_document(self):

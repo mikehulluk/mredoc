@@ -46,13 +46,8 @@ from mredoc.constants import ImageTypes, Languages
 from mredoc.writers.html import xmlwitch
 from mredoc.visitors import VisitorBase
 from mredoc.visitors import BlockNumberer
+from mredoc.util.misc import ensure_location_exists
 
-
-def _ensure_location_exists(loc):
-    dir_name = os.path.dirname(loc)
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-    return loc
 
 
 class HTMLWriter(VisitorBase):
@@ -92,8 +87,8 @@ class HTMLWriter(VisitorBase):
         self.block_numbers = BlockNumberer(doc)
 
         # Output locations:
-        self.output_dir = _ensure_location_exists(output_dir)
-        self.output_dir_img = _ensure_location_exists(output_dir + '/imgs/')
+        self.output_dir = ensure_location_exists(output_dir)
+        self.output_dir_img = ensure_location_exists(output_dir + '/imgs/')
 
         self.xmlstack = [[HTMLWriter._new_html_witch_obj(), 0]]
         self.visit(doc)
