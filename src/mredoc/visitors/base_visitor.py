@@ -35,57 +35,57 @@
 
 
 class VisitorBase(object):
-    def visit(self, n, **kwargs):
-        print n
-        return n._accept_visitor(self, **kwargs)
+    def visit(self, node, **kwargs):
+        print node
+        return node._accept_visitor(self, **kwargs)
 
-    def _VisitDocument(self, n, **kwargs):
+    def _visit_document(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitHierachyScope(self, n, **kwargs):
+    def visit_hierachyscope(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitFigure(self, n, **kwargs):
+    def visit_figure(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitImage(self, n, **kwargs):
+    def visit_image(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitSubfigure(self, n, **kwargs):
+    def visit_subfigure(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitTableOfContents(self, n, **kwargs):
+    def visit_tableofcontents(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitHeading(self, n, **kwargs):
+    def visit_heading(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitRichTextContainer(self, n, **kwargs):
+    def visit_richtextcontainer(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitParagraph(self, n, **kwargs):
+    def visit_paragraph(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitText(self, n, **kwargs):
+    def visit_text(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitTable(self, n, **kwargs):
+    def visit_table(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitEquationBlock(self, n, **kwargs):
+    def visit_equationblock(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitEquation(self, n, **kwargs):
+    def visit_equation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitInlineEquation(self, n, **kwargs):
+    def visit_inlineequation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitCodeBlock(self, n, **kwargs):
+    def visit_codeblock(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitLink(self, n, **kwargs):
+    def visit_link(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitRef(self, n, **kwargs):
+    def visit_ref(self, node, **kwargs):
         raise NotImplementedError()

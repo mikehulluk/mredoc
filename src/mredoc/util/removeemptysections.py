@@ -35,10 +35,6 @@
 
 
 
-
-
-
-
 from mredoc.visitors import VisitorBase
 from mredoc.objects.core import _Heading, _HierachyScope
 
@@ -46,13 +42,11 @@ class EmptySectionRemover(VisitorBase):
     """Each section should return False if it should be removed
     or True to be kept"""
 
-    def _VisitDocument(self, n, **kwargs):
-        return self.visit(n.hierachy_root)
+    def _visit_document(self, node, **kwargs):
+        return self.visit(node.hierachy_root)
 
-    def _VisitHierachyScope(self, n, **kwargs):
-        new_children = [c for c in n.children if self.visit(c)]
-
-        # print 'NewChildren', new_children
+    def visit_hierachyscope(self, node, **kwargs):
+        new_children = [child for child in node.children if self.visit(child)]
 
         if len(new_children) == 0:
             return False
@@ -60,81 +54,75 @@ class EmptySectionRemover(VisitorBase):
            isinstance(new_children[0], _Heading):
             return False
 
-        n.children = new_children
+        node.children = new_children
         return True
 
 
-    def _VisitFigure(self, n, **kwargs):
-        if not n.subfigs:
+    def visit_figure(self, node, **kwargs):
+        if not node.subfigs:
             return False
         return True
 
-    def _VisitImage(self, n, **kwargs):
+    def visit_image(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitSubfigure(self, n, **kwargs):
+    def visit_subfigure(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitTableOfContents(self, n, **kwargs):
+    def visit_tableofcontents(self, node, **kwargs):
         return True
 
-    def _VisitHeading(self, n, **kwargs):
+    def visit_heading(self, node, **kwargs):
         return True
 
-    def _VisitRichTextContainer(self, n, **kwargs):
+    def visit_richtextcontainer(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitParagraph(self, n, **kwargs):
-        if not n.contents:
+    def visit_paragraph(self, node, **kwargs):
+        if not node.contents:
             return False
         return True
 
-    def _VisitList(self, n, **kwargs):
-        if not n.children:
+    def visit_list(self, node, **kwargs):
+        if not node.children:
             return False
         return True
 
-    def _VisitText(self, **kwargs):
+    def visit_text(self, **kwargs):
         raise NotImplementedError()
 
-    def _VisitTable(self, n, **kwargs):
+    def visit_table(self, node, **kwargs):
         return True
-        raise NotImplementedError()
 
-    def _VisitEquationBlock(self, n, **kwargs):
-        if len(n.equations) == 0:
+    def visit_equationblock(self, node, **kwargs):
+        if len(node.equations) == 0:
             return False
         return True
+
+    def visit_equation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitEquation(self, n, **kwargs):
-        raise NotImplementedError()
-
-    def _VisitPageBreak(self, n, **kwargs):
-
+    def visit_pagebreak(self, node, **kwargs):
         return True
+
+    def visit_inlineequation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _VisitInlineEquation(self, n, **kwargs):
-        raise NotImplementedError()
-
-    def _VisitCodeListing(self, n, **kwargs):
+    def visit_codelisting(self, node, **kwargs):
         return True
-        raise NotImplementedError()
 
 
 class NormaliseHierachyScope(VisitorBase):
 
+    def _visit_document(self, node, **kwargs):
+        return self.visit(node.hierachy_root)
 
-    def _VisitDocument(self, n, **kwargs):
-        return self.visit(n.hierachy_root)
-
-    def _VisitHierachyScope(self, n, **kwargs):
-        for c in n.children:
-            if not isinstance(c, _HierachyScope):
+    def visit_hierachyscope(self, node, **kwargs):
+        for child in node.children:
+            if not isinstance(child, _HierachyScope):
                 continue
-            self.visit(c, **kwargs)
+            self.visit(child, **kwargs)
 
-        if len(n.children) == 1 and \
-           isinstance(n.children[0], _HierachyScope):
-            n.children = n.children[0].children
+        if len(node.children) == 1 and \
+           isinstance(node.children[0], _HierachyScope):
+            node.children = node.children[0].children

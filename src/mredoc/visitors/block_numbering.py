@@ -52,63 +52,63 @@ class BlockNumberer(ActionerBase, dict):
         self.visit(obj)
 
 
-    def _ActionFigure(self, n, **kwargs):
+    def action_figure(self, node, **kwargs):
         self.obj_counts_figure += 1
-        n.number = self.obj_counts_figure
+        node.number = self.obj_counts_figure
 
-    def _ActionTable(self, n, **kwargs):
+    def action_table(self, node, **kwargs):
         self.obj_counts_table += 1
-        n.number = self.obj_counts_table
+        node.number = self.obj_counts_table
 
-    def _ActionEquationBlock(self, n, **kwargs):
+    def action_equationblock(self, node, **kwargs):
         self.obj_counts_eqn += 1
-        n.number = self.obj_counts_eqn
+        node.number = self.obj_counts_eqn
 
 
-    def _ActionLink(self, n, **kwargs):
+    def action_link(self, node, **kwargs):
         pass
-    def _ActionRef(self, n, **kwargs):
-        pass
-
-    def _ActionDocument(self, n, **kwargs):
+    def action_ref(self, node, **kwargs):
         pass
 
-    def _ActionHierachyScope(self, n, **kwargs):
+    def action_document(self, node, **kwargs):
         pass
 
-    def _ActionImage(self, n, **kwargs):
+    def action_hierachyscope(self, node, **kwargs):
         pass
 
-    def _ActionSubfigure(self, n, **kwargs):
+    def action_image(self, node, **kwargs):
         pass
 
-    def _ActionTableOfContents(self, n, **kwargs):
+    def action_subfigure(self, node, **kwargs):
         pass
 
-    def _ActionHeading(self, n, **kwargs):
+    def action_tableofcontents(self, node, **kwargs):
         pass
 
-    def _ActionRichTextContainer(self, n, **kwargs):
-        pass
-    def _ActionParagraph(self, n, **kwargs):
+    def action_heading(self, node, **kwargs):
         pass
 
-    def _ActionText(self, **kwargs):
+    def action_richtextcontainer(self, node, **kwargs):
+        pass
+    def action_paragraph(self, node, **kwargs):
         pass
 
-    def _ActionEquation(self, n, **kwargs):
+    def action_text(self, **kwargs):
         pass
 
-    def _ActionInlineEquation(self, n, **kwargs):
+    def action_equation(self, node, **kwargs):
         pass
 
-    def _ActionCodeListing(self, n, **kwargs):
+    def action_inlineequation(self, node, **kwargs):
+        pass
+
+    def action_codelisting(self, node, **kwargs):
         self.obj_counts_code += 1
-        n.number = self.obj_counts_code
+        node.number = self.obj_counts_code
 
-    def _ActionList(self, n, **kwargs):
+    def action_list(self, node, **kwargs):
         self.obj_counts_list += 1
-        n.number = self.obj_counts_list
+        node.number = self.obj_counts_list
 
-    def _ActionListItem(self, n, **kwargs):
+    def action_listItem(self, node, **kwargs):
         pass

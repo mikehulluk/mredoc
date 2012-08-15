@@ -46,139 +46,137 @@ from mredoc.visitors import VisitorBase
 class ActionerBase(VisitorBase):
 
 
-    def _VisitDocument(self, n, **kwargs):
-        self._ActionDocument(n, **kwargs)
-        self.visit(n.hierachy_root, **kwargs)
+    def _visit_document(self, node, **kwargs):
+        self.action_document(node, **kwargs)
+        self.visit(node.hierachy_root, **kwargs)
 
-    def _VisitHierachyScope(self, n, **kwargs):
-        self._ActionHierachyScope(n, **kwargs)
-        for c in n.children:
-            self.visit(c, **kwargs)
-
-
-
-    def _VisitFigure(self, n, **kwargs):
-        self._ActionFigure(n, **kwargs)
-        for c in n.subfigs:
-            self.visit(c, **kwargs)
-
-    def _VisitImage(self, n, **kwargs):
-        self._ActionImage(n, **kwargs)
-
-    def _VisitSubfigure(self, n, **kwargs):
-        self._ActionSubfigure(n, **kwargs)
-        self.visit(n.img, **kwargs)
-
-    def _VisitTableOfContents(self, n, **kwargs):
-        self._ActionTableOfContents(n, **kwargs)
-
-    def _VisitHeading(self, n, **kwargs):
-        self._ActionHeading(n, **kwargs)
-        self.visit(n.heading, **kwargs)
-
-    def _VisitRichTextContainer(self, n, **kwargs):
-        self._ActionRichTextContainer(n, **kwargs)
-        for c in n.children:
-            self.visit(c, **kwargs)
-
-    def _VisitParagraph(self, n, **kwargs):
-        self._ActionParagraph(n, **kwargs)
-        self.visit(n.contents, **kwargs)
-        # for c in n.children:
-        #    self.visit(c, **kwargs)
-
-    def _VisitEquationBlock(self, n, **kwargs):
-        self._ActionEquationBlock(n, **kwargs)
-        for c in n.equations:
-            self.visit(c, **kwargs)
-
-    def _VisitList(self, n, **kwargs):
-        self._ActionList(n, **kwargs)
-        for c in n.children:
-            self.visit(c, **kwargs)
+    def visit_hierachyscope(self, node, **kwargs):
+        self.action_hierachyscope(node, **kwargs)
+        for child in node.children:
+            self.visit(child, **kwargs)
 
 
-    def _VisitListItem(self, n, **kwargs):
-        self._ActionListItem(n, **kwargs)
-        self.visit(n.para, **kwargs)
+
+    def visit_figure(self, node, **kwargs):
+        self.action_figure(node, **kwargs)
+        for child in node.subfigs:
+            self.visit(child, **kwargs)
+
+    def visit_image(self, node, **kwargs):
+        self.action_image(node, **kwargs)
+
+    def visit_subfigure(self, node, **kwargs):
+        self.action_subfigure(node, **kwargs)
+        self.visit(node.img, **kwargs)
+
+    def visit_tableofcontents(self, node, **kwargs):
+        self.action_tableofcontents(node, **kwargs)
+
+    def visit_heading(self, node, **kwargs):
+        self.action_heading(node, **kwargs)
+        self.visit(node.heading, **kwargs)
+
+    def visit_richtextcontainer(self, node, **kwargs):
+        self.action_richtextcontainer(node, **kwargs)
+        for child in node.children:
+            self.visit(child, **kwargs)
+
+    def visit_paragraph(self, node, **kwargs):
+        self.action_paragraph(node, **kwargs)
+        self.visit(node.contents, **kwargs)
+
+    def visit_equationblock(self, node, **kwargs):
+        self.action_equationblock(node, **kwargs)
+        for child in node.equations:
+            self.visit(child, **kwargs)
+
+    def visit_list(self, node, **kwargs):
+        self.action_list(node, **kwargs)
+        for child in node.children:
+            self.visit(child, **kwargs)
 
 
-    def _VisitText(self, n, **kwargs):
-        self._ActionText(**kwargs)
+    def visit_listItem(self, node, **kwargs):
+        self.action_listItem(node, **kwargs)
+        self.visit(node.para, **kwargs)
 
-    def _VisitTable(self, n, **kwargs):
-        self._ActionTable(n, **kwargs)
 
-    def _VisitEquation(self, n, **kwargs):
-        self._ActionEquation(n, **kwargs)
+    def visit_text(self, node, **kwargs):
+        self.action_text(**kwargs)
 
-    def _VisitInlineEquation(self, n, **kwargs):
-        self._ActionInlineEquation(n, **kwargs)
+    def visit_table(self, node, **kwargs):
+        self.action_table(node, **kwargs)
 
-    def _VisitCodeListing(self, n, **kwargs):
-        self._ActionCodeListing(n, **kwargs)
+    def visit_equation(self, node, **kwargs):
+        self.action_equation(node, **kwargs)
 
-    def _VisitLink(self, n, **kwargs):
-        self._ActionLink(n, **kwargs)
+    def visit_inlineequation(self, node, **kwargs):
+        self.action_inlineequation(node, **kwargs)
 
-    def _VisitRef(self, n, **kwargs):
-        self._ActionRef(n, **kwargs)
+    def visit_codelisting(self, node, **kwargs):
+        self.action_codelisting(node, **kwargs)
+
+    def visit_link(self, node, **kwargs):
+        self.action_link(node, **kwargs)
+
+    def visit_ref(self, node, **kwargs):
+        self.action_ref(node, **kwargs)
 
 
 
 
-    def _ActionDocument(self, n, **kwargs):
+    def action_document(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionHierachyScope(self, n, **kwargs):
+    def action_hierachyscope(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionFigure(self, n, **kwargs):
+    def action_figure(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionImage(self, n, **kwargs):
+    def action_image(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionSubfigure(self, n, **kwargs):
+    def action_subfigure(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionTableOfContents(self, n, **kwargs):
+    def action_tableofcontents(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionHeading(self, n, **kwargs):
+    def action_heading(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionRichTextContainer(self, n, **kwargs):
+    def action_richtextcontainer(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionParagraph(self, n, **kwargs):
+    def action_paragraph(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionText(self, **kwargs):
+    def action_text(self, **kwargs):
         raise NotImplementedError()
 
-    def _ActionTable(self, n, **kwargs):
+    def action_table(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionEquationBlock(self, n, **kwargs):
+    def action_equationblock(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionEquation(self, n, **kwargs):
+    def action_equation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionInlineEquation(self, n, **kwargs):
+    def action_inlineequation(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionCodeBlock(self, n, **kwargs):
+    def action_codeblock(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionList(self, n, **kwargs):
+    def action_list(self, node, **kwargs):
         raise NotImplementedError()
-    def _ActionListItem(self, n, **kwargs):
+    def action_listItem(self, node, **kwargs):
         raise NotImplementedError()
 
-    def _ActionRef(self, n, **kwargs):
+    def action_ref(self, node, **kwargs):
         raise NotImplementedError()
-    def _ActionLink(self, n, **kwargs):
+    def action_link(self, node, **kwargs):
         raise NotImplementedError()
 

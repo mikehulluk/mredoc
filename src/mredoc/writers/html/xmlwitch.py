@@ -63,10 +63,11 @@ class Builder:
     def write_indented(self, content):
         """Write indented content to the document"""
 
-        self.write('%s%s%s' % (self._indent * self._indentation, content, self.line_separator))
+        self.write('%s%s%s' % (self._indent * self._indentation,
+                   content, self.line_separator))
 
 
-builder = Builder # 0.1 backward compatibility
+builder = Builder  # 0.1 backward compatibility
 
 class Element:
 
@@ -84,20 +85,18 @@ class Element:
         self.builder._indentation += 1
         return self
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self, _exc_type, _exc_value, _exc_tb):
         """Add close tag to current parent element"""
         self.builder._indentation -= 1
         self.builder.write_indented('</%s>' % self.name)
 
     def __call__(*args, **kargs):
         """Add a child element to the document"""
-        print kargs, args
         self = args[0]
         self.attributes.update(kargs)
         if len(args) > 1:
             value = args[1]
             if value is None:
-
                 self.builder.write_indented('<%s%s />' % (self.name,
                         self._serialized_attrs()))
             else:

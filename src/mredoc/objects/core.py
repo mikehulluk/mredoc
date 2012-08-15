@@ -45,43 +45,45 @@ from mredoc.constants import ImageTypes, Languages
 
 
 
-def isiterable(e):
-    return isinstance(e, collections.Iterable)
+def isiterable(obj):
+    return isinstance(obj, collections.Iterable)
 
 def flatten(objs):
-    r = []
-    for o in objs:
-        if isinstance(o, _DocumentObject):
-            r.append(o)
-        elif isinstance(o, basestring):
-            r.append(o)
-        elif o is None:
+    res = []
+    for obj in objs:
+        if isinstance(obj, _DocumentObject):
+            res.append(obj)
+        elif isinstance(obj, basestring):
+            res.append(obj)
+        elif obj is None:
             continue
-        elif isiterable(o):
-            r.extend(flatten(o))
+        elif isiterable(obj):
+            res.extend(flatten(obj))
         else:
-            raise InvalidDocumentTree("Unexpected argument: %s (type:%s"%(o, type(o)))
-    return r
+            raise InvalidDocumentTree('Unexpected argument: %s (type:%s'
+                     % (obj, type(obj)))
+    return res
 
 
-def check_type(o,t):
-    if not isinstance(o,t):
-        raise InvalidDocumentTree("Unexpected argument type: %s Expected: %s"%(type(o), t))
-    return o
+def check_type(obj, exp_type):
+    if not isinstance(obj, exp_type):
+        raise InvalidDocumentTree('Unexpected argument type: %s Expected: %s'
+                                   % (type(obj), exp_type))
+    return obj
 
-def check_seq_type(seq, t):
+def check_seq_type(seq, exp_type):
     seq = list(seq)
-    for s in seq:
-        check_type(s, t)
+    for obj in seq:
+        check_type(obj, exp_type)
     return seq
 
 
 
 
 def _get_kwargs(kw, *names):
-    for k in kw:
-        assert k in names, "Can't find name: %s in %s" % (k, names)
-    return [kw.get(n, None) for n in names]
+    for kwarg in kw:
+        assert kwarg in names, "Can't find name: %s in %s" % (kwarg, names)
+    return [kw.get(name, None) for name in names]
 
 
 
@@ -90,22 +92,23 @@ def _get_kwargs(kw, *names):
 
 
 def DocumentObject(*args, **kwargs):
-    return _DocumentObject(*args,**kwargs)
+    return _DocumentObject(*args, **kwargs)
 
 def DocumentRoot(*args, **kwargs):
     return _DocumentRoot(*args, **kwargs)
 
 def ContentBlock(*args, **kwargs):
     if len(args) == 1:
-        a = args[0]
-        if isinstance(a, _ContentBlock):
-            return a
-        elif isinstance(a, (_Link, _Ref, basestring)):
-            return Paragraph(a)
+        arg0 = args[0]
+        if isinstance(arg0, _ContentBlock):
+            return arg0
+        elif isinstance(arg0, (_Link, _Ref, basestring)):
+            return Paragraph(arg0)
         else:
-            raise ValueError('Unexpected object passed to ContentBlock: %s (%s)'% (type(a), a) )
+            raise ValueError('Unexpected object passed to ContentBlock: %s (%s)'
+                              % (type(arg0), arg0))
     else:
-        return flatten([ContentBlock(b) for b in args])
+        return flatten([ContentBlock(arg) for arg in args])
 
 def HierachyScope(*args, **kwargs):
     if len(args) == 1 and isinstance(args[0], _HierachyScope):
@@ -115,16 +118,16 @@ def HierachyScope(*args, **kwargs):
     # objects into a larger 'Paragraph'
     blocks = []
     current_para_block = None
-    for c in args:
-        if not isinstance(c, _ContentBlock):
+    for child in args:
+        if not isinstance(child, _ContentBlock):
             if current_para_block is None:
                 current_para_block = []
-            current_para_block.append(c)
+            current_para_block.append(child)
         else:
             if current_para_block:
                 blocks.append(Paragraph(*flatten(current_para_block)))
                 current_para_block = None
-            blocks.append(c)
+            blocks.append(child)
     return _HierachyScope(*blocks, **kwargs)
 
 
@@ -157,34 +160,35 @@ def RichTextContainer(*args, **kwargs):
 
 
 
-def _rich_text_from_string(s):
-    s = s.strip()
-    if not s:
+def _rich_text_from_string(src_str):
+    src_str = src_str.strip()
+    if not src_str:
         return None
-    if s[0] == '$' and s[-1] == '$':
-        return InlineEquation(s[1:-1])
+    if src_str[0] == '$' and src_str[-1] == '$':
+        return InlineEquation(src_str[1:-1])
     else:
-        return PlainText(s)
+        return PlainText(src_str)
 
 
-def RichTextObject(o, **kwargs):
-    if o is None:
+def RichTextObject(obj, **kwargs):
+    if obj is None:
         return None
 
-    elif isinstance(o, _RichTextObject):
-        return o
-    elif isinstance(o, basestring):
-        return _rich_text_from_string(o)
-    elif isinstance(o, int):
-        return _rich_text_from_string(str(o))
-    elif isinstance(o, float):
-        return _rich_text_from_string(str(o))
-    elif isinstance(o, _Equation):
-        return InlineEquation(o)
-    elif isiterable(o):
-        return flatten([RichTextObject(a, **kwargs) for a in o])
+    elif isinstance(obj, _RichTextObject):
+        return obj
+    elif isinstance(obj, basestring):
+        return _rich_text_from_string(obj)
+    elif isinstance(obj, int):
+        return _rich_text_from_string(str(obj))
+    elif isinstance(obj, float):
+        return _rich_text_from_string(str(obj))
+    elif isinstance(obj, _Equation):
+        return InlineEquation(obj)
+    elif isiterable(obj):
+        return flatten([RichTextObject(child, **kwargs) for child in obj])
     else:
-        raise ValueError('Unexpected object passed to RichTextObject: %s (%s)' %(type(o), o))
+        raise ValueError('Unexpected object passed to RichTextObject: %s (%s)'
+                          % (type(obj), obj))
 
 def Ref(*args, **kwargs):
     return _Ref(*args, **kwargs)
@@ -195,8 +199,8 @@ def Link(*args, **kwargs):
 def PlainText(*args, **kwargs):
     return _PlainText(*args, **kwargs)
 
-def InlineEquation(a, **kwargs):
-    return _InlineEquation(a, **kwargs)
+def InlineEquation(eqn, **kwargs):
+    return _InlineEquation(eqn, **kwargs)
 
 def Figure(*args, **kwargs):
     """Creates a Figure. *kwargs*\ : ``caption`` and ``reflabel`` """
@@ -223,27 +227,27 @@ def EquationBlock(*args, **kwargs):
 
     return _EquationBlock(*args, **kwargs)
 
-def Equation(e, **kwargs):
-    if isinstance(e, basestring):
-        return _Equation(e)
-    if isinstance(e, _Equation):
-        return e
+def Equation(eqn, **kwargs):
+    if isinstance(eqn, basestring):
+        return _Equation(eqn)
+    if isinstance(eqn, _Equation):
+        return eqn
     assert False
 
 def List(*args, **kwargs):
     return _List(*args, **kwargs)
 
-def ListItem(*a, **kwargs):
-    if len(a) == 1:
-        e = a[0]
-        if isinstance(e, _ListItem):
-            return e
+def ListItem(*args, **kwargs):
+    if len(args) == 1:
+        arg0 = args[0]
+        if isinstance(arg0, _ListItem):
+            return arg0
         else:
-            return _ListItem(RichTextContainer(e))
-    elif len(a) == 2:
-        (e, h) = a
-        return _ListItem(RichTextContainer(e), RichTextContainer(h))
-    return _ListItem(e,**kwargs)
+            return _ListItem(RichTextContainer(arg0))
+    elif len(args) == 2:
+        (arg0, arg1) = args
+        return _ListItem(RichTextContainer(arg0), RichTextContainer(arg1))
+    return _ListItem(arg0, **kwargs)
 
 
 def CodeListing(*args, **kwargs):
@@ -296,19 +300,21 @@ class _DocumentObject(object):
         """Creates a .pdf file of the object. It does this by generating LaTeX
         code, and running ``pdflatex`` on that code twice"""
         from mredoc.writers import LatexWriter
-        return LatexWriter.build_pdf(self.as_document(), filename=filename)
+        return LatexWriter.build_pdf(self.as_document(),
+                filename=filename)
 
     def to_html(self, output_dir):
         """Creates a html. It will create a file ``index.html`` in the directory 
         specified by output_dir."""
         from mredoc.writers import HTMLWriter
-        return HTMLWriter.build_html(self.as_document(), output_dir=output_dir)
+        return HTMLWriter.build_html(self.as_document(),
+                output_dir=output_dir)
     def as_document(self):
         return Document(self)
 
 
-    def _accept_visitor(self, v, **kwargs):
-        print 'Visitor:', v, type(v)
+    def _accept_visitor(self, visitor, **kwargs):
+        print 'Visitor:', visitor, type(visitor)
         print 'Target:', self, type(self)
         raise NotImplementedError()
 
@@ -319,8 +325,8 @@ class _DocumentRoot(_DocumentObject):
     def as_document(self):
         return self
 
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitDocument(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor._visit_document(self, **kwargs)
 
     def __init__(self, hierachy_root, remove_empty_sections=True, normalise_hierachy=True):
 
@@ -361,28 +367,29 @@ class _ContentBlock(_DocumentObject):
 
 
 class _HierachyScope(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitHierachyScope(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_hierachyscope(self, **kwargs)
     def __init__(self, *children, **kwargs):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
         (self.is_new_page, ) = _get_kwargs(kwargs, 'new_page')
         self.children = check_seq_type(children, _ContentBlock)
 
     def __str__(self):
-        return '<HierachyScope: [ %s ]>' % ','.join([str(s) for s in self.children])
+        return '<HierachyScope: [ %s ]>' % ','.join([str(s) for s in
+                self.children])
 
 
 class _Heading(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitHeading(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_heading(self, **kwargs)
     def __init__(self, heading):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
         self.heading = RichTextContainer(heading)
 
 
 class _Paragraph(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitParagraph(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_paragraph(self, **kwargs)
     def __init__(self, *children):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
         self.contents = RichTextContainer(children)
@@ -391,10 +398,10 @@ class _Paragraph(_ContentBlock):
 
 
 class _RichTextContainer(_DocumentObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitRichTextContainer(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_richtextcontainer(self, **kwargs)
     def __init__(self, *children):
-        self.children = flatten([RichTextObject(a) for a in children])
+        self.children = flatten([RichTextObject(child) for child in children])
         check_seq_type(self.children, _RichTextObject)
 
 
@@ -405,16 +412,16 @@ class _RichTextObject(_DocumentObject):
 
 
 class _Ref(_RichTextObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitRef(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_ref(self, **kwargs)
     def __init__(self, target):
         self.target = target
     def get_link_text(self):
         return self.target.get_ref_str()
 
 class _Link(_RichTextObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitLink(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_link(self, **kwargs)
     def __init__(self, target, ref_text=None):
         self.target = target
         self.ref_text = ref_text
@@ -422,41 +429,42 @@ class _Link(_RichTextObject):
         return self.ref_text or self.target
 
 class _PlainText(_RichTextObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitText(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_text(self, **kwargs)
     def __init__(self, text):
         self.text = check_type(text, basestring)
 
 class _InlineEquation(_RichTextObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitInlineEquation(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_inlineequation(self, **kwargs)
     def __init__(self, eqn):
         self.eqn = Equation(eqn)
 
 
 
 class _Figure(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitFigure(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_figure(self, **kwargs)
 
     def __init__(self, *subfigs, **kwargs):
         # Unpack kwargs:
-        caption,reflabel = _get_kwargs(kwargs,'caption','reflabel')
-        _ContentBlock.__init__(self,caption=caption, reflabel=reflabel)
+        (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
+        _ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
 
-        subfigs = [_Subfigure(s) for s in subfigs]
+        subfigs = [_Subfigure(subfig) for subfig in subfigs]
         self.subfigs = check_seq_type(subfigs, _Subfigure)
 
         if self.caption is not None:
-            self.caption = check_type(RichTextContainer(caption), _RichTextContainer)
+            self.caption = check_type(RichTextContainer(caption),
+                    _RichTextContainer)
 
 
     def get_type_str(self,):
         return "Figure"
 
 class _Subfigure(_DocumentObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitSubfigure(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_subfigure(self, **kwargs)
     def __init__(self, img):
         self.img = Image(img)
 
@@ -464,23 +472,24 @@ class _Subfigure(_DocumentObject):
 
 
 class _Table(_ContentBlock):
-    def _accept_visitor(self,v,**kwargs):
-        return v._VisitTable(self,**kwargs)
+    def _accept_visitor(self,visitor,**kwargs):
+        return visitor.visit_table(self,**kwargs)
     def __init__(self, header, data, **kwargs):
-        caption,reflabel = _get_kwargs(kwargs,'caption','reflabel')
+        (caption,reflabel) = _get_kwargs(kwargs,'caption','reflabel')
         _ContentBlock.__init__(self,caption=caption, reflabel=reflabel)
         self.data = data
         self.header = header
 
         self.header = [_RichTextContainer(h) for h in self.header]
-        self.data = [[_RichTextContainer(d) for d in line] for line in self.data]
+        self.data = [[_RichTextContainer(d) for d in line] for line in
+                     self.data]
 
     def get_type_str(self):
         return 'Table'
 
 class _EquationBlock(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitEquationBlock(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_equationblock(self, **kwargs)
     def __init__(self, *equations, **kwargs):
         (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
         _ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
@@ -491,8 +500,8 @@ class _EquationBlock(_ContentBlock):
         return 'Eqn'
 
 class _Equation(_DocumentObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitEquation(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_equation(self, **kwargs)
     def __init__(self, eqn):
         self.eqn = eqn
         self.eqn = self.eqn.replace(')', r"\right)")
@@ -500,8 +509,8 @@ class _Equation(_DocumentObject):
 
 
 class _List(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitList(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_list(self, **kwargs)
 
     def __init__(self, *children, **kwargs):
         (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
@@ -512,20 +521,21 @@ class _List(_ContentBlock):
         return 'List'
 
 class _ListItem(_DocumentObject):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitListItem(self, **kwargs)
-    def __init__(self,  para, header=None):
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_listItem(self, **kwargs)
+    def __init__(self, para, header=None):
         self.para = RichTextContainer(para)
-        self.header = RichTextContainer(header) if header else None
+        self.header = (RichTextContainer(header) if header else None)
 
 
 
 class _CodeListing(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitCodeListing(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_codelisting(self, **kwargs)
     def __init__(self, contents, **kwargs):
-        caption,reflabel,language = _get_kwargs(kwargs,'caption','reflabel', 'language')
-        _ContentBlock.__init__(self,caption=caption, reflabel=reflabel)
+        (caption, reflabel, language) = _get_kwargs(kwargs, 'caption',
+                'reflabel', 'language')
+        _ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
 
         self.language = language
         self.contents = contents
@@ -535,8 +545,8 @@ class _CodeListing(_ContentBlock):
 
 
 class _TableOfContents(_ContentBlock):
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitTableOfContents(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_tableofcontents(self, **kwargs)
     def __init__(self, *children):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
 
@@ -569,8 +579,8 @@ class _Image(_DocumentObject):
 
     def get_filename(self, type):
         raise NotImplementedError()
-    def _accept_visitor(self, v, **kwargs):
-        return v._VisitImage(self, **kwargs)
+    def _accept_visitor(self, visitor, **kwargs):
+        return visitor.visit_image(self, **kwargs)
 
 
 class _ImageMPL(_Image):
@@ -589,16 +599,17 @@ class _ImageMPL(_Image):
         pylab.savefig(self.fNameBase + '.svg')
 
     def get_filename(self, type):
-        assert type in [ ImageTypes.EPS, ImageTypes.PDF,ImageTypes.PNG, ImageTypes.SVG]
-        return self.fNameBase+"."+type
+        assert type in [ImageTypes.EPS, ImageTypes.PDF, ImageTypes.PNG,
+                        ImageTypes.SVG]
+        return self.fNameBase + '.' + type
 
 
 
 def resize_image(fig):
     pylab.figure(fig.number)
     fig.set_size_inches(1.75, 1.75)
-    for o in fig.findobj(matplotlib.text.Text):
-        o.set_fontsize(7)
+    for obj in fig.findobj(matplotlib.text.Text):
+        obj.set_fontsize(7)
     fig.subplots_adjust(left=0.25, right=0.95)
 
 
@@ -614,7 +625,8 @@ class _ImageFile(_Image):
 
 
     def get_filename(self, type):
-        assert type in [ ImageTypes.EPS, ImageTypes.PDF,ImageTypes.PNG, ImageTypes.SVG]
+        assert type in [ImageTypes.EPS, ImageTypes.PDF, ImageTypes.PNG,
+                        ImageTypes.SVG]
 
         cur_ext = os.path.splitext(self.filename)[1]
         new_filename = self.filename.replace(cur_ext, type)
@@ -624,7 +636,7 @@ class _ImageFile(_Image):
 
         new_filename = self.fNameBase + '.' + type
         from mredoc.util.toolchecker import ExternalTools
-        ExternalTools.ConvertImage(self.filename, new_filename)
+        ExternalTools.convert_image(self.filename, new_filename)
         return new_filename
 
 

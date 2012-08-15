@@ -52,71 +52,71 @@ class RefResolver(ActionerBase):
         self.visit(doc, mode=RefResolver.Mode.Assign)
 
 
-    def _ActionFigure(self, n, mode=None, **kwargs):
-        if mode == RefResolver.Mode.Collect and n.reflabel:
-            self.ref_map[n.reflabel] = n
+    def action_figure(self, node, mode=None, **kwargs):
+        if mode == RefResolver.Mode.Collect and node.reflabel:
+            self.ref_map[node.reflabel] = node
 
-    def _ActionTable(self, n, mode=None, **kwargs):
-        if mode == RefResolver.Mode.Collect and n.reflabel:
-            self.ref_map[n.reflabel] = n
+    def action_table(self, node, mode=None, **kwargs):
+        if mode == RefResolver.Mode.Collect and node.reflabel:
+            self.ref_map[node.reflabel] = node
 
-    def _ActionEquationBlock(self, n, mode=None, **kwargs):
-        if mode == RefResolver.Mode.Collect and n.reflabel:
-            self.ref_map[n.reflabel] = n
+    def action_equationblock(self, node, mode=None, **kwargs):
+        if mode == RefResolver.Mode.Collect and node.reflabel:
+            self.ref_map[node.reflabel] = node
 
-    def _ActionCodeListing(self, n, mode=None, **kwargs):
-        if mode == RefResolver.Mode.Collect and n.reflabel:
-            self.ref_map[n.reflabel] = n
+    def action_codelisting(self, node, mode=None, **kwargs):
+        if mode == RefResolver.Mode.Collect and node.reflabel:
+            self.ref_map[node.reflabel] = node
 
-    def _ActionList(self, n, mode=None, **kwargs):
-        if mode == RefResolver.Mode.Collect and n.reflabel:
-            self.ref_map[n.reflabel] = n
+    def action_list(self, node, mode=None, **kwargs):
+        if mode == RefResolver.Mode.Collect and node.reflabel:
+            self.ref_map[node.reflabel] = node
 
 
-    def _ActionRef(self, n, mode=None, **kwargs):
+    def action_ref(self, node, mode=None, **kwargs):
         if mode == RefResolver.Mode.Assign:
-            if isinstance(n.target, basestring):
-                n.target = self.ref_map[n.target]
+            if isinstance(node.target, basestring):
+                node.target = self.ref_map[node.target]
 
 
-    def _ActionDocument(self, n, **kwargs):
+    def action_document(self, node, **kwargs):
         pass
 
-    def _ActionHierachyScope(self, n, **kwargs):
+    def action_hierachyscope(self, node, **kwargs):
         pass
 
 
-    def _ActionImage(self, n, **kwargs):
+    def action_image(self, node, **kwargs):
         pass
 
-    def _ActionSubfigure(self, n, **kwargs):
+    def action_subfigure(self, node, **kwargs):
         pass
 
-    def _ActionTableOfContents(self, n, **kwargs):
+    def action_tableofcontents(self, node, **kwargs):
         pass
 
-    def _ActionHeading(self, n, **kwargs):
+    def action_heading(self, node, **kwargs):
         pass
 
-    def _ActionRichTextContainer(self, n, **kwargs):
+    def action_richtextcontainer(self, node, **kwargs):
         pass
 
-    def _ActionParagraph(self, n, **kwargs):
+    def action_paragraph(self, node, **kwargs):
         pass
 
-    def _ActionText(self, **kwargs):
+    def action_text(self, **kwargs):
         pass
 
-    def _ActionEquation(self, n, **kwargs):
+    def action_equation(self, node, **kwargs):
         pass
 
-    def _ActionInlineEquation(self, n, **kwargs):
+    def action_inlineequation(self, node, **kwargs):
         pass
 
-    def _ActionListItem(self, n, **kwargs):
+    def action_listItem(self, node, **kwargs):
         pass
 
-    def _ActionLink(self, n, **kwargs):
+    def action_link(self, node, **kwargs):
         pass
 
 

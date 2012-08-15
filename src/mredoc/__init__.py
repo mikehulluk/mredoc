@@ -34,7 +34,7 @@
 #  ====================================================================
 
 
-from objects import Document,  HierachyScope
+from objects import Document, HierachyScope
 from objects import Section, SectionNewPage
 from objects import Heading, Paragraph, PlainText, Ref, Link
 from objects import Figure, Subfigure, Image, Table
@@ -79,5 +79,5 @@ __all__ = [
     #mredoc.constants:
     'ImageTypes',
     'Languages',
-]
+    ]
 

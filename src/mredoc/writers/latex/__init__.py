@@ -146,17 +146,15 @@ class LatexWriter(VisitorBase):
         if not os.path.exists(op_dir):
             os.makedirs(op_dir)
         # Write to disk and compile:
-        with open(tex_file, 'w') as f:
-            f.write(tex_str)
+        with open(tex_file, 'w') as fobj:
+            fobj.write(tex_str)
 
-        compile_cmd = "pdflatex -output-directory %s %s"%(cls._working_dir, tex_file) 
+        compile_cmd = 'pdflatex -output-directory %s %s' \
+            % (cls._working_dir, tex_file)
         os.system(compile_cmd)
         os.system(compile_cmd)
         os.system(compile_cmd)
         os.system(compile_cmd)
-
-        # os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
-        # os.system("pdflatex -output-directory %s %s"%(cls._working_dir, tex_file))
 
         os.system('cp %s %s' % (tex_pdf, output_filename))
         if not os.path.exists(output_filename):
@@ -178,63 +176,67 @@ class LatexWriter(VisitorBase):
 
 
 
-    def _VisitFigure(self, n, **kwargs):
-        if len(n.subfigs) == 1:
+    def visit_figure(self, node, **kwargs):
+        if len(node.subfigs) == 1:
             pass
 
+        caption = self.visit(node.caption) if node.caption else ''
+        reflabel = node.reflabel if node.reflabel else ''        
         return '\n'.join([
             r"""\begin{figure}[htb]""",
             r"""\centering""",
-            '\n'.join([self.visit(s) for s in n.subfigs]),
-            (r"""\caption{%s}""" % self.visit(n.caption) if n.caption else ''),
-            (r"""\label{%s}""" % n.reflabel if n.reflabel else ''),
+            '\n'.join([self.visit(s) for s in node.subfigs]),
+            r"""\caption{%s}""" % caption,
+            r"""\label{%s}""" % reflabel,
             r"""\end{figure}""",
             ])
 
 
 
-    def _VisitImage(self, n, **kwargs):
-        return r"""\includegraphics{%s}""" % ( n.get_filename(type=ImageTypes.PDF) )
+    def visit_image(self, node, **kwargs):
+        return r"""\includegraphics{%s}""" \
+            % node.get_filename(type=ImageTypes.PDF)
 
-    def _VisitSubfigure(self, n, **kwargs):
-        return self.visit(n.img)
+    def visit_subfigure(self, node, **kwargs):
+        return self.visit(node.img)
 
-    def _VisitTableOfContents(self, n, **kwargs):
-        return r"\tableofcontents" + '\n' + '\\newpage' + '\n'
+    def visit_tableofcontents(self, node, **kwargs):
+        return r"\tableofcontents" + '\n' + r"""\newpage""" + '\n'
 
-    def _VisitDocument(self, n, **kwargs):
-        return doc_header + self.visit(n.hierachy_root,**kwargs)  + doc_footer
+    def _visit_document(self, node, **kwargs):
+        return doc_header + self.visit(node.hierachy_root,**kwargs)  + doc_footer
 
-    def _VisitHierachyScope(self, n, **kwargs):
+    def visit_hierachyscope(self, node, **kwargs):
         self.hierachy_depth += 1
-        r = '\n'.join([self.visit(c) for c in n.children])
-        if n.is_new_page:
+        r = '\n'.join([self.visit(child) for child in node.children])
+        if node.is_new_page:
             r =  "\n\\newpage\n" + r
         self.hierachy_depth -= 1
         return r
 
-    def _VisitHeading(self, n, **kwargs):
+    def visit_heading(self, node, **kwargs):
         assert self.hierachy_depth <= 5, \
             'Deep documents not properly handled yet. TODO FIX HERE'
 
         heading_type = heading_by_depth[self.hierachy_depth]
-        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.visit(n.heading) )
+        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n"%(heading_type, self.visit(node.heading) )
 
-    def _VisitRichTextContainer(self, n, **kwargs):
-        return ' '.join([self.visit(c) for c in n.children])
+    def visit_richtextcontainer(self, node, **kwargs):
+        return ' '.join([self.visit(child) for child in node.children])
 
-    def _VisitParagraph(self, n, **kwargs):
-        return self.visit(n.contents)
+    def visit_paragraph(self, node, **kwargs):
+        return self.visit(node.contents)
 
-    def _VisitText(self, n, **kwargs):
-        return n.text.replace('&', "\&").replace('_', "\_")
+    def visit_text(self, node, **kwargs):
+        return node.text.replace('&', "\&").replace('_', "\_")
 
-    def _VisitTable(self, n, **kwargs):
-        buildline = lambda line: " & ".join( [self.visit(l) for l in line ]) + r" \\"
+    def visit_table(self, node, **kwargs):
+        buildline = lambda line: ' & '.join([self.visit(l) for l in
+                line]) + r" \\"
 
-        header_line = buildline(n.header)
-        contents = '\n'.join([buildline(c) for c in n.data])
-        alignment = 'c' * len(n.header)
+        header_line = buildline(node.header)
+        contents = '\n'.join([buildline(child) for child in node.data])
+        alignment = 'c' * len(node.header)
 
         return '\n'.join([
             r"""\begin{table}[h!]""",
@@ -246,8 +248,8 @@ class LatexWriter(VisitorBase):
             contents,
             r"""\bottomrule""",
             r"""\end{longtable}""",
-            r"""\caption{%s}""" % self.visit(n.caption) if n.caption else "",
-            (r"""\label{%s}""" % n.reflabel) if n.reflabel else "",
+            r"""\caption{%s}""" % self.visit(node.caption) if node.caption else "",
+            (r"""\label{%s}""" % node.reflabel) if node.reflabel else "",
             r"""\end{table}""",
             r"""\FloatBarrier"""
         ])
@@ -257,32 +259,32 @@ class LatexWriter(VisitorBase):
 
 
 
-    def _VisitEquationBlock(self, n, **kwargs):
-        if  not n.equations: return ''
+    def visit_equationblock(self, node, **kwargs):
+        if  not node.equations: return ''
         return '\n'.join([
             r"""\begin{align*}""",
-            '\n'.join([self.visit(s) + r"\\" for s in n.equations] ),
+            '\n'.join([self.visit(s) + r"\\" for s in node.equations] ),
             r"""\end{align*}""",
             ])
 
-    def _VisitEquation(self, n, **kwargs):
-        return n.eqn
+    def visit_equation(self, node, **kwargs):
+        return node.eqn
 
 
-    def _VisitPageBreak(self,n, **kwargs):
+    def visit_pagebreak(self,node, **kwargs):
         return r"""\newpage""" + "\n\n"
 
 
-    def _VisitCodeListing(self,n, **kwargs):
+    def visit_codelisting(self,node, **kwargs):
         language = {
             Languages.Python:'python',
             Languages.Bash:'bash',
             Languages.Verbatim:'', #Listings package uses empty language
-            }[n.language]
+            }[node.language]
 
         options = {
-            'caption':'{%s}'%self.visit(n.caption) if n.caption else "",
-            'label': n.reflabel
+            'caption':'{%s}'%self.visit(node.caption) if node.caption else "",
+            'label': node.reflabel
             }
         # Only include values with value:
         opt_str = ",".join( '%s=%s'%(k,v) for k,v in options.iteritems() if v)
@@ -291,27 +293,27 @@ class LatexWriter(VisitorBase):
         return "\n".join([
             r"""\lstset{language=%s}"""%language,
             r"""\begin{lstlisting}%s""" % opt_str,
-            n.contents,
+            node.contents,
             r"""\end{lstlisting}""",
             ])
 
-    def _VisitList(self,n, **kwargs):
-        if not n.children:
+    def visit_list(self,node, **kwargs):
+        if not node.children:
             return
         return "\n".join([
             r"\begin{itemize}",
-            "\n".join([self.visit(c) for c in n.children]),
+            "\n".join([self.visit(child) for child in node.children]),
             r"\end{itemize}",
         ])
 
-    def _VisitListItem(self, n, **kwargs):
-        return r"\item %s" % self.visit(n.para)
+    def visit_listItem(self, node, **kwargs):
+        return r"\item %s" % self.visit(node.para)
 
-    def _VisitInlineEquation(self, n, **kwargs):
-        return '$%s$' % self.visit(n.eqn)
+    def visit_inlineequation(self, node, **kwargs):
+        return '$%s$' % self.visit(node.eqn)
 
-    def _VisitLink(self, n, **kwargs):
-        return "\href{%s}{%s}" % (n.target, n.get_link_text())
-    def _VisitRef(self, n, **kwargs):
-        return r"%s \ref{%s}" % (n.target.get_type_str(),
-                                 n.target.reflabel)
+    def visit_link(self, node, **kwargs):
+        return "\href{%s}{%s}" % (node.target, node.get_link_text())
+    def visit_ref(self, node, **kwargs):
+        return r"%s \ref{%s}" % (node.target.get_type_str(),
+                                 node.target.reflabel)
