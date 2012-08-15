@@ -36,7 +36,7 @@
 
 
 from mredoc.visitors import VisitorBase
-from mredoc.objects.core import _Heading, _HierachyScope
+from mredoc.objects import _Heading, _HierachyScope
 from mredoc.errors import UnexpectedMethodCall
 
 class EmptySectionRemover(VisitorBase):

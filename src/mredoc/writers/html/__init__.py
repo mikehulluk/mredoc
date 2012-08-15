@@ -142,7 +142,7 @@ class HTMLWriter(VisitorBase):
         self.xmlstack[-1][1] -= 1
 
     def visit_hierachyscope(self, node, **_kwargs):
-        from mredoc.objects.core import _Heading
+        from mredoc.objects import _Heading
 
         if node.is_new_page:
             self.xmlstack.append([HTMLWriter._new_html_witch_obj(), 0])

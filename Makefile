@@ -30,4 +30,5 @@ clean:
 	make -C src/testing/ clean
 	make -C doc/ clean
 	rm -rf *.pyc
+	find . -name '*.pyc' -exec rm {} \;
 	rm -f pylint_out.html

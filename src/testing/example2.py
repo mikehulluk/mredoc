@@ -41,7 +41,7 @@ import pylab
 from mredoc import Document, Section
 from mredoc import Figure, Image, Equation
 from mredoc import EquationBlock, PythonBlock, VerbatimBlock, Link
-from mredoc.objects.core import List, Paragraph
+from mredoc import List, Paragraph
 from mredoc import SectionNewPage, Ref
 from mredoc.visitors import BlockNumberer
 

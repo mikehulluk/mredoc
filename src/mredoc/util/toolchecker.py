@@ -40,7 +40,6 @@ class ExternalToolsLinux(object):
         if working_dir is None:
             working_dir = cls._default_working_directory
 
-
         # Setup locations:
         tex_file = working_dir + '/eqnset.tex'
         tex_pdf = working_dir + '/eqnset.pdf'
