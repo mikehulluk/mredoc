@@ -126,7 +126,7 @@ def HierachyScope(*args, **kwargs):
                 current_para_block = []
             current_para_block.append(child)
         else:
-            if current_para_block:
+            if current_para_block is not None:
                 blocks.append(Paragraph(*flatten(current_para_block)))
                 current_para_block = None
             blocks.append(child)
@@ -164,8 +164,11 @@ def RichTextContainer(*args, **kwargs):
 
 def _rich_text_from_string(src_str):
     src_str = src_str.strip()
-    if not src_str:
+    if src_str is None:
         return None
+    if isinstance(src_str, basestring) and src_str.strip() == '':
+        return None
+
     if src_str[0] == '$' and src_str[-1] == '$':
         return InlineEquation(src_str[1:-1])
     else:
@@ -480,7 +483,6 @@ class _Figure(_ContentBlock):
     def __init__(self, *subfigs, **kwargs):
         # Unpack kwargs:
         (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
-        #_ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
         super(_Figure, self).__init__(caption=caption, reflabel=reflabel)
 
         subfigs = [_Subfigure(subfig) for subfig in subfigs]
@@ -530,7 +532,6 @@ class _EquationBlock(_ContentBlock):
 
     def __init__(self, *equations, **kwargs):
         (caption, reflabel) = _get_kwargs(kwargs, 'caption', 'reflabel')
-        #_ContentBlock.__init__(self, caption=caption, reflabel=reflabel)
         super(_EquationBlock, self).__init__(caption=caption, reflabel=reflabel)
 
         self.equations = [Equation(eq) for eq in equations]
@@ -541,6 +542,7 @@ class _EquationBlock(_ContentBlock):
 class _Equation(_DocumentObject):
     def _accept_visitor(self, visitor, **kwargs):
         return visitor.visit_equation(self, **kwargs)
+
     def __init__(self, eqn):
         super(_Equation, self).__init__()
         self.eqn = eqn

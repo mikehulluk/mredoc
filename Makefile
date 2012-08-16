@@ -6,6 +6,7 @@ all: examples doc
 
 
 doc: examples force_look
+	zip -r src/testing/_output/example1_minimal/html/html_output.zip  src/testing/_output/example1_minimal/html/*
 	cp -Rv src/testing/_output/ doc/generated_src/
 	cp -Rv src/testing/*.py doc/generated_src/
 	make -C doc/

@@ -29,10 +29,10 @@ Although other libraries, (e.g.  Reportlab, Sphinx), have more comprehensive
 APIs for, for example, font customisation, page layout, MRedoc is more focused
 on a simple set of objects that can be simply embedded within each other and
 easily produce high quality output. It was designed to allow decoupled
-components to each generate out different parts of a report.
+components to each generate out different parts of a report.  It allows easy
+embedding of matplotlib graphs, LaTeX style equations, syntax highlighted code
+snippets, tables and more into (LaTeX) pdfs and HTML documents.
 
-It allows easy embedding of matplotlib graphs, LaTeX style equations, syntax
-highlighted code snippets, Tables and more into (LaTeX) pdfs and HTML documents.
 
 It is a work in progress; if you use it, and find things you like, or dislike,
 I am more than happy to incooperate suggestions.
@@ -48,8 +48,7 @@ from matplotlib and a table:
 It will produce 
 :download:`this pdf file <./generated_src/example1_minimal/pdf/output.pdf>`
 and 
-:download:`this html file <./generated_src/example1_minimal/html/index.html>`
-
+:download:`this html file <./generated_src/example1_minimal/html/html_output.zip>`
 
 
 
@@ -153,7 +152,17 @@ RichTextContainer. RichTextContainer objects can contain:
 
 .. figure:: img_srcs/richtext_structur.svg
 
-	
+
+
+Normalisation & Empty Section Removal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, mredoc will automatically *normalise* all headings within sections.
+This means that you can be quite relaxed about the document structures; (how
+headings and sections are defined) and everything should 'just work'. It will
+also remove empty sections or those containing simply a header. This allows
+functions that return summary objects to be quite flexible.
+
 
 Object API 
 ~~~~~~~~~~
