@@ -80,8 +80,11 @@ class EmptySectionRemover(VisitorBase):
         raise NotImplementedError()
 
     def visit_paragraph(self, node, **_kwargs):
+        print 'Remove paragraph?',
         if not node.contents:
+            print '(yes)'
             return False
+        print '(no)'
         return True
 
     def visit_list(self, node, **_kwargs):

@@ -121,6 +121,9 @@ def HierachyScope(*args, **kwargs):
     blocks = []
     current_para_block = None
     for child in args:
+        if isinstance(child, _Image):
+            child = Figure(child)
+
         if not isinstance(child, _ContentBlock):
             if current_para_block is None:
                 current_para_block = []

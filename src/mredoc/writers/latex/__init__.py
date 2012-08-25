@@ -40,6 +40,9 @@ from mredoc.visitors import VisitorBase
 
 _DOC_HEADER = r"""
 \documentclass[8pt]{scrartcl}   % list options between brackets
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
 \usepackage[margin=0.5in]{geometry}
 \usepackage{amsmath}
 \usepackage{longtable}
@@ -137,6 +140,8 @@ class LatexWriter(VisitorBase):
 
     @classmethod
     def build_pdf(cls, doc, filename):
+        # Allow '~' in the pathname:
+        filename = os.path.expanduser(filename)
 
         writer = LatexWriter(doc)
         tex_str = writer.output_tex
@@ -152,6 +157,7 @@ class LatexWriter(VisitorBase):
 
 
     def visit_figure(self, node, **kwargs):
+        #assert False
         if len(node.subfigs) == 1:
             pass
 
@@ -192,6 +198,10 @@ class LatexWriter(VisitorBase):
         return txt
 
     def visit_heading(self, node, **_kwargs):
+        # NASTY TEMP HACK TO LET MIKE FINISH SOME DOCS:
+        if self.hierachy_depth > 5:
+            self.hierachy_depth = 5
+
         assert self.hierachy_depth <= 5, \
             'Deep documents not properly handled yet. TODO FIX HERE'
 
