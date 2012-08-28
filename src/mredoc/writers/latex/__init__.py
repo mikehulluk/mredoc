@@ -164,7 +164,7 @@ class LatexWriter(VisitorBase):
         caption = self.visit(node.caption) if node.caption else ''
         reflabel = node.reflabel if node.reflabel else ''        
         return '\n'.join([
-            r"""\begin{figure}[htb]""",
+            r"""\begin{figure}[h!]""",
             r"""\centering""",
             '\n'.join([self.visit(s) for s in node.subfigs]),
             r"""\caption{%s}""" % caption,
@@ -206,8 +206,8 @@ class LatexWriter(VisitorBase):
             'Deep documents not properly handled yet. TODO FIX HERE'
 
         heading_type = _HEADING_BY_DEPTH[self.hierachy_depth]
-        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n" % \
-                (heading_type, self.visit(node.heading) )
+        return "\FloatBarrier\n\%s{%s %d}\n\FloatBarrier\n" % \
+                (heading_type, self.visit(node.heading), self.hierachy_depth )
 
     def visit_richtextcontainer(self, node, **_kwargs):
         return ' '.join([self.visit(child) for child in node.children])

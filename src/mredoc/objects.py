@@ -402,10 +402,11 @@ class _Heading(_ContentBlock):
     def __init__(self, heading):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
         self.heading = RichTextContainer(heading)
-
     def get_type_str(self,):
         errmsg = 'mredoc internal error: called Heading.get_type_str()'
         raise RuntimeError(errmsg)
+    def __repr__(self):
+        return "_Heading<'%s'>" % self.heading
 
 class _Paragraph(_ContentBlock):
     def _accept_visitor(self, visitor, **kwargs):
@@ -432,6 +433,8 @@ class _RichTextContainer(_DocumentObject):
     def get_type_str(self,):
         errmsg = 'mredoc internal error: called RichTextContainer.get_type_str()'
         raise RuntimeError(errmsg)
+    def __repr__(self):
+        return "_RichText<'%s'>" % ','.join( repr(child) for child in self.children) 
 
 
 
@@ -469,6 +472,8 @@ class _PlainText(_RichTextObject):
     def __init__(self, text):
         super(_PlainText, self).__init__()
         self.text = check_type(text, basestring)
+    def __repr__(self):
+        return "_PlainText<'%s'>" % self.text
 
 class _InlineEquation(_RichTextObject):
     def _accept_visitor(self, visitor, **kwargs):

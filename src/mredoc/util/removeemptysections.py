@@ -34,6 +34,7 @@
 # ====================================================================
 
 
+import itertools
 
 from mredoc.visitors import VisitorBase
 from mredoc.objects import _Heading, _HierachyScope
@@ -96,6 +97,8 @@ class EmptySectionRemover(VisitorBase):
         raise NotImplementedError()
 
     def visit_table(self, _node, **_kwargs):
+        if len(_node.data) == 0:
+            return False
         return True
 
     def visit_equationblock(self, node, **_kwargs):
@@ -119,7 +122,8 @@ class EmptySectionRemover(VisitorBase):
 class NormaliseHierachyScope(VisitorBase):
 
     def visit_document(self, node, **_kwargs):
-        return self.visit(node.hierachy_root)
+        self.visit(node.hierachy_root)
+        #self.visit(node.hierachy_root)
 
     def visit_hierachyscope(self, node, **kwargs):
         for child in node.children:
@@ -127,9 +131,27 @@ class NormaliseHierachyScope(VisitorBase):
                 continue
             self.visit(child, **kwargs)
 
-        if len(node.children) == 1 and \
-           isinstance(node.children[0], _HierachyScope):
-            node.children = node.children[0].children
+        ##print 'HierachyScope Children', len(node.children)
+        #print 'HierachyScope', '%s' % hex(id(node))
+        #print ' -- HierachyScope Children:', node.children
+        #print '\n'
+
+        #if len(node.children) == 1:
+        #    assert False
+
+        #if len(node.children) == 1 and \
+        #    isinstance(node.children[0], _HierachyScope):
+        #    assert False, 'Why do we never get here?'
+        #    print 'Removing Scope level'
+        #    node.children = node.children[0].children
+
+
+        def all_children_hierachies(n):
+            return all( [isinstance(chld, _HierachyScope) for chld in n.children ] )
+
+        # Is everything a hierachy? Then lets collapse all these hierachies to this level:
+        if all_children_hierachies(node):
+            node.children = list(itertools.chain( *[child.children for child in node.children]))
 
     def visit_tableofcontents(self, _node, **_kwargs):
         raise UnexpectedMethodCall(cls=type(self).__name__)
