@@ -71,7 +71,7 @@ class Builder:
 
 class Element:
 
-    PYTHON_KWORD_MAP = dict([(k + '_', k) for k in PYTHON_KWORD_LIST])
+    PYTHON_KWORD_MAP = dict([(key + '_', key) for key in PYTHON_KWORD_LIST])
 
     def __init__(self, name, builder):
         self.name = self._nameprep(name)

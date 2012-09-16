@@ -192,7 +192,7 @@ class LatexWriter(VisitorBase):
     def visit_hierachyscope(self, node, **kwargs):
         self.hierachy_depth += 1
         txt = '\n'.join([self.visit(child) for child in node.children])
-        if node.is_new_page:
+        if False and node.is_new_page:
             txt =  "\n\\newpage\n" + txt
         self.hierachy_depth -= 1
         return txt
@@ -206,8 +206,8 @@ class LatexWriter(VisitorBase):
             'Deep documents not properly handled yet. TODO FIX HERE'
 
         heading_type = _HEADING_BY_DEPTH[self.hierachy_depth]
-        return "\FloatBarrier\n\%s{%s %d}\n\FloatBarrier\n" % \
-                (heading_type, self.visit(node.heading), self.hierachy_depth )
+        return "\FloatBarrier\n\%s{%s}\n\FloatBarrier\n" % \
+                (heading_type, self.visit(node.heading))
 
     def visit_richtextcontainer(self, node, **_kwargs):
         return ' '.join([self.visit(child) for child in node.children])
@@ -261,6 +261,8 @@ class LatexWriter(VisitorBase):
 
 
     def visit_pagebreak(self, _node, **_kwargs):
+        assert False
+        return r"""""" + "\n\n"
         return r"""\newpage""" + "\n\n"
 
 
@@ -277,7 +279,7 @@ class LatexWriter(VisitorBase):
             'label': node.reflabel
             }
         # Only include values with value:
-        opt_str = ",".join('%s=%s' % (k, v) for (k, v) in options.iteritems() if v)
+        opt_str = ",".join('%s=%s' % (key, v) for (key, v) in options.iteritems() if v)
         opt_str = "[%s]" % opt_str if opt_str else ""
 
         return "\n".join([

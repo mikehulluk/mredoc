@@ -652,9 +652,9 @@ class _ImageMPL(_Image):
             resize_image(self.fig)
 
         # Save the image in a variety of formats:
-        pylab.savefig(self.fNameBase + '.pdf')
-        pylab.savefig(self.fNameBase + '.png')
-        pylab.savefig(self.fNameBase + '.svg')
+        fig.savefig(self.fNameBase + '.pdf')
+        fig.savefig(self.fNameBase + '.png')
+        fig.savefig(self.fNameBase + '.svg')
 
     def get_filename(self, file_type):
         assert file_type in [ImageTypes.EPS, ImageTypes.PDF, ImageTypes.PNG,

@@ -6,10 +6,10 @@ from mredoc import Section, Figure, Table
 
 # A simple function that returns a matplotlib Figure
 def generate_figure():
-    f = pylab.figure()
+    fig = pylab.figure()
     t = numpy.linspace(0, 10)
     pylab.plot(t, numpy.exp(-t) * numpy.sin(10 * t))
-    return f
+    return fig
 
 # Create the summary of the simulations
 # and write to HTML and LaTeX
