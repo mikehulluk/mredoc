@@ -48,9 +48,9 @@ class ExternalToolsLinux(object):
         op_dir = os.path.dirname(output_filename)
 
         # make sure directories exist:
-        if not os.path.exists(working_dir):
+        if working_dir and not os.path.exists(working_dir):
             os.makedirs(working_dir)
-        if not os.path.exists(op_dir):
+        if op_dir and not os.path.exists(op_dir):
             os.makedirs(op_dir)
 
         # Write to disk and compile:
@@ -60,8 +60,9 @@ class ExternalToolsLinux(object):
         for _i in range(2):
             with open(tex_op,'w') as fobj:
                 subprocess.check_call([
-                        'pdflatex', '-output-directory', 
-                        working_dir, tex_file],
+                        'pdflatex', 
+                        '-output-directory', 
+                        working_dir, '-interaction=nonstopmode', tex_file],
                         stdout = fobj,
                         stderr = subprocess.PIPE
                         )
