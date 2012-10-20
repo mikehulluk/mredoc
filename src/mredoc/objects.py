@@ -44,7 +44,7 @@ from mredoc.errors import InvalidDocumentTree
 from mredoc.constants import ImageTypes, Languages
 
 # Since we have 'fake' class wrappers, we let functions look like classes:
-# pylint: disable-msg=C0103 
+# pylint: disable-msg=C0103
 
 
 def isiterable(obj):
@@ -123,6 +123,8 @@ def HierachyScope(*args, **kwargs):
     for child in args:
         if isinstance(child, _Image):
             child = Figure(child)
+        if isinstance(child, basestring):
+            child = Paragraph(child)
 
         if not isinstance(child, _ContentBlock):
             if current_para_block is None:
@@ -217,16 +219,16 @@ def Subfigure(*args, **kwargs):
 
 
 def Table(*args, **kwargs):
-    """Creates a Table. 
+    """Creates a Table.
 
-     * *args* : The first argument is the header data, and the second the 
+     * *args* : The first argument is the header data, and the second the
        data for the body of the table. These should both be iterables.
      * *kwargs*\ : ``caption`` and ``reflabel`` """
 
     return _Table(*args, **kwargs)
 
 def EquationBlock(*args, **kwargs):
-    """Creates a EquationBlock. 
+    """Creates a EquationBlock.
 
      * *args* : A list of ``Equation`` objects or strings
      * *kwargs*\ : ``caption`` and ``reflabel`` """
@@ -259,10 +261,10 @@ def ListItem(*args, **kwargs):
 
 
 def CodeListing(*args, **kwargs):
-    """Creates a CodeListing. 
+    """Creates a CodeListing.
 
      * *args* is a single object, with a string of the contents.
-     * *kwargs*\ : ``language``, ``caption`` and ``reflabel`` 
+     * *kwargs*\ : ``language``, ``caption`` and ``reflabel``
 
     *language* is a string and can be ``Verbatim``\ , ``Python`` or ``Bash``\ .
      """
@@ -312,12 +314,12 @@ class _DocumentObject(object):
         return mredoc.writers.LatexWriter.build_pdf(self.as_document(),
                 filename=filename)
 
-    def to_html(self, output_dir):
-        """Creates a html. It will create a file ``index.html`` in the directory 
+    def to_html(self, output_dir, clear_dir=False):
+        """Creates a html. It will create a file ``index.html`` in the directory
         specified by output_dir."""
         import mredoc.writers
         return mredoc.writers.HTMLWriter.build_html(self.as_document(),
-                output_dir=output_dir)
+                output_dir=output_dir, clear_dir=clear_dir)
     def as_document(self):
         return Document(self)
 
@@ -415,6 +417,7 @@ class _Paragraph(_ContentBlock):
         _ContentBlock.__init__(self, caption=None, reflabel=None)
         self.contents = RichTextContainer(children)
 
+
     def get_type_str(self,):
         errmsg = 'mredoc internal error: called Paragraph.get_type_str()'
         raise RuntimeError(errmsg)
@@ -434,7 +437,7 @@ class _RichTextContainer(_DocumentObject):
         errmsg = 'mredoc internal error: called RichTextContainer.get_type_str()'
         raise RuntimeError(errmsg)
     def __repr__(self):
-        return "_RichText<'%s'>" % ','.join( repr(child) for child in self.children) 
+        return "_RichText<'%s'>" % ','.join( repr(child) for child in self.children)
 
 
 

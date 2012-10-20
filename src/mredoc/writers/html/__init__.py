@@ -37,6 +37,8 @@
 import os
 import shutil
 import hashlib
+import re
+import string
 
 from pygments import highlight
 from pygments.lexers import PythonLexer, BashLexer
@@ -53,8 +55,8 @@ from mredoc.util.misc import ensure_location_exists
 class HTMLWriter(VisitorBase):
 
     @classmethod
-    def build_html(cls, doc, output_dir):
-        return HTMLWriter(doc=doc, output_dir=output_dir)
+    def build_html(cls, doc, output_dir, clear_dir=False):
+        return HTMLWriter(doc=doc, output_dir=output_dir,clear_dir=clear_dir)
 
 
     @classmethod
@@ -81,7 +83,10 @@ class HTMLWriter(VisitorBase):
 
 
 
-    def __init__(self, doc, output_dir):
+    def __init__(self, doc, output_dir, clear_dir=False):
+        assert clear_dir==False, "clear_dir enabled, but I havne't worked ou how to do this safely! (in case clear_dir = ~/ by accident for example!!"
+        output_dir = os.path.expanduser(output_dir)
+
         super(HTMLWriter, self).__init__()
         # Assign numbers to all the objects:
         self.block_numbers = BlockNumberer(doc)
@@ -101,7 +106,12 @@ class HTMLWriter(VisitorBase):
         dir_path = os.path.dirname(path)
         pkg_path = os.path.join(dir_path, '../../../')
         css_file = os.path.join(pkg_path, 'resources/defaultstyle.css')
-        shutil.copy(css_file, self.output_dir)
+
+        #shutil.copy(css_file, self.output_dir)
+        op_css = self.output_dir+"/defaultstyle.css"
+        if not os.path.exists(op_css):
+            os.symlink(css_file, op_css )
+
 
     @property
     def xml(self):
@@ -113,8 +123,11 @@ class HTMLWriter(VisitorBase):
     def visit_document(self, node, **_kwargs):
         with self.xml.html:
             self._write_htmlheader_block()
+
             with self.xml.body:
-                self.visit(node.hierachy_root)
+                with self.xml.div(**{'class':'pageblock'}):
+
+                    self.visit(node.hierachy_root)
 
 
     def _write_block_captiontext(self, node):
@@ -130,6 +143,8 @@ class HTMLWriter(VisitorBase):
     def visit_hierachyscopeinternal(self, node):
         block_type = ('hierachyblock' if self.xmlstack[-1][1]
                       != 0 else 'pageblock')
+        block_type = 'hierachyblock' if self.xmlstack[-1][1]  != 0 else ''
+
         self.xmlstack[-1][1] += 1
         with self.xml.div(**{'class': block_type}):
             for child in node.children:
@@ -143,28 +158,31 @@ class HTMLWriter(VisitorBase):
             self.xmlstack.append([HTMLWriter._new_html_witch_obj(), 0])
             self._write_htmlheader_block()
             with self.xml.body:
-                # In either case, visit all the children
-                self.visit_hierachyscopeinternal(node)
+                with self.xml.div(**{'class':'pageblock'}):
 
-                # Write out this block and link to it:
-                (xml_block, hierachy_depth) = self.xmlstack.pop()
-                assert hierachy_depth == 0
+                    # In either case, visit all the children
+                    self.visit_hierachyscopeinternal(node)
 
-                xml_block = str(xml_block)
+                    # Write out this block and link to it:
+                    (xml_block, hierachy_depth) = self.xmlstack.pop()
+                    assert hierachy_depth == 0
 
-                # Write the new HTML file out:
-                file_hash = hashlib.md5(xml_block).hexdigest()
-                fname_short = 'f_%s.html' % file_hash
-                self._write_file(xml_block, fname_short)
+                    xml_block = str(xml_block)
 
-                # Create a link in the local document:
-                with self.xml.a(href=fname_short):
-                    if isinstance(node, basestring):
-                        self.xml.write(node.is_new_page)
-                    elif node.children and isinstance(node.children[0], _Heading):
-                        self.visit(node.children[0].heading)
-                    else:
-                        self.xml.write('Link to UNKNOWN')
+                    # Write the new HTML file out:
+                    file_hash = hashlib.md5(xml_block).hexdigest()
+                    fname_short = 'f_%s.html' % file_hash
+                    self._write_file(xml_block, fname_short)
+
+                    # Create a link in the local document:
+                    with self.xml.p():
+                        with self.xml.a(href=fname_short):
+                            if isinstance(node, basestring):
+                                self.xml.write(node.is_new_page)
+                            elif node.children and isinstance(node.children[0], _Heading):
+                                self.visit(node.children[0].heading)
+                            else:
+                                self.xml.write('Link to UNKNOWN')
         else:
             self.visit_hierachyscopeinternal(node)
 
@@ -177,13 +195,13 @@ class HTMLWriter(VisitorBase):
         with self.xml.div(**{'class': 'figblock'}):
 
             with self.xml.figure:
+                # Caption:
+                with self.xml.figcaption:
+                    self._write_block_captiontext(node)
                 # Subfigures:
                 for subfig in node.subfigs:
                     self.visit(subfig)
 
-                # Caption:
-                with self.xml.figcaption:
-                    self._write_block_captiontext(node)
 
 
     def visit_image(self, node, **_kwargs):
@@ -194,7 +212,11 @@ class HTMLWriter(VisitorBase):
         img_locs = {}
         for ext in [ImageTypes.SVG, ImageTypes.PDF, ImageTypes.PNG]:
             old_file = node.get_filename(file_type=ext)
-            new_filename = name + '.' + ext
+            h = hashlib.new('md5')
+            with open(old_file) as f:
+                h.update(f.read() )
+
+            new_filename = name + h.hexdigest() + '.' + ext
             new_file = os.path.join(self.output_dir_img, new_filename)
             shutil.copyfile(old_file, new_file)
             img_locs[ext] = new_filename
@@ -224,10 +246,11 @@ class HTMLWriter(VisitorBase):
         with self.xml.div(**{'class': 'tableblock'}):
 
             with self.xml.table:
-                with self.xml.tr:
-                    for colheader in node.header:
-                        with self.xml.th:
-                            self.visit(colheader)
+                with self.xml.thead:
+                    with self.xml.tr:
+                        for colheader in node.header:
+                            with self.xml.th:
+                                self.visit(colheader)
 
                 for row in node.data:
                     with self.xml.tr:
@@ -235,7 +258,7 @@ class HTMLWriter(VisitorBase):
                             with self.xml.td:
                                 self.visit(cell)
                 # Caption:
-                with self.xml.caption:
+                with self.xml.div(**{'class':'tableblockcaption'}):
                     self._write_block_captiontext(node)
 
     def visit_equationblock(self, node, **_kwargs):
@@ -271,25 +294,54 @@ class HTMLWriter(VisitorBase):
             self.visit(node.contents)
 
     def visit_text(self, node, **_kwargs):
-        self.xml.write(node.text)
+        # Resolves the possible ':XYZ:' tags
+        # There are 2 possibilities:
+        # a. ":XYZ:thequickbrownfox"
+        # b. "asjdlask :XYZ:`jkl` asjdkl :XYZ:`asdsa` sdjfls "
+
+        # If the second case applies, rewrite it as the first by enclosing
+        # the entire string in `` (except the role), then apply the first:
+        text = node.text
+        r2 = re.compile(r"""^:(?P<role>\w+):(?P<text>.*)$""")
+        m = r2.match(text)
+        if m:
+            text = ':%s:`%s`' % ( m.groupdict()['role'], m.groupdict()['text'] )
+
+        r1 = re.compile(r""":(?P<role>\w+):`(?P<text>.*?)`""")
+
+        def repl_func(m):
+            role = m.groupdict()['role'] 
+            assert role in ['success','warning','err'],'Unsupported role: %s' % role
+            return string.Template("""<span class='mrd_${role}'>${text}</span>""").substitute(m.groupdict())
+        text = r1.sub( repl_func, text)
+
+
+
+
+
+
+        #
+
+        self.xml.write(text)
 
     def visit_codelisting(self, node, **_kwargs):
+        import cgi
         lexer_lut = {Languages.Bash: BashLexer,
                      Languages.Python: PythonLexer}
         lexer = lexer_lut.get(node.language, None)
 
         if lexer:
-            html = highlight(node.contents, 
+            html = highlight(node.contents,
                              PythonLexer(),
                              HtmlFormatter())
         else:
-            html = '<pre>%s</pre>' % node.contents
+            html = '<pre>%s</pre>' % cgi.escape(node.contents)
 
         with self.xml.div(**{'class': 'codeblock'}):
-            with self.xml.div(**{'class': 'codeblockcontents'}):
-                self.xml.write(html)
             with self.xml.div(**{'class': 'codeblockcaption'}):
                 self._write_block_captiontext(node)
+            with self.xml.div(**{'class': 'codeblockcontents'}):
+                self.xml.write(html)
 
 
     def visit_list(self, node, **_kwargs):
