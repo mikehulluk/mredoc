@@ -39,16 +39,19 @@ from mredoc.constants import ImageTypes, Languages
 from mredoc.visitors import VisitorBase
 
 _DOC_HEADER = r"""
-\documentclass[8pt]{scrartcl}   % list options between brackets
+\documentclass[9pt,headsepline,openany]{scrbook}   % list options between brackets
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 
-\usepackage[margin=0.5in]{geometry}
+\usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath}
 \usepackage{longtable}
 \usepackage{booktabs}
 \usepackage{hyperref}
-\setcounter{secnumdepth}{-1}
+%\setcounter{secnumdepth}{-1}
+
+\usepackage{caption}
+\captionsetup{format=hang, font=small,labelfont=bf,labelsep=endash, margin=5pt }
 
 \usepackage[usenames,dvipsnames]{xcolor}
 
@@ -86,31 +89,23 @@ float=tbfh}
 \usepackage{graphicx}
 \usepackage{placeins}
 
+\usepackage{afterpage}
+
 %\usepackage{bera}
 \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \usepackage[T1]{fontenc}
 
 \setcounter{tocdepth}{10}
 
+\usepackage{tabu}
 
 
-% Add new line to 'paragraph' headings and below:
-\makeatletter
-\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
-  {-3.25ex\@plus -1ex \@minus -.2ex}%
-  {1.5ex \@plus .2ex}%
-  {\normalfont\normalsize\bfseries}}
-\makeatother
-
-\makeatletter
-\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\z@}%
-  {-3.25ex\@plus -1ex \@minus -.2ex}%
-  {1.5ex \@plus .2ex}%
-  {\normalfont\normalsize\bfseries}}
-\makeatother
 
 
 \begin{document}
+
+\mainmatter
+
 """
 
 
@@ -121,15 +116,25 @@ _DOC_FOOTER = r"""
 
 
 
+#_HEADING_BY_DEPTH = {
+#    1: 'section',
+#    2: 'subsection',
+#    3: 'subsubsection',
+#    4: 'paragraph',
+#    5: 'subparagraph',
+#    }
+
+
+# For book:
 _HEADING_BY_DEPTH = {
-    1: 'section',
-    2: 'subsection',
-    3: 'subsubsection',
-    4: 'paragraph',
-    5: 'subparagraph',
+    1: 'part*',
+    2: 'chapter',
+    3: 'section',
+    4: 'subsection',
+    5: 'subsubsection',
+    6: 'paragraph',
+    7: 'subparagraph',
     }
-
-
 
 
 
@@ -152,23 +157,24 @@ class LatexWriter(VisitorBase):
     def __init__(self, doc):
         super(LatexWriter, self).__init__()
         self.hierachy_depth = 0
+
+
         self.output_tex = self.visit(doc)
 
 
 
     def visit_figure(self, node, **kwargs):
-        #assert False
         if len(node.subfigs) == 1:
             pass
 
         caption = self.visit(node.caption) if node.caption else ''
-        reflabel = node.reflabel if node.reflabel else ''        
+        reflabel = node.reflabel if node.reflabel else ''
         return '\n'.join([
             r"""\begin{figure}[h!]""",
             r"""\centering""",
             '\n'.join([self.visit(s) for s in node.subfigs]),
             r"""\caption{%s}""" % caption,
-            r"""\label{%s}""" % reflabel,
+            (r"""\label{%s}""" % reflabel if reflabel else ''),
             r"""\end{figure}""",
             ])
 
@@ -182,7 +188,18 @@ class LatexWriter(VisitorBase):
         return self.visit(node.img)
 
     def visit_tableofcontents(self, node, **kwargs):
-        return r"\tableofcontents" + '\n' + r"""\newpage""" + '\n'
+        tables = []
+
+        tables.extend([
+        r'\begingroup',
+        r'\tableofcontents',
+        r'\let\clearpage\relax',
+        r'\listoftables',
+        r'\endgroup',
+
+        ] )
+
+        return ''.join( t+'\n' for t in tables)
 
     def visit_document(self, node, **kwargs):
         return _DOC_HEADER + \
@@ -192,17 +209,17 @@ class LatexWriter(VisitorBase):
     def visit_hierachyscope(self, node, **kwargs):
         self.hierachy_depth += 1
         txt = '\n'.join([self.visit(child) for child in node.children])
-        if False and node.is_new_page:
+        if node.is_new_page:
             txt =  "\n\\newpage\n" + txt
         self.hierachy_depth -= 1
         return txt
 
     def visit_heading(self, node, **_kwargs):
         # NASTY TEMP HACK TO LET MIKE FINISH SOME DOCS:
-        if self.hierachy_depth > 5:
-            self.hierachy_depth = 5
+        if self.hierachy_depth > 7:
+            self.hierachy_depth = 7
 
-        assert self.hierachy_depth <= 5, \
+        assert self.hierachy_depth <= 7, \
             'Deep documents not properly handled yet. TODO FIX HERE'
 
         heading_type = _HEADING_BY_DEPTH[self.hierachy_depth]
@@ -219,27 +236,26 @@ class LatexWriter(VisitorBase):
         return node.text.replace('&', "\&").replace('_', "\_")
 
     def visit_table(self, node, **_kwargs):
-        buildline = lambda line: ' & '.join([self.visit(l) for l in
-                line]) + r" \\"
+        buildline = lambda line: ' & '.join([self.visit(l) for l in line]) + r" \\"
+        #buildline = lambda line: ' & '.join([self.visit(l) for l in line]) + r" \tablularnewline"
 
         header_line = buildline(node.header)
         contents = '\n'.join([buildline(child) for child in node.data])
         alignment = 'c' * len(node.header)
 
         return '\n'.join([
-            r"""\begin{table}[h!]""",
-            r"""\scriptsize""",
-            r"""\begin{longtable}{%s}""" % alignment,
+            r'''\afterpage{\clearpage}'''
+            r'''{\footnotesize ''',
+            r"""\begin{longtabu}{%s}""" % alignment,
             r"""\toprule""",
             header_line,
             r"""\midrule""",
             contents,
             r"""\bottomrule""",
-            r"""\end{longtable}""",
-            r"""\caption{%s}""" % self.visit(node.caption) if node.caption else "",
-            (r"""\label{%s}""" % node.reflabel) if node.reflabel else "",
-            r"""\end{table}""",
-            r"""\FloatBarrier"""
+            r"""\caption{%s} \tabularnewline""" % self.visit(node.caption) if node.caption else "",
+            r"""\end{longtabu}""",
+            r'''}''',
+            r'''\afterpage{\clearpage}'''
         ])
 
 
@@ -248,7 +264,7 @@ class LatexWriter(VisitorBase):
 
 
     def visit_equationblock(self, node, **_kwargs):
-        if not node.equations: 
+        if not node.equations:
             return ''
         return '\n'.join([
             r"""\begin{align*}""",

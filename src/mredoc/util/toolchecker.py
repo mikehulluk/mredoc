@@ -71,6 +71,7 @@ class ExternalToolsLinux(object):
         shutil.copyfile(tex_pdf, output_filename)
         if not os.path.exists(output_filename):
             raise ValueError('Something went wrong building pdf')
+        print 'Tex File:', tex_file
 
 class ExternalToolsCheckerLinux(object):
 

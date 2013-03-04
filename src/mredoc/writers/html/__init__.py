@@ -210,7 +210,7 @@ class HTMLWriter(VisitorBase):
 
         # Copy the files accross:
         img_locs = {}
-        for ext in [ImageTypes.SVG, ImageTypes.PDF, ImageTypes.PNG]:
+        for ext in [ImageTypes.SVG, ImageTypes.PNG]:
             old_file = node.get_filename(file_type=ext)
             h = hashlib.new('md5')
             with open(old_file) as f:
