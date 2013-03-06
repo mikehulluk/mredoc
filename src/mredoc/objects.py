@@ -645,8 +645,8 @@ class _Image(_DocumentObject):
 
 class _ImageMPL(_Image):
 
-    def __init__(self, fig, auto_adjust=True):
-        super(_ImageMPL, self).__init__()
+    def __init__(self, fig, auto_adjust=True, **kwargs):
+        super(_ImageMPL, self).__init__(**kwargs)
         # The pylab object or filename. Used in Figures.
         self.fig = fig
         self.fNameBase = _Image.nextFigFilenameBase()
@@ -655,6 +655,7 @@ class _ImageMPL(_Image):
             resize_image(self.fig)
 
         # Save the image in a variety of formats:
+        print 'Saving figure', self.fNameBase
         fig.savefig(self.fNameBase + '.pdf')
         fig.savefig(self.fNameBase + '.png')
         fig.savefig(self.fNameBase + '.svg')
