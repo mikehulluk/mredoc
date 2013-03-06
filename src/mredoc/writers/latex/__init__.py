@@ -147,6 +147,7 @@ class LatexWriter(VisitorBase):
         tex_str = writer.output_tex
         from mredoc.util.toolchecker import ExternalTools
         ExternalTools.run_pdflatex(tex_str, output_filename=filename)
+        print 'Successfully built pdf: ', filename
 
 
     def __init__(self, doc):
