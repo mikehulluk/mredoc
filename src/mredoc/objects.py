@@ -34,11 +34,9 @@
 #  ====================================================================
 
 import itertools
-import pylab
 import os
 import collections
 
-import matplotlib
 
 from mredoc.errors import InvalidDocumentTree
 from mredoc.constants import ImageTypes, Languages
@@ -282,6 +280,7 @@ def BashBlock(*args, **kwargs):
 
 
 def Image(img, **kwargs):
+    import matplotlib
     if isinstance(img, matplotlib.figure.Figure):
         return ImageMPL(img, **kwargs)
     elif isinstance(img, basestring):
@@ -668,6 +667,8 @@ class _ImageMPL(_Image):
 
 
 def resize_image(fig):
+    import pylab
+    import matplotlib
     pylab.figure(fig.number)
     fig.set_size_inches(1.75, 1.75)
     for obj in fig.findobj(matplotlib.text.Text):
