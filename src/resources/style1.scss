@@ -1,0 +1,201 @@
+
+
+
+
+
+
+$FONT-ORANGE: #FF7F2A;
+$BACKGROUND-GREY: #F7F7F7;
+$BLOCK-LIGHTPURPLE:#EFEAF6;
+$BLOCKLINE-PURPLE:#9900FF;
+
+
+
+
+
+/* Setup the fonts: */
+.pageblock {
+
+  font-family: MgOpen Cosmetica;
+
+  h1{
+    font-size: 18pt; 
+    font-weight:bold;
+    color: $FONT-ORANGE;
+  }
+
+  h2{
+    font-size: 16pt; 
+    color: $FONT-ORANGE;
+  }
+
+  h3{
+    font-size: 10pt; 
+    color: $FONT-ORANGE;
+  }
+
+  .parablock {
+    font-family: MgOpen Canonica;
+    font-size: 9pt; 
+
+  }
+}
+
+.captionheader {
+    font-size: 9pt; 
+    font-weight:bold;
+    color: black;
+}
+.captiontext {
+    font-size: 9pt; 
+    color: $FONT-ORANGE;
+}
+
+pre {
+    font-size: 9pt; 
+}
+
+th {
+    font-size: 9pt; 
+    color: $FONT-ORANGE;
+}
+td {
+    font-size: 8pt; 
+    color: black;
+}
+
+
+
+
+
+/* Coloring of blocks */
+.pageblock {
+    border-color: gray;
+    border: solid; 
+    border-width: 1px;
+    background-color: $BACKGROUND-GREY;
+}
+
+.codeblock {
+    border-top: solid; 
+    border-bottom: solid; 
+    border-left: none; 
+    border-right: none; 
+    border-color: $BLOCKLINE-PURPLE;
+    border-width: 1px;
+    background-color: $BLOCK-LIGHTPURPLE;
+}
+.tableblock {
+    border-top: solid; 
+    border-bottom: solid; 
+    border-left: none; 
+    border-right: none; 
+    border-color: $BLOCKLINE-PURPLE;
+    border-width: 1px;
+    background-color: $BLOCK-LIGHTPURPLE;
+}
+
+
+
+
+/* Borders and underlines: */
+.pageblock {
+    h1 {
+    border-bottom: 2px solid black;
+    width:100%;
+    }
+    h2 {
+    border-bottom: 1px solid black;
+    width:100%;
+    }
+}
+
+th {
+   border-bottom:solid;
+   border-color: $BLOCKLINE-PURPLE;
+    border-width: 1.75px;
+}
+
+
+
+/* Layout of pieces on the page: */
+.pageblock {
+    width: 98%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 4px;
+}
+.pageblock .hierachyblock {
+    margin-left: 1.0cm;
+    margin-right:0.5cm;
+
+}
+.pageblock .hierachyblock .hierachyblock {
+    margin-left: 0cm;
+    margin-right:0cm;
+}
+
+.codeblockcaption {
+    float:right;
+}
+.tableblockcaption {
+    float:right;
+}
+
+
+$BLOCKINNERSPACING:0.75cm;
+
+.tableblock table {
+    margin-right:$BLOCKINNERSPACING;
+    margin-left:$BLOCKINNERSPACING;
+}
+.codeblock pre {
+    margin-right:$BLOCKINNERSPACING;
+    margin-left:$BLOCKINNERSPACING;
+}
+
+
+
+/* Remove some padding around the titles: */
+h3 {
+    margin-bottom: 2px;
+    padding-top: 4px;
+
+}
+h2 {
+  margin-top: 40px;
+  /*padding-top: 4px; */
+}
+pre {
+    margin-top:2px;
+    margin-bottom:2px;
+}
+
+
+th {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+
+/* Sepcial Colorings: */
+
+
+/* Custom warnings */
+.mrd_err
+{
+    background-color: #F76C5D;
+}
+
+.mrd_warning
+{
+    background-color: #F6E6A2;
+}
+.mrd_success
+{
+    background-color: #A0E9A0;
+}
