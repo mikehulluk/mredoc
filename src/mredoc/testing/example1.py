@@ -35,16 +35,13 @@
 
 import os
 import pylab
+from pkg_resources import resource_filename
 
 from mredoc import Document, Section, Figure, Image, Equation
 from mredoc import EquationBlock, PythonBlock, Link, Ref
 from mredoc import ListItem, List, Paragraph, Table, InlineEquation
 from mredoc import SectionNewPage
 
-
-# Setup paths relative to this file for images:
-local_path = os.path.dirname(os.path.abspath(__file__))
-test_file_path = os.path.abspath(os.path.join(local_path, "../test_data"))
 
 
 # Generate the figure in matplolib that we will embed:
@@ -80,7 +77,7 @@ summary = Document(
 
         Section("Sin,Cos & Tan",
             Figure(
-                Image( os.path.join(test_file_path,"TrigonometryTriangle.svg" )),
+                Image( resource_filename(__name__, 'test_data/TrigonometryTriangle.svg') ), 
                 caption="Angles in a triangle",
                 reflabel="L1"
                 ),

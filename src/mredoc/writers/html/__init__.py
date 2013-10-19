@@ -51,6 +51,8 @@ from mredoc.visitors import BlockNumberer
 from mredoc.util.misc import ensure_location_exists
 
 
+import pkg_resources
+
 
 class HTMLWriter(VisitorBase):
 
@@ -102,15 +104,13 @@ class HTMLWriter(VisitorBase):
         self._write_file(str(self.xml), 'index.html')
 
         # Copy accross the CSS:
-        path = os.path.abspath(__file__)
-        dir_path = os.path.dirname(path)
-        pkg_path = os.path.join(dir_path, '../../../')
-        css_file = os.path.join(pkg_path, 'resources/defaultstyle.css')
+        css_file = pkg_resources.resource_filename('mredoc', 'resources/defaultstyle.css' )
 
-        #shutil.copy(css_file, self.output_dir)
         op_css = self.output_dir+"/defaultstyle.css"
         if not os.path.exists(op_css):
-            os.symlink(css_file, op_css )
+            shutil.copyfile(css_file, op_css )
+
+        print 'Sucessfully written HTML to: ', output_dir
 
 
     @property

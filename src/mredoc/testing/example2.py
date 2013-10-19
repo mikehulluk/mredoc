@@ -46,10 +46,6 @@ from mredoc import SectionNewPage, Ref
 from mredoc.visitors import BlockNumberer
 
 
-local_path = os.path.dirname(os.path.abspath(__file__))
-test_file_path = os.path.abspath(os.path.join(local_path, "../test_data") )
-
-
 # Generate the figure:
 import numpy as np
 x = np.linspace(-5, 5, 100)
@@ -92,7 +88,7 @@ summary = Document(
             astronomical studies. It is also the foundation of the practical
             art of surveying.""",
             Figure(
-                 Image( os.path.join(test_file_path,"TrigonometryTriangle.svg" )),
+                 Image( resource_filename(__name__, 'test_data/TrigonometryTriangle.svg') ),
                  caption="Angles in a triangle",
                  reflabel="L1"
                    ),

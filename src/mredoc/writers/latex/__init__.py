@@ -43,7 +43,7 @@ _DOC_HEADER = r"""
 
 
 % Make the document single page:
-\usepackage[active,tightpage]{preview}
+\usepackage[PREVIEW_SINGLE_PAGEtightpage]{preview}
 \renewcommand{\PreviewBorder}{1in}
 
 \usepackage[T1]{fontenc}
@@ -151,20 +151,21 @@ class LatexWriter(VisitorBase):
     _working_dir = '/tmp/ltxwriter/'
 
     @classmethod
-    def build_pdf(cls, doc, filename):
+    def build_pdf(cls, doc, filename, single_page=False):
         # Allow '~' in the pathname:
         filename = os.path.expanduser(filename)
 
-        writer = LatexWriter(doc)
+        writer = LatexWriter(doc, single_page=single_page)
         tex_str = writer.output_tex
         from mredoc.util.toolchecker import ExternalTools
         ExternalTools.run_pdflatex(tex_str, output_filename=filename)
-        print 'Successfully built pdf: ', filename
+        print 'Successfully written PDF to: ', filename
 
 
-    def __init__(self, doc):
+    def __init__(self, doc, single_page):
         super(LatexWriter, self).__init__()
         self.hierachy_depth = 0
+        self.single_page = single_page
 
 
         self.output_tex = self.visit(doc)
@@ -178,12 +179,12 @@ class LatexWriter(VisitorBase):
         caption = self.visit(node.caption) if node.caption else ''
         reflabel = node.reflabel if node.reflabel else ''
         return '\n'.join([
-            r"""\begin{figure}[h!]""",
-            r"""\centering""",
+            (r"""\begin{figure}[h!]""" if not self.single_page else ''),
+            (r"""\centering""" if not self.single_page else ''),
             '\n'.join([self.visit(s) for s in node.subfigs]),
             r"""\caption{%s}""" % caption,
             (r"""\label{%s}""" % reflabel if reflabel else ''),
-            r"""\end{figure}""",
+           ( r"""\end{figure}""" if not self.single_page else '' ),
             ])
 
 
@@ -210,7 +211,7 @@ class LatexWriter(VisitorBase):
         return ''.join( t+'\n' for t in tables)
 
     def visit_document(self, node, **kwargs):
-        return _DOC_HEADER + \
+        return _DOC_HEADER.replace('PREVIEW_SINGLE_PAGE','' if not self.single_page else 'active,') + \
                self.visit(node.hierachy_root, **kwargs)  + \
                _DOC_FOOTER
 
