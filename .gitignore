@@ -1,3 +1,9 @@
+/dist/mredoc-0.0.1.1-rc2.tar.gz
+/src/mredoc.egg-info/PKG-INFO
+/src/mredoc.egg-info/SOURCES.txt
+/src/mredoc.egg-info/dependency_links.txt
+/src/mredoc.egg-info/requires.txt
+/src/mredoc.egg-info/top_level.txt
 /setup.py~
 *.pyc
 *.swp

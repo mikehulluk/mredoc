@@ -1,4 +1,4 @@
- import os
+import os
 from setuptools import setup
 
 # Utility function to read the README file.
@@ -15,7 +15,7 @@ setup(
     author_email = "mikehulluk@gmail.com",
     description = ("Tools for generation hierachical documents in HTML and PDF, primarily designed for building reports of computational models."),
     license = "BSD",
-    url = "https://github.com/mikehulluk/mreorg",
+    url = "https://github.com/mikehulluk/mredoc",
 
     package_dir = {'':'src' },
     packages=['mredoc',
@@ -35,7 +35,8 @@ setup(
     package_data={
         'mredoc':[
             'resources/*',
-            'test_data/*',
+            'testing/*',
+            'testing/test_data',
             ]
         },
 
