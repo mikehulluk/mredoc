@@ -40,6 +40,12 @@ from mredoc.visitors import VisitorBase
 
 _DOC_HEADER = r"""
 \documentclass[9pt,headsepline,openany]{scrbook}   % list options between brackets
+
+
+% Make the document single page:
+\usepackage[active,tightpage]{preview}
+\renewcommand{\PreviewBorder}{1in}
+
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 
@@ -103,13 +109,14 @@ float=tbfh}
 
 
 \begin{document}
-
+\begin{preview}
 \mainmatter
 
 """
 
 
 _DOC_FOOTER = r"""
+\end{preview}
 \end{document}
 
 """
