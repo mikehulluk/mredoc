@@ -35,6 +35,7 @@
 
 import os
 import pylab
+from pkg_resources import resource_filename
 
 
 
@@ -88,7 +89,7 @@ summary = Document(
             astronomical studies. It is also the foundation of the practical
             art of surveying.""",
             Figure(
-                 Image( resource_filename(__name__, 'test_data/TrigonometryTriangle.svg') ),
+                 Image( resource_filename(__name__, 'TrigonometryTriangle.svg') ),
                  caption="Angles in a triangle",
                  reflabel="L1"
                    ),

@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "mredoc",
-    version = "0.0.1.1-rc2",
+    version = "0.1",
     author = "Mike Hull",
     author_email = "mikehulluk@gmail.com",
     description = ("Tools for generation hierachical documents in HTML and PDF, primarily designed for building reports of computational models."),
@@ -36,7 +36,6 @@ setup(
         'mredoc':[
             'resources/*',
             'testing/*',
-            'testing/test_data',
             ]
         },
 

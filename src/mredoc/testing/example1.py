@@ -77,7 +77,7 @@ summary = Document(
 
         Section("Sin,Cos & Tan",
             Figure(
-                Image( resource_filename(__name__, 'test_data/TrigonometryTriangle.svg') ), 
+                Image( resource_filename(__name__, 'TrigonometryTriangle.svg') ), 
                 caption="Angles in a triangle",
                 reflabel="L1"
                 ),

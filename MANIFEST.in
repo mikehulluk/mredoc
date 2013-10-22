@@ -6,5 +6,4 @@ include src/mredoc/testing/example2.py
 include src/mredoc/testing/example3.py
 include src/mredoc/testing/example4.py
 include src/mredoc/testing/example_minimal1.py
-include src/mredoc/testing/test_data
-include src/mredoc/testing/test_data/TrigonometryTriangle.svg
+include src/mredoc/testing/TrigonometryTriangle.svg

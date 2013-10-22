@@ -51,10 +51,7 @@ _DOC_HEADER = r"""
 
 \usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath}
-\usepackage{longtable}
-\usepackage{booktabs}
 \usepackage{hyperref}
-%\setcounter{secnumdepth}{-1}
 
 \usepackage{caption}
 \captionsetup{format=hang, font=small,labelfont=bf,labelsep=endash, margin=5pt }
@@ -103,6 +100,8 @@ float=tbfh}
 
 \setcounter{tocdepth}{10}
 
+
+\usepackage{longtable}
 \usepackage{tabu}
 
 
@@ -148,7 +147,6 @@ _HEADING_BY_DEPTH = {
 
 class LatexWriter(VisitorBase):
 
-    _working_dir = '/tmp/ltxwriter/'
 
     @classmethod
     def build_pdf(cls, doc, filename, single_page=False):
@@ -255,14 +253,17 @@ class LatexWriter(VisitorBase):
         return '\n'.join([
             r'''\afterpage{\clearpage}'''
             r'''{\footnotesize ''',
+            r"""\begin{table}[hbtp]""",
+            r"""\tabulinesep=1.5mm""",
+            r"""\caption{%s}""" % self.visit(node.caption) if node.caption else "",
             r"""\begin{longtabu}{%s}""" % alignment,
-            r"""\toprule""",
+            r"""\firsthline\hline""",
             header_line,
-            r"""\midrule""",
+            r"""\hline""",
             contents,
-            r"""\bottomrule""",
-            r"""\caption{%s} \tabularnewline""" % self.visit(node.caption) if node.caption else "",
+            r"""\lastline\hline""",
             r"""\end{longtabu}""",
+            r"""\end{table}""",
             r'''}''',
             r'''\afterpage{\clearpage}'''
         ])

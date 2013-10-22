@@ -15,7 +15,7 @@ class RequiredExternalToolNotFound(RuntimeError):
 
 class ExternalToolsLinux(object):
 
-    _default_working_directory = '/tmp/tmp_%s/mredoc/build/pdflatex/'% os.getuid()
+    _default_working_directory = os.path.expanduser('~/.mredoc/build/pdflatex') 
 
     @classmethod
     def convert_image(cls, filename1, filename2):

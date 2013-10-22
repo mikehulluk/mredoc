@@ -624,7 +624,7 @@ class _BashBlock(_CodeListing):
 
 
 class _Image(_DocumentObject):
-    op_loc = '/tmp/figs/'
+    op_loc = os.path.expanduser('~/.mredoc/build/figs/') 
     f_num = 0
 
     @classmethod
@@ -644,14 +644,13 @@ class _Image(_DocumentObject):
 
 class _ImageMPL(_Image):
 
-    def __init__(self, fig, auto_adjust=True, **kwargs):
+    def __init__(self, fig, fig_size=None, max_font_size=None, subplots_adjust=None, **kwargs):
         super(_ImageMPL, self).__init__(**kwargs)
         # The pylab object or filename. Used in Figures.
         self.fig = fig
         self.fNameBase = _Image.nextFigFilenameBase()
 
-        if auto_adjust:
-            resize_image(self.fig)
+        resize_image(self.fig, fig_size, max_font_size, subplots_adjust)
 
         # Save the image in a variety of formats:
         print 'Saving figure', self.fNameBase
@@ -660,20 +659,31 @@ class _ImageMPL(_Image):
         fig.savefig(self.fNameBase + '.svg')
 
     def get_filename(self, file_type):
-        assert file_type in [ImageTypes.EPS, ImageTypes.PDF, ImageTypes.PNG,
-                        ImageTypes.SVG]
+        assert file_type in [ImageTypes.EPS, ImageTypes.PDF, ImageTypes.PNG, ImageTypes.SVG]
         return self.fNameBase + '.' + file_type
 
 
 
-def resize_image(fig):
+def resize_image(fig, fig_size, max_font_size, subplots_adjust):
     import pylab
     import matplotlib
     pylab.figure(fig.number)
-    fig.set_size_inches(1.75, 1.75)
-    for obj in fig.findobj(matplotlib.text.Text):
-        obj.set_fontsize(7)
-    fig.subplots_adjust(left=0.25, right=0.95)
+
+    # Rescale the figure size:
+    if fig_size:
+        fig.set_size_inches( *fig_size)
+
+    # Rescale the font sizes:
+    if max_font_size is not None:
+        current_max_fontsize = max([obj.get_fontsize() for obj in fig.findobj(matplotlib.text.Text)])
+        scaling = float(max_font_size) / float(current_max_fontsize)
+        for obj in fig.findobj(matplotlib.text.Text):
+            obj.set_fontsize( obj.get_fontsize() * scaling )
+        obj.get_fontsize()
+
+    if subplots_adjust:
+        fig.subplots_adjust(**subplots_adjust)
+        #fig.subplots_adjust(left=0.25, right=0.95)
 
 
 
