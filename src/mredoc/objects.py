@@ -306,12 +306,12 @@ class _DocumentObject(object):
 
     # Syntactic sugar, to make it easy to dumpy any part of a
     # document to a pdf-file or html
-    def to_pdf(self, filename):
+    def to_pdf(self, filename, **kwargs):
         """Creates a .pdf file of the object. It does this by generating LaTeX
         code, and running ``pdflatex`` on that code twice"""
         import mredoc.writers
         return mredoc.writers.LatexWriter.build_pdf(self.as_document(),
-                filename=filename)
+                filename=filename, **kwargs)
 
     def to_html(self, output_dir, clear_dir=False):
         """Creates a html. It will create a file ``index.html`` in the directory

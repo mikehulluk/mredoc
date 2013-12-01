@@ -105,7 +105,17 @@ float=tbfh}
 \usepackage{tabu}
 
 
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength\abovedisplayskip{40pt}
+  \setlength\belowdisplayskip{40pt}
+  \setlength\abovedisplayshortskip{40pt}
+  \setlength\belowdisplayshortskip{40pt}
+}
+\makeatother
 
+
+\raggedbottom
 
 \begin{document}
 \begin{preview}
@@ -164,6 +174,7 @@ class LatexWriter(VisitorBase):
         super(LatexWriter, self).__init__()
         self.hierachy_depth = 0
         self.single_page = single_page
+        self.single_page = False
 
 
         self.output_tex = self.visit(doc)
@@ -180,7 +191,7 @@ class LatexWriter(VisitorBase):
             (r"""\begin{figure}[h!]""" if not self.single_page else ''),
             (r"""\centering""" if not self.single_page else ''),
             '\n'.join([self.visit(s) for s in node.subfigs]),
-            r"""\caption{%s}""" % caption,
+            (r"""\caption{%s}""" % caption) if not self.single_page else '',
             (r"""\label{%s}""" % reflabel if reflabel else ''),
            ( r"""\end{figure}""" if not self.single_page else '' ),
             ])
@@ -253,9 +264,9 @@ class LatexWriter(VisitorBase):
         return '\n'.join([
             r'''\afterpage{\clearpage}'''
             r'''{\footnotesize ''',
-            r"""\begin{table}[hbtp]""",
+            r"""\begin{table}[ht!]""",
             r"""\tabulinesep=1.5mm""",
-            r"""\caption{%s}""" % self.visit(node.caption) if node.caption else "",
+            (r"""\caption{%s}""" % self.visit(node.caption)) if node.caption else "",
             r"""\begin{longtabu}{%s}""" % alignment,
             r"""\firsthline\hline""",
             header_line,
@@ -278,7 +289,7 @@ class LatexWriter(VisitorBase):
             return ''
         return '\n'.join([
             r"""\begin{align*}""",
-            '\n'.join([self.visit(s) + r"\\" for s in node.equations] ),
+            '\n'.join([self.visit(s) + r"\\[12.5mm]" for s in node.equations] ),
             r"""\end{align*}""",
             ])
 

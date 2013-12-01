@@ -37,6 +37,6 @@ import os
 
 def ensure_location_exists(loc):
     dir_name = os.path.dirname(loc)
-    if not os.path.exists(dir_name):
+    if dir_name and not os.path.exists(dir_name):
         os.makedirs(dir_name)
     return loc
